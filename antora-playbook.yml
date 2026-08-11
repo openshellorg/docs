@@ -57,6 +57,7 @@ ui:
 
 asciidoc:
   attributes:
+    stem: latexmath
     experimental: ""
     idprefix: ""
     idseparator: "-"

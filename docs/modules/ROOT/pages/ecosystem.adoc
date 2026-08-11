@@ -8,7 +8,16 @@ OpenShellOrg docs are assembled from multiple Antora components — one per main
 * xref:open-shell-org::index.adoc[open-shell-org] — SOS certification and this hub
 * xref:shell-architecture::index.adoc[shell-architecture] — structured-shell thesis and layers
 * xref:shell-architecture::entrypoint-dispatch.adoc[Entrypoint Dispatch] — auto-install + re-exec at the shell boundary
+* xref:shell-architecture::graph-navigation.adoc[Graph navigation] — cwd → connectome query / association walks (not SOS)
+* xref:shell-architecture::hierarchical-projection.adoc[Hierarchical projection] — compatibility trees over a graph FS
 * xref:philosophy.adoc[Philosophy]
+
+== Partner filesystem model
+
+link:https://github.com/AMDphreak/connectome-fs[connectome-fs] owns node/edition/projection semantics. Shell-architecture consumes that contract for navigation; it does not redefine SOS as a filesystem query language.
+
+* link:https://amdphreak.github.io/connectome-fs/manual/connectome-fs/0.1/explanation/shell-query-surface.html[Shell query surface]
+* link:https://amdphreak.github.io/connectome-fs/manual/connectome-fs/0.1/explanation/compatibility-projection.html[Compatibility projection]
 
 == Companion libraries
 

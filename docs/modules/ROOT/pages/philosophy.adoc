@@ -38,6 +38,8 @@ Detail: xref:shell-architecture::devcentr.adoc[Relationship] · xref:shell-archi
 
 Also: link:https://devcentr.org[devcentr.org] · link:https://docs.devcentr.org[docs.devcentr.org]
 
+PlayTime (a document runner that spawns argv) *rhymes* with this org. It lives in Dev-Centr `scriptbook` while it is being built. See xref:shell-architecture::playtime-at-the-shell-boundary.adoc[PlayTime at the shell boundary].
+
 == Name collision
 
 OpenShellOrg is *not* https://github.com/NVIDIA/OpenShell[NVIDIA OpenShell].

@@ -40,6 +40,15 @@ Spec and ownership live in shell-architecture:
 * xref:prohelp-cli::index.adoc[prohelp-cli] — bridges into D CLI frameworks
 * xref:terminal-gui-prompts::index.adoc[terminal-gui-prompts] — promote confirm/input to native GUI dialogs; always echo prompt text for pipes
 
+== PlayTime (cousin, not a component here)
+
+Dev-Centr's PlayTime engine plays CentrMark playbooks and spawns **argv** (no shell costume). That stance belongs next to Entrypoint Dispatch. The engine is not in this hub yet -- do not move it mid-build.
+
+* xref:shell-architecture::playtime-at-the-shell-boundary.adoc[PlayTime at the shell boundary]
+* xref:shell-architecture::argv-as-execution-currency.adoc[Argv as execution currency]
+* xref:shell-architecture::host-identity-contract.adoc[Host identity as a contract]
+* Essay: link:https://devcentr.org/news/2026-08-13-intents-not-shell-translation[Intents, not shell translation]
+
 == Partner: DevCentr
 
 Aligned, not merged — practitioner orchestration + Toolchain Management:

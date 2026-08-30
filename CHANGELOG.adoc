@@ -1,5 +1,8 @@
 = Changelog
 
+== 2026-08-30 — Partner footer single entry points
+
+* Related footer: one homepage link per org (OpenShellOrg, DevCentr); drop docs/GitHub duplicates.
 
 == 2026-08-13 -- PlayTime cousin
 

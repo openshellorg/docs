@@ -14,6 +14,7 @@
     "@antora/cli": "^3.1.14",
     "@antora/lunr-extension": "1.0.0-alpha.13",
     "@antora/site-generator": "^3.1.14",
-    "@antora-supplemental/unversioned-component-urls": "github:antora-supplemental/antora-unversioned-component-urls#v2.1.0"
+    "@antora-supplemental/unversioned-component-urls": "github:antora-supplemental/antora-unversioned-component-urls#v2.1.0",
+    "@antora-supplemental/build-stack": "github:antora-supplemental/build-stack#main"
   }
 }

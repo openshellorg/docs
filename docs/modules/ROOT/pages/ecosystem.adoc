@@ -8,6 +8,8 @@ OpenShellOrg docs are assembled from multiple Antora components — one per main
 * xref:open-shell-org::index.adoc[open-shell-org] — SOS certification and this hub
 * xref:shell-architecture::index.adoc[shell-architecture] — structured-shell thesis and layers
 * xref:shell-architecture::entrypoint-dispatch.adoc[Entrypoint Dispatch] — auto-install + re-exec at the shell boundary
+* xref:shell-architecture::tool-run-diagnostics.adoc[Tool runs and diagnostics] — compilers as structured runs (bus + daemon + embed library)
+* xref:shell-architecture::command-channels.adoc[Command channels] — per-command stdout/stderr switcher
 * xref:shell-architecture::graph-navigation.adoc[Graph navigation] — cwd → connectome query / association walks (not SOS)
 * xref:shell-architecture::hierarchical-projection.adoc[Hierarchical projection] — compatibility trees over a graph FS
 * xref:philosophy.adoc[Philosophy]

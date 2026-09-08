@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-09-08 -- Themed SVG delivery
+
+* Progressively upgrade marked shell-architecture image blocks from adaptive SVG images to sanitized host SVGs using `@dev-centr/themed-svg` 0.1.1.
+
 == 2026-09-02 -- Tool runs and command channels
 
 * Ecosystem: link xref:shell-architecture::tool-run-diagnostics.adoc[Tool runs and diagnostics] and xref:shell-architecture::command-channels.adoc[Command channels].

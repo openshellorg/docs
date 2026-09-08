@@ -1,0 +1,22 @@
+:root {
+  --themed-svg-openshell-diagram-color-surface-primary: #e8f0ea;
+  --themed-svg-openshell-diagram-color-surface-secondary: #f7f3e8;
+  --themed-svg-openshell-diagram-color-text-primary: #1a1a1a;
+  --themed-svg-openshell-diagram-color-border-primary: #1f3a2e;
+  --themed-svg-openshell-diagram-color-edge: #2c2c2c;
+}
+
+:root.dark-theme {
+  --themed-svg-openshell-diagram-color-surface-primary: #294438;
+  --themed-svg-openshell-diagram-color-surface-secondary: #332f27;
+  --themed-svg-openshell-diagram-color-text-primary: #f7f3e8;
+  --themed-svg-openshell-diagram-color-border-primary: #7dcea0;
+  --themed-svg-openshell-diagram-color-edge: #d1d5db;
+}
+
+.imageblock.themed-svg themed-svg,
+.imageblock.themed-svg img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

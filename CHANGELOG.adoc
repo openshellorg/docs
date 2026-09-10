@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-09-10 -- Publish robots.txt with sitemap
+
+* Antora `site.robots` now emits `/robots.txt` with an absolute `Sitemap:` line for the production host.
+
 == 2026-09-08 -- Themed SVG delivery
 
 * Progressively upgrade marked shell-architecture image blocks from adaptive SVG images to sanitized host SVGs using `@dev-centr/themed-svg` 0.1.1.

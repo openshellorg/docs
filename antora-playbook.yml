@@ -1,6 +1,10 @@
 site:
   title: OpenShellOrg Docs
   url: https://docs.opensh.org
+  robots: |
+    User-agent: *
+    Allow: /
+    Sitemap: https://docs.opensh.org/sitemap.xml
   start_page: open-shell-org::index.adoc
   keys:
     header_logo: logo.svg
@@ -11,7 +15,7 @@ site:
 antora:
   extensions:
     - '@antora/lunr-extension'
-    - require: '@antora-supplemental/unversioned-component-urls'
+    - require: '@antora-supplemental/unversioned-component-urls'
     - '@antora-supplemental/page-edit'
     - '@antora-supplemental/build-stack'
 

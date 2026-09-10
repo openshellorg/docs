@@ -11,10 +11,11 @@
     "format:check": "dprint check"
   },
   "devDependencies": {
+    "@antora-supplemental/build-stack": "github:antora-supplemental/build-stack#main",
+    "@antora-supplemental/page-edit": "github:antora-supplemental/page-edit#main",
+    "@antora-supplemental/unversioned-component-urls": "github:antora-supplemental/antora-unversioned-component-urls#v2.1.0",
     "@antora/cli": "^3.1.14",
     "@antora/lunr-extension": "1.0.0-alpha.13",
-    "@antora/site-generator": "^3.1.14",
-    "@antora-supplemental/unversioned-component-urls": "github:antora-supplemental/antora-unversioned-component-urls#v2.1.0",
-    "@antora-supplemental/build-stack": "github:antora-supplemental/build-stack#main"
+    "@antora/site-generator": "^3.1.14"
   }
 }

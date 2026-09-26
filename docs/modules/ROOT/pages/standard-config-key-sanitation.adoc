@@ -35,19 +35,19 @@ A shipped catalog entry MUST remain in the product's key index for the life of t
 |===
 | Status | Meaning | Required runtime behavior
 
-| `active`
+| [.cks-status.cks-status-active]#active#
 | Current, documented key
 | Accept; document normally
 
-| `deprecated`
+| [.cks-status.cks-status-deprecated]#deprecated#
 | Still honored; replacement exists or is planned
 | Accept; *always* warn with successor + timeline
 
-| `expired`
+| [.cks-status.cks-status-expired]#expired#
 | No longer honored after a stated version
 | Do *not* apply the value; *always* detect and alert: expired after version X; ignored; do Y
 
-| `unknown`
+| [.cks-status.cks-status-unknown]#unknown#
 | Present in a scanned file but absent from the catalog
 | Warn as unknown (typo, foreign tool, or missing catalog entry)
 |===

@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-09-26 -- Config Key Sanitation status colors
+
+* Colorize lifecycle status labels in xref:standard-config-key-sanitation.adoc[Config Key Sanitation] (`.cks-status-*` + supplemental CSS).
+
 == 2026-09-26 -- Config Key Sanitation protocol
 
 * New mandatory protocol xref:standard-config-key-sanitation.adoc[Config Key Sanitation]: never drop detection of outdated config keys; deprecate → expire with ongoing alerts; ship machine-readable key indexes.

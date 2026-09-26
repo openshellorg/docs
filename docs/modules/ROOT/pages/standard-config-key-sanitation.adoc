@@ -9,7 +9,7 @@ SOS-compliant tools that evolve configuration keys MUST preserve *explainability
 Dropping detection of an old key turns it into unexplained folklore that copies into new projects and burns human (or agent) research time.
 
 This protocol is the mandatory complement to xref:standard-protocols.adoc[Mandatory Protocols] for config surfaces.
-Cross-org practitioner guide: link:https://docs.devcentr.org/general-knowledge/explanation/architecture/config-key-sanitation.html[Dev-Centr — Config Key Sanitation].
+Cross-org practitioner guide: link:https://docs.devcentr.org/general-knowledge/explanation/architecture/config-key-sanitation/[Dev-Centr — Config Key Sanitation].
 
 == Problem
 

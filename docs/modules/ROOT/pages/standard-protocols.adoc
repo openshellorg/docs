@@ -1,5 +1,5 @@
 = Mandatory Protocols
-:description: The Safety-Valve Protocol and other mandatory platform behaviors.
+:description: The Safety-Valve Protocol, Config Key Sanitation, and other mandatory platform behaviors.
 
 Compliance with SOS requires implementing specific interaction patterns.
 
@@ -30,3 +30,16 @@ Output:
   "safety_valve": "triggered"
 }
 ----
+
+== Config Key Sanitation
+
+Every compliant tool that reads user, project, or global config keys MUST implement xref:standard-config-key-sanitation.adoc[Config Key Sanitation].
+
+Summary:
+
+* Catalog every key the tool has ever recognized (`active`, `deprecated`, `expired`).
+* Never delete catalog entries or stop detecting expired keys.
+* Always notify on deprecated, expired, and unknown matches found in config sources.
+* Prefer a shared library for classify → match → alert.
+
+Full normative text: xref:standard-config-key-sanitation.adoc[Config Key Sanitation Protocol].

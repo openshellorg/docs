@@ -1,5 +1,11 @@
 = Changelog
 
+== 2026-09-26 -- Config Key Sanitation protocol
+
+* New mandatory protocol xref:standard-config-key-sanitation.adoc[Config Key Sanitation]: never drop detection of outdated config keys; deprecate → expire with ongoing alerts; ship machine-readable key indexes.
+* xref:standard-protocols.adoc[Mandatory Protocols] summarizes the rule and links the full text.
+* xref:ecosystem.adoc[Ecosystem]: list companion library link:https://github.com/openshellorg/config-key-sanitation[config-key-sanitation].
+
 == 2026-09-15 -- page-edit 0.2.4 component-home Source
 
 * Pin `@antora-supplemental/page-edit` to `v0.2.4` so Antora component start pages get the Source | View | Edit row (empty lead shells no longer false-positive on page-context CSS).

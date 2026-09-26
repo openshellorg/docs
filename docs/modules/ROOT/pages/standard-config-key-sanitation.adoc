@@ -1,0 +1,116 @@
+= Config Key Sanitation Protocol
+:description: Never delete detection of outdated CLI config keys — deprecate, expire, and keep alerting forever.
+:page-audience: CLI authors, tool maintainers, agent authors
+:page-usage-context: When designing or evolving user/project/global config keys for a CLI or toolchain
+:page-orig-author: Composer on behalf of Ryan Johnson
+:page-last-author: Composer on behalf of Ryan Johnson
+
+SOS-compliant tools that evolve configuration keys MUST preserve *explainability* of every key they have ever recognized.
+Dropping detection of an old key turns it into unexplained folklore that copies into new projects and burns human (or agent) research time.
+
+This protocol is the mandatory complement to xref:standard-protocols.adoc[Mandatory Protocols] for config surfaces.
+Cross-org practitioner guide: link:https://docs.devcentr.org/general-knowledge/explanation/architecture/config-key-sanitation.html[Dev-Centr — Config Key Sanitation].
+
+== Problem
+
+Tools often:
+
+. Warn that a config key is unknown or deprecated.
+. Later remove the key from the accepted set.
+. Eventually stop searching for it and stop warning.
+
+Outcome: old projects keep the key, nobody warns, readers wonder why it exists, and may copy it into a new file.
+Careful readers research; everyone else inherits mystery debt.
+
+== Rule
+
+*Never remove detection.*
+Change *status*, not memory.
+
+A shipped catalog entry MUST remain in the product's key index for the life of the tool lineage (including major-version forks that still read legacy files).
+
+== Lifecycle statuses
+
+[cols="1,2,2"]
+|===
+| Status | Meaning | Required runtime behavior
+
+| `active`
+| Current, documented key
+| Accept; document normally
+
+| `deprecated`
+| Still honored; replacement exists or is planned
+| Accept; *always* warn with successor + timeline
+
+| `expired`
+| No longer honored after a stated version
+| Do *not* apply the value; *always* detect and alert: expired after version X; ignored; do Y
+
+| `unknown`
+| Present in a scanned file but absent from the catalog
+| Warn as unknown (typo, foreign tool, or missing catalog entry)
+|===
+
+`expired` is *not* `forgotten`.
+Silence after expiry is a protocol violation.
+
+== Catalog / index files
+
+Every tool that reads config keys MUST ship one or more machine-readable *key indexes* with the release artifacts (and preferably in the source tree).
+
+Minimum fields per key:
+
+* `name` — canonical key string
+* `status` — `active` | `deprecated` | `expired`
+* `since` — tool version (or date) when this status became true
+* `expiredAfter` — required when `status` is `expired` (last version that honored the key)
+* `successor` — replacement key or migration path (required when deprecated/expired unless explicitly `none`)
+* `rationale` — URL or stable doc id explaining why
+* `message` — human-facing alert text (may be templated)
+
+Recommended extras: aliases, scopes (`user` / `project` / `global`), value schema id, introduced-in version.
+
+Indexes SHOULD be published under a stable path in docs (human) and as data next to the binary or package (machine).
+Language-neutral JSON is the interchange default; SDL/KDL mirrors are fine when the ecosystem prefers them.
+
+Reference library: link:https://github.com/openshellorg/config-key-sanitation[openshellorg/config-key-sanitation].
+
+== Scan and notify
+
+On startup (or on first config load), the tool MUST:
+
+. Collect keys from every config source it reads (user, project, global, env-mapped keys if applicable).
+. Classify each key against the shipped catalog.
+. Emit alerts for `deprecated`, `expired`, and `unknown` matches.
+
+Alerts MUST name the status explicitly.
+For expired keys, include the version boundary, e.g. `expired after npm@X.Y.Z; value ignored`.
+
+Suppressing alerts is allowed only via an *explicit* user opt-out that is itself a catalogued key (so the opt-out remains explainable).
+
+== Library responsibility
+
+Classification, matching, and alert formatting SHOULD live in a shared library (or a thin wrapper around one), not ad-hoc string lists in each CLI.
+
+The library owns:
+
+* Loading catalogs
+* Matching found keys (including aliases)
+* Producing structured findings (JSON-friendly) and human alert lines
+* Never dropping expired entries from consideration
+
+== Compliance checklist
+
+* [ ] Every historical key remains in the index with a status
+* [ ] `expired` keys still trigger detection + alert
+* [ ] Indexes ship with releases and are linked from docs
+* [ ] Alerts distinguish deprecated vs expired vs unknown
+* [ ] Opt-out is explicit and catalogued
+* [ ] Agents and humans can resolve a key without external archaeology
+
+== Non-goals
+
+* Forcing every unknown key to be a hard error (warn by default; policy may elevate)
+* Requiring network access to resolve rationale URLs at runtime
+* Replacing schema validation of *values* (this protocol is about *key identity and history*)

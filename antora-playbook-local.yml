@@ -35,6 +35,7 @@ antora:
     - require: '@antora-supplemental/nav-typology'
     - require: '@antora-supplemental/nav-typology-diataxis'
     - '@antora-supplemental/build-stack'
+    - ./lib/verify-themed-svg-dark-mode.js
     - '@antora-supplemental/page-edit'
     - require: '@antora-supplemental/link-validator'
       reportEmail: openshell@devcentr.org

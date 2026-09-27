@@ -7,6 +7,12 @@
     "build": "pnpm -r build",
     "docs": "antora antora-playbook.yml",
     "docs:local": "antora antora-playbook-local.yml",
+    "diagrams:sync": "node scripts/sync-themed-svg-runtime.mjs",
+    "diagrams:check": "node scripts/sync-themed-svg-runtime.mjs --check",
+    "diagrams:check:shell-architecture": "node scripts/check-shell-architecture-diagrams.mjs",
+    "diagrams:audit:dark-text": "node scripts/audit-themed-svg-gaps.mjs",
+    "diagrams:check:all": "pnpm diagrams:check && pnpm diagrams:check:shell-architecture && pnpm diagrams:audit:dark-text && pnpm test:dark-text",
+    "test:dark-text": "node --test test/verify-themed-svg-dark-mode.test.js",
     "format": "dprint fmt",
     "format:check": "dprint check"
   },
@@ -29,6 +35,12 @@
     "@antora-supplemental/site-nav-tree": "github:antora-supplemental/site-nav-tree#54b6cbb",
     "@antora-supplemental/unversioned-component-urls": "github:antora-supplemental/antora-unversioned-component-urls#v2.1.0",
     "@antora/cli": "^3.1.14",
-    "@antora/site-generator": "^3.1.14"
+    "@antora/site-generator": "^3.1.14",
+    "@dev-centr/themed-svg": "0.2.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "puppeteer"
+    ]
   }
 }

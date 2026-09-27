@@ -5,6 +5,7 @@
 * Adopt `@antora-supplemental/facto-stack` wiring: `indexify` URLs, site-nav-tree curated sidebar roots, nav-typology (+ Diátaxis), page-context/edit, link-validator, linkinator, extension-lister, orphan-finder, build-stack footer, client Mermaid + diagram lightbox, Kroki bake for non-Mermaid diagrams.
 * Playbook content source: `openshellorg/actor-shell` → `Desktop-Tooling/grammaton-ui-shell` (component `grammaton-ui-shell`).
 * Supplemental UI: nav-tree / typology partials and helpers from the Facto compose pattern (DevCentr reference).
+* Diagram engines: client Mermaid + diagram-lightbox + Kroki bake; `[.themed-svg]` host runtime vendored from `@dev-centr/themed-svg`; Antora `verify-themed-svg-dark-mode` extension; `pnpm diagrams:check:all` audits upstream shell-architecture diagram staleness and dark-mode text gaps in CI.
 
 == 2026-09-26 -- Config Key Sanitation renamed to Config Lifecycle Management
 

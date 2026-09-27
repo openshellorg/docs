@@ -103,6 +103,9 @@ pnpm build
 pnpm docs
 # or local sibling checkouts:
 pnpm docs:local
+
+# Themed SVG / diagram audits (Facto compose; fails on stale or dark-mode text gaps)
+pnpm diagrams:check:all
 ```
 
 Published docs: https://docs.opensh.org/

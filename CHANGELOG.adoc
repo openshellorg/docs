@@ -1,14 +1,20 @@
 = Changelog
 
+== 2026-09-26 -- Config Key Sanitation renamed to Config Lifecycle Management
+
+* The protocol page is now xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management]; the old `standard-config-key-sanitation` URL redirects to it.
+* Companion library renamed to link:https://github.com/openshellorg/config-lifecycle[config-lifecycle] (old repo URL redirects).
+* Status label roles renamed from `.cks-status-*` to `.lifecycle-status-*` (`site-lifecycle-status.css`).
+
 == 2026-09-26 -- Config Key Sanitation status colors
 
-* Colorize lifecycle status labels in xref:standard-config-key-sanitation.adoc[Config Key Sanitation] (`.cks-status-*` + supplemental CSS).
+* Colorize lifecycle status labels in xref:standard-config-lifecycle-management.adoc[Config Key Sanitation] (`.cks-status-*` + supplemental CSS).
 
 == 2026-09-26 -- Config Key Sanitation protocol
 
-* New mandatory protocol xref:standard-config-key-sanitation.adoc[Config Key Sanitation]: never drop detection of outdated config keys; deprecate → expire with ongoing alerts; ship machine-readable key indexes.
+* New mandatory protocol xref:standard-config-lifecycle-management.adoc[Config Key Sanitation]: never drop detection of outdated config keys; deprecate → expire with ongoing alerts; ship machine-readable key indexes.
 * xref:standard-protocols.adoc[Mandatory Protocols] summarizes the rule and links the full text.
-* xref:ecosystem.adoc[Ecosystem]: list companion library link:https://github.com/openshellorg/config-key-sanitation[config-key-sanitation].
+* xref:ecosystem.adoc[Ecosystem]: list companion library link:https://github.com/openshellorg/config-lifecycle[config-key-sanitation].
 
 == 2026-09-15 -- page-edit 0.2.4 component-home Source
 

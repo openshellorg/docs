@@ -1,15 +1,20 @@
-= Config Key Sanitation Protocol
+= Config Lifecycle Management Protocol
 :description: Never delete detection of outdated CLI config keys — deprecate, expire, and keep alerting forever.
 :page-audience: CLI authors, tool maintainers, agent authors
 :page-usage-context: When designing or evolving user/project/global config keys for a CLI or toolchain
 :page-orig-author: Composer on behalf of Ryan Johnson
-:page-last-author: Composer on behalf of Ryan Johnson
+:page-last-author: Cursor agent on behalf of Ryan Johnson
+:page-aliases: standard-config-key-sanitation.adoc
 
 SOS-compliant tools that evolve configuration keys MUST preserve *explainability* of every key they have ever recognized.
 Dropping detection of an old key turns it into unexplained folklore that copies into new projects and burns human (or agent) research time.
 
+NOTE: This protocol was first published as *Config Key Sanitation*.
+It was renamed because the rule covers a key's whole lifecycle, not cleanup.
+The old page URL redirects here.
+
 This protocol is the mandatory complement to xref:standard-protocols.adoc[Mandatory Protocols] for config surfaces.
-Cross-org practitioner guide: link:https://docs.devcentr.org/general-knowledge/explanation/architecture/config-key-sanitation/[Dev-Centr — Config Key Sanitation].
+Cross-org practitioner guide: link:https://docs.devcentr.org/general-knowledge/explanation/architecture/config-lifecycle-management/[Dev-Centr — Config Lifecycle Management].
 
 == Problem
 
@@ -35,19 +40,19 @@ A shipped catalog entry MUST remain in the product's key index for the life of t
 |===
 | Status | Meaning | Required runtime behavior
 
-| [.cks-status.cks-status-active]#active#
+| [.lifecycle-status.lifecycle-status-active]#active#
 | Current, documented key
 | Accept; document normally
 
-| [.cks-status.cks-status-deprecated]#deprecated#
+| [.lifecycle-status.lifecycle-status-deprecated]#deprecated#
 | Still honored; replacement exists or is planned
 | Accept; *always* warn with successor + timeline
 
-| [.cks-status.cks-status-expired]#expired#
+| [.lifecycle-status.lifecycle-status-expired]#expired#
 | No longer honored after a stated version
 | Do *not* apply the value; *always* detect and alert: expired after version X; ignored; do Y
 
-| [.cks-status.cks-status-unknown]#unknown#
+| [.lifecycle-status.lifecycle-status-unknown]#unknown#
 | Present in a scanned file but absent from the catalog
 | Warn as unknown (typo, foreign tool, or missing catalog entry)
 |===
@@ -74,7 +79,7 @@ Recommended extras: aliases, scopes (`user` / `project` / `global`), value schem
 Indexes SHOULD be published under a stable path in docs (human) and as data next to the binary or package (machine).
 Language-neutral JSON is the interchange default; SDL/KDL mirrors are fine when the ecosystem prefers them.
 
-Reference library: link:https://github.com/openshellorg/config-key-sanitation[openshellorg/config-key-sanitation].
+Reference library: link:https://github.com/openshellorg/config-lifecycle[openshellorg/config-lifecycle].
 
 == Scan and notify
 

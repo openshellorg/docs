@@ -5,6 +5,6 @@
 ** xref:standard-intro.adoc[Introduction]
 ** xref:standard-grammar.adoc[Formal Grammar]
 ** xref:standard-protocols.adoc[Mandatory Protocols]
-** xref:standard-config-key-sanitation.adoc[Config Key Sanitation]
+** xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management]
 * Certification
 ** xref:certification-about.adoc[Certification Program]

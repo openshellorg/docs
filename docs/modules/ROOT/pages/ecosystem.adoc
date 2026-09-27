@@ -26,7 +26,7 @@ link:https://github.com/AMDphreak/connectome-fs[connectome-fs] owns node/edition
 * xref:nu-require::index.adoc[nu-require] — require / relaunch under Nushell
 * xref:nu-emit::index.adoc[nu-emit] — emit structured JSONL rows from C
 * https://github.com/openshellorg/project-map[project-map] / `lsgrouped` — project-type + file-role classification; grouped directory listing (not a PATH `ls` replacement)
-* https://github.com/openshellorg/config-key-sanitation[config-key-sanitation] — classify / match / alert for config keys (`active` / `deprecated` / `expired` / `unknown`); never drop expired detection — xref:standard-config-key-sanitation.adoc[Config Key Sanitation]
+* https://github.com/openshellorg/config-lifecycle[config-lifecycle] — classify / match / alert for config keys (`active` / `deprecated` / `expired` / `unknown`); never drop expired detection — xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management]
 
 == Planned / forked products
 

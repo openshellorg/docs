@@ -55,6 +55,12 @@ antora:
     - require: '@antora-supplemental/page-context/antora'
       component: open-shell-org
       path: keywords
+    # Diagram rendering engines (Facto / antora-diagram-engines + Kroki — no alternate renderers):
+    # | Format | Engine |
+    # | [source,mermaid] listings | @antora-supplemental/mermaid-client (client runtime) |
+    # | plantuml, ditaa, … | asciidoctor-kroki → kroki-server-url |
+    # | zoom / lightbox chrome | @antora-supplemental/diagram-lightbox |
+    # | [.themed-svg] image::… committed SVGs | upstream mermaid-cli + mermaid-svg-css-vars; @dev-centr/themed-svg at site runtime (not AsciiDoc listing renderers) |
     - require: '@antora-supplemental/mermaid-client/antora'
     - require: '@antora-supplemental/diagram-lightbox'
 
@@ -103,6 +109,7 @@ ui:
 
 asciidoc:
   extensions:
+    # Kroki bakes PlantUML and other non-Mermaid diagram types; mermaid-client skips [source,mermaid].
     - asciidoctor-kroki
     - '@antora-supplemental/page-context'
   attributes:

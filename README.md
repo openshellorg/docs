@@ -79,6 +79,19 @@ docs/                      # this repo (openshellorg/docs)
 | `@sos/grammar` | Grammar definitions for parsing SOS syntax |
 | `@sos/validator-core` | Core validation logic for SOS compliance |
 
+### Diagram rendering engines (Facto)
+
+This hub uses the [antora-diagram-engines](https://github.com/antora-supplemental/antora-diagram-engines) packages Facto documents — not custom renderers:
+
+| Diagram source | Renderer | Package / extension |
+|----------------|----------|---------------------|
+| AsciiDoc `[source,mermaid]` (and `.mermaid-client` roles) | Client Mermaid in the browser | `@antora-supplemental/mermaid-client` |
+| PlantUML and other Kroki diagram types in AsciiDoc | Build-time bake via Kroki | `asciidoctor-kroki` (`kroki-server-url`, `kroki-fetch-diagram`) |
+| Baked SVG + client Mermaid hosts | Lightbox / zoom UI | `@antora-supplemental/diagram-lightbox` |
+| `image::…[.themed-svg]` committed figures (e.g. shell-architecture) | Pre-generated adaptive/host SVGs in the product repo (`mermaid-cli` + `@dev-centr/mermaid-svg-css-vars`); runtime recolor via `@dev-centr/themed-svg` | Maintained in [shell-architecture](https://github.com/openshellorg/shell-architecture); audited here with `pnpm diagrams:check:all` |
+
+Playbook attrs: `mermaid-client: ''`, `mermaid-client-mode: client`. Supplemental UI loads `mermaid-client-*` and `diagram-lightbox-*` partials after SoftNav (Facto stack demo pattern).
+
 ## Installation
 
 ### Prerequisites

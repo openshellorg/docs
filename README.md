@@ -33,7 +33,7 @@
 
 ## About The Project
 
-Documentation hub for [OpenShellOrg](https://github.com/openshellorg) — Antora site aggregating org projects, plus SOS certification packages in this monorepo.
+Documentation hub for [OpenShellOrg](https://github.com/openshellorg) — Antora site aggregating org projects, plus SOS certification packages in this monorepo. The published site follows the [facto-stack](https://github.com/antora-supplemental/facto-stack) Antora compose pack (Valentus + Lunr + page-context + site-nav-tree + maint extensions), aligned with [DevCentr docs](https://docs.devcentr.org/).
 
 ### Mission
 

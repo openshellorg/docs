@@ -1,12 +1,11 @@
-<link rel="stylesheet" href="{{{uiRootPath}}}/css/site-math.css">
 <footer class="footer">
   <div class="footer-related" aria-label="Related projects">
     <p class="footer-related-label">Related projects</p>
     <p class="footer-related-links">
       <a href="https://openshellorg.github.io/">OpenShellOrg</a>
-      Â·
+      &middot;
       <a href="https://devcentr.org">DevCentr</a>
-      Â·
+      &middot;
       <a href="https://github.com/dlang-supplemental">dlang-supplemental</a>
     </p>
   </div>
@@ -22,10 +21,10 @@
     (MIT){{#if site.keys.footerNote}}. <span class="site-footer-note">{{{site.keys.footerNote}}}</span>{{/if}}.
   </p>
 </footer>
-<link rel="stylesheet" href="{{{uiRootPath}}}/css/site-mermaid.css">
-<link rel="stylesheet" href="{{{uiRootPath}}}/css/site-themed-svg.css">
-<link rel="stylesheet" href="{{{uiRootPath}}}/css/site-lifecycle-status.css">
 <script src="{{{uiRootPath}}}/js/soft-nav.js" defer></script>
-<script src="{{{uiRootPath}}}/js/site-mermaid.js" defer></script>
-<script src="{{{uiRootPath}}}/js/site-themed-svg.js" type="module"></script>
+{{> mermaid-client-scripts}}
+{{> diagram-lightbox-scripts}}
 <script src="{{{uiRootPath}}}/js/site-math.js" defer></script>
+<script src="{{{uiRootPath}}}/js/site-nav-tree-current.js" defer></script>
+<script src="{{{uiRootPath}}}/js/site-toc-main-article.js" defer></script>
+<script type="module" src="{{{uiRootPath}}}/js/site-themed-svg.js"></script>

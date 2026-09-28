@@ -33,7 +33,7 @@ link:https://github.com/AMDphreak/connectome-fs[connectome-fs] owns node/edition
 Spec and ownership live in shell-architecture:
 
 * xref:shell-architecture::shell-host-and-env-refresh.adoc[env-refresh + terminal fork] — Nu-first `env-refresh` CLI (planned) and https://github.com/openshellorg/terminal[`openshellorg/terminal`] (fork of Windows Terminal) with per-tab env health + Fix/Insert desync bar; DevCentr prefers these when installed
-* xref:actor-shell::index.adoc[actor-shell] — non-frustrating Windows/Linux UI shell on an Erlang-style actor runtime (D); Phase 1 `libbeam_d` landed
+* xref:grammaton-ui-shell::index.adoc[Grammaton UI Shell] — non-frustrating Windows/Linux UI shell on an Erlang-style actor runtime (D); Phase 1 `libbeam_d` landed (formerly actor-shell; now `Desktop-Tooling/grammaton-ui-shell`)
 
 == Orientation and help
 

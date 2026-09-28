@@ -27,13 +27,14 @@
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#installation">Installation</a></li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="CONTRIBUTING.md">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
 
 ## About The Project
 
-Documentation hub for [OpenShellOrg](https://github.com/openshellorg) — Antora site aggregating org projects, plus SOS certification packages in this monorepo.
+Documentation hub for [OpenShellOrg](https://github.com/openshellorg) — Antora site aggregating org projects, plus SOS certification packages in this monorepo. The published site follows the [facto-stack](https://github.com/antora-supplemental/facto-stack) Antora compose pack (Valentus + Lunr + page-context + site-nav-tree + maint extensions), aligned with [DevCentr docs](https://docs.devcentr.org/).
 
 ### Mission
 
@@ -79,6 +80,23 @@ docs/                      # this repo (openshellorg/docs)
 | `@sos/grammar` | Grammar definitions for parsing SOS syntax |
 | `@sos/validator-core` | Core validation logic for SOS compliance |
 
+### Diagram rendering engines (Facto)
+
+This hub uses the [antora-diagram-engines](https://github.com/antora-supplemental/antora-diagram-engines) packages Facto documents — not custom renderers:
+
+| Diagram source | Renderer | Package / extension |
+|----------------|----------|---------------------|
+| AsciiDoc `[source,mermaid]` (and `.mermaid-client` roles) | Client Mermaid in the browser | `@antora-supplemental/mermaid-client` |
+| PlantUML and other Kroki diagram types in AsciiDoc | Build-time bake via Kroki | `asciidoctor-kroki` (`kroki-server-url`, `kroki-fetch-diagram`) |
+| Baked SVG + client Mermaid hosts | Lightbox / zoom UI | `@antora-supplemental/diagram-lightbox` |
+| `image::…[.themed-svg]` committed figures (e.g. shell-architecture) | Pre-generated adaptive/host SVGs in the product repo (`mermaid-cli` + `@dev-centr/mermaid-svg-css-vars`); runtime recolor via `@dev-centr/themed-svg` | Bake freshness: [shell-architecture](https://github.com/openshellorg/shell-architecture) `pnpm diagrams:check` / `pnpm test` (not re-run from this hub) |
+
+Playbook attrs: `mermaid-client: ''`, `mermaid-client-mode: client`. Supplemental UI loads `mermaid-client-*` and `diagram-lightbox-*` partials after SoftNav (Facto stack demo pattern).
+
+**Hub diagram CI** (`pnpm diagrams:check:all`): sync/check vendored themed-svg runtime, static dark-mode text audit on committed adaptive SVGs (no mermaid-cli / Puppeteer), and verifier unit tests. Antora build runs `verify-themed-svg-dark-mode` as warnings on catalog SVGs.
+
+**Mermaid → SVG bake is not validated here.** Hub Actions do not run mermaid-cli or Puppeteer. If you change `.mmd` or theme manifests in a product repo, run that repo’s `pnpm diagrams` / `pnpm diagrams:check` on a developer machine before merge ([shell-architecture diagrams guide](https://github.com/openshellorg/shell-architecture/blob/main/diagrams/README.adoc)). See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Installation
 
 ### Prerequisites
@@ -103,6 +121,9 @@ pnpm build
 pnpm docs
 # or local sibling checkouts:
 pnpm docs:local
+
+# Themed SVG / diagram audits (hub static checks only; no upstream mermaid-cli)
+pnpm diagrams:check:all
 ```
 
 Published docs: https://docs.opensh.org/

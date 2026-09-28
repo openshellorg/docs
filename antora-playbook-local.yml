@@ -1,3 +1,4 @@
+# Local sibling checkouts — same Facto extensions as antora-playbook.yml
 site:
   title: OpenShellOrg Docs
   url: https://docs.opensh.org
@@ -7,12 +8,52 @@ site:
     site_home_url: https://opensh.org
     site_home_label: OpenShellOrg home
     header_doc_title: OpenShellOrg Docs
+    nav_typology_diataxis: 'true'
+
+urls:
+  html_extension_style: indexify
 
 antora:
   extensions:
     - '@antora/lunr-extension'
     - require: '@antora-supplemental/unversioned-component-urls'
+    - require: '@antora-supplemental/site-nav-tree'
+      include:
+        - open-shell-org
+        - shell-architecture
+        - about
+        - nu-require
+        - nu-emit
+        - project-map
+      order:
+        - open-shell-org
+        - shell-architecture
+        - about
+        - nu-require
+        - nu-emit
+        - project-map
+    - require: '@antora-supplemental/nav-typology'
+    - require: '@antora-supplemental/nav-typology-diataxis'
     - '@antora-supplemental/build-stack'
+    - ./lib/verify-themed-svg-dark-mode.js
+    - '@antora-supplemental/page-edit'
+    - require: '@antora-supplemental/link-validator'
+      reportEmail: openshell@devcentr.org
+      softFail403: true
+      failLevel: none
+    - require: '@antora-supplemental/linkinator'
+      statusDefault: unchecked
+    - require: '@antora-supplemental/extension-lister'
+      layouts: [footer]
+    - require: '@antora-supplemental/orphan-finder/extension'
+      reportEmail: openshell@devcentr.org
+      failOnUnresolved: false
+    - require: '@antora-supplemental/page-context/antora'
+      component: open-shell-org
+      path: keywords
+    # Diagram rendering engines — same mapping as antora-playbook.yml (Facto / antora-diagram-engines + Kroki).
+    - require: '@antora-supplemental/mermaid-client/antora'
+    - require: '@antora-supplemental/diagram-lightbox'
 
 content:
   sources:
@@ -43,7 +84,7 @@ content:
     - url: ../project-map
       branches: HEAD
       start_path: docs
-    - url: ../actor-shell
+    - url: ../grammaton-ui-shell
       branches: HEAD
       start_path: docs
     - url: ../terminal-gui-prompts
@@ -57,12 +98,21 @@ ui:
   supplemental_files: ./supplemental-ui
 
 asciidoc:
+  extensions:
+    - asciidoctor-kroki
+    - '@antora-supplemental/page-context'
   attributes:
     stem: latexmath
     experimental: ""
     idprefix: ""
     idseparator: "-"
     page-pagination: ""
+    kroki-server-url: https://kroki.io
+    kroki-fetch-diagram: true
+    mermaid-client: ''
+    mermaid-client-mode: client
+    page-context-active: ''
+    page-context-keyword-base: '/open-shell-org/keywords'
 
 output:
   dir: build/site

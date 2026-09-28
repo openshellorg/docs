@@ -7,6 +7,7 @@ on:
       - "docs/**"
       - "lib/**"
       - "scripts/**"
+      - "CONTRIBUTING.md"
       - "test/**"
       - "supplemental-ui/**"
       - "antora-playbook.yml"
@@ -56,6 +57,7 @@ jobs:
         run: pnpm run diagrams:sync
 
       - name: Run diagram and dark-mode audits
+        # Static only: no mermaid-cli / Puppeteer. See CONTRIBUTING.md and scripts/DIAGRAM-AUDITS.md.
         run: pnpm run diagrams:check:all
 
   build:

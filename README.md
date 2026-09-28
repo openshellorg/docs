@@ -27,6 +27,7 @@
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#installation">Installation</a></li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="CONTRIBUTING.md">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
@@ -93,6 +94,8 @@ This hub uses the [antora-diagram-engines](https://github.com/antora-supplementa
 Playbook attrs: `mermaid-client: ''`, `mermaid-client-mode: client`. Supplemental UI loads `mermaid-client-*` and `diagram-lightbox-*` partials after SoftNav (Facto stack demo pattern).
 
 **Hub diagram CI** (`pnpm diagrams:check:all`): sync/check vendored themed-svg runtime, static dark-mode text audit on committed adaptive SVGs (no mermaid-cli / Puppeteer), and verifier unit tests. Antora build runs `verify-themed-svg-dark-mode` as warnings on catalog SVGs.
+
+**Mermaid → SVG bake is not validated here.** Hub Actions do not run mermaid-cli or Puppeteer. If you change `.mmd` or theme manifests in a product repo, run that repo’s `pnpm diagrams` / `pnpm diagrams:check` on a developer machine before merge ([shell-architecture diagrams guide](https://github.com/openshellorg/shell-architecture/blob/main/diagrams/README.adoc)). See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Installation
 

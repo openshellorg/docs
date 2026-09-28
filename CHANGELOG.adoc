@@ -6,7 +6,7 @@
 * Playbook content source: `openshellorg/actor-shell` → `Desktop-Tooling/grammaton-ui-shell` (component `grammaton-ui-shell`).
 * Supplemental UI: nav-tree / typology partials and helpers from the Facto compose pattern (DevCentr reference).
 * Diagram **rendering engines** (Facto): `@antora-supplemental/mermaid-client` + `@antora-supplemental/diagram-lightbox` from antora-diagram-engines for `[source,mermaid]`; `asciidoctor-kroki` for PlantUML/other Kroki types; no alternate AsciiDoc renderers.
-* Hub diagram CI: themed-svg runtime sync, static dark-text audit, verifier tests, and Antora `verify-themed-svg-dark-mode` — does **not** clone upstream to re-run `diagrams:check` / mermaid-cli (bake freshness stays in product repos).
+* Hub diagram CI: themed-svg runtime sync, static dark-text audit, verifier tests, and Antora `verify-themed-svg-dark-mode` — does **not** clone upstream to re-run `diagrams:check` / mermaid-cli (bake freshness stays in product repos). Documented in [CONTRIBUTING.md](CONTRIBUTING.md) and [scripts/DIAGRAM-AUDITS.md](scripts/DIAGRAM-AUDITS.md).
 
 == 2026-09-26 -- Config Key Sanitation renamed to Config Lifecycle Management
 

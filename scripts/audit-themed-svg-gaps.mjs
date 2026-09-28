@@ -1,6 +1,6 @@
 /**
- * Fail when adaptive Themed SVG figures have dark-mode text contrast gaps.
- * Scans shell-architecture committed images (same layout as Antora aggregated content).
+ * Static dark-mode text/label audit on committed adaptive SVGs (no mermaid-cli / Puppeteer).
+ * Clones shell-architecture only to read checked-in `images/*.svg` + theme manifests.
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, statSync, rmSync } from 'node:fs'

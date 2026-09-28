@@ -88,9 +88,11 @@ This hub uses the [antora-diagram-engines](https://github.com/antora-supplementa
 | AsciiDoc `[source,mermaid]` (and `.mermaid-client` roles) | Client Mermaid in the browser | `@antora-supplemental/mermaid-client` |
 | PlantUML and other Kroki diagram types in AsciiDoc | Build-time bake via Kroki | `asciidoctor-kroki` (`kroki-server-url`, `kroki-fetch-diagram`) |
 | Baked SVG + client Mermaid hosts | Lightbox / zoom UI | `@antora-supplemental/diagram-lightbox` |
-| `image::…[.themed-svg]` committed figures (e.g. shell-architecture) | Pre-generated adaptive/host SVGs in the product repo (`mermaid-cli` + `@dev-centr/mermaid-svg-css-vars`); runtime recolor via `@dev-centr/themed-svg` | Maintained in [shell-architecture](https://github.com/openshellorg/shell-architecture); audited here with `pnpm diagrams:check:all` |
+| `image::…[.themed-svg]` committed figures (e.g. shell-architecture) | Pre-generated adaptive/host SVGs in the product repo (`mermaid-cli` + `@dev-centr/mermaid-svg-css-vars`); runtime recolor via `@dev-centr/themed-svg` | Bake freshness: [shell-architecture](https://github.com/openshellorg/shell-architecture) `pnpm diagrams:check` / `pnpm test` (not re-run from this hub) |
 
 Playbook attrs: `mermaid-client: ''`, `mermaid-client-mode: client`. Supplemental UI loads `mermaid-client-*` and `diagram-lightbox-*` partials after SoftNav (Facto stack demo pattern).
+
+**Hub diagram CI** (`pnpm diagrams:check:all`): sync/check vendored themed-svg runtime, static dark-mode text audit on committed adaptive SVGs (no mermaid-cli / Puppeteer), and verifier unit tests. Antora build runs `verify-themed-svg-dark-mode` as warnings on catalog SVGs.
 
 ## Installation
 
@@ -117,7 +119,7 @@ pnpm docs
 # or local sibling checkouts:
 pnpm docs:local
 
-# Themed SVG / diagram audits (Facto compose; fails on stale or dark-mode text gaps)
+# Themed SVG / diagram audits (hub static checks only; no upstream mermaid-cli)
 pnpm diagrams:check:all
 ```
 

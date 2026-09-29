@@ -1,5 +1,11 @@
 = Changelog
 
+== 2026-09-29 -- Tools shared Antora component
+
+* Add hub-owned `docs-tools/` scaffold (`name: tools`) with ROOT landing page; site-nav-tree lists a single `tools` root instead of per-CLI components.
+* Remove `Desktop-Tooling/grammaton-ui-shell` from playbook content sources; Ecosystem treats Grammaton as an external cousin, not an OSO Tools member.
+* Ecosystem and hub xrefs use `tools:<module>:` for companion CLIs and libraries (sibling repos migrate to `name: tools` + `modules/<id>/`).
+
 == 2026-09-27 -- Facto stack for docs.opensh.org
 
 * Adopt `@antora-supplemental/facto-stack` wiring: `indexify` URLs, site-nav-tree curated sidebar roots, nav-typology (+ Diátaxis), page-context/edit, link-validator, linkinator, extension-lister, orphan-finder, build-stack footer, client Mermaid + diagram lightbox, Kroki bake for non-Mermaid diagrams.

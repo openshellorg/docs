@@ -1,0 +1,22 @@
+= Tools
+:description: Installable OpenShellOrg CLIs and libraries documented on this hub.
+:page-audience: Practitioners, CLI authors, and doc readers browsing the hub
+:page-usage-context: When you need an OSO companion CLI or library and want the canonical docs entry point
+:page-orig-author: agent on behalf of OpenShellOrg
+:page-last-author: agent on behalf of OpenShellOrg
+:page-last-edited: 2026-09-29
+
+*Tools* is the shared Antora component for installable OpenShellOrg command-line utilities and companion libraries whose manuals are assembled on https://docs.opensh.org/[docs.opensh.org]. Each member publishes under `modules/<id>/` in its own repository; this hub owns the ROOT landing page and site navigation root for the partition.
+
+Member manuals (links activate as sibling repos finish migrating to `name: tools`):
+
+* xref:about:index.adoc[about] — machine orientation and OS-family cheat sheets
+* xref:nu-require:index.adoc[nu-require] — require Nushell as host, relaunch, or install path
+* xref:nu-emit:index.adoc[nu-emit] — structured JSONL rows from C (and bindings) for Nushell pipelines
+* xref:project-map:index.adoc[project-map] — project-type and file-role classification; grouped directory listing
+* xref:info:index.adoc[info] — modern GNU Info TUI
+* xref:prohelp:index.adoc[prohelp] — progressive help engine and global `help`
+* xref:prohelp-cli:index.adoc[prohelp-cli] — bridges into D CLI frameworks
+* xref:terminal-gui-prompts:index.adoc[terminal-gui-prompts] — native GUI confirm/input with echoed prompt text for pipes
+
+Hub-wide map of standards, architecture, Tools, and external cousins: xref:open-shell-org::ecosystem.adoc[Ecosystem].

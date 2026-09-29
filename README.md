@@ -64,6 +64,7 @@ docs/                      # this repo (openshellorg/docs)
 ├── apps/
 │   └── main/              # Main website (SolidStart)
 ├── docs/                  # Antora hub component (SOS, philosophy, ecosystem)
+├── docs-tools/            # Antora `tools` component ROOT (member modules in sibling repos)
 ├── packages/
 │   ├── sos-grammar/       # @sos/grammar
 │   └── sos-validator-core/
@@ -77,6 +78,7 @@ docs/                      # this repo (openshellorg/docs)
 |------|-------------|
 | `apps/main` | Organization website (SolidStart) |
 | `docs/` | Hub Antora component (SOS + org pages) |
+| `docs-tools/` | Shared `tools` component landing (CLI/library manuals register as modules) |
 | `@sos/grammar` | Grammar definitions for parsing SOS syntax |
 | `@sos/validator-core` | Core validation logic for SOS compliance |
 

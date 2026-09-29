@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-09-29 -- Inline code in page titles and nav chrome
+
+* Supplemental CSS styles `<code>` inside page H1, side-nav labels, and Valentus breadcrumb trail text (AsciiDoc backticks in doctitles and nav xref labels).
+
 == 2026-09-29 -- Tools shared Antora component
 
 * Add hub-owned `docs-tools/` scaffold (`name: tools`) with ROOT landing page; site-nav-tree lists a single `tools` root instead of per-CLI components.

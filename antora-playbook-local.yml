@@ -21,17 +21,11 @@ antora:
       include:
         - open-shell-org
         - shell-architecture
-        - about
-        - nu-require
-        - nu-emit
-        - project-map
+        - tools
       order:
         - open-shell-org
         - shell-architecture
-        - about
-        - nu-require
-        - nu-emit
-        - project-map
+        - tools
     - require: '@antora-supplemental/nav-typology'
     - require: '@antora-supplemental/nav-typology-diataxis'
     - '@antora-supplemental/build-stack'
@@ -60,6 +54,9 @@ content:
     - url: ./
       branches: HEAD
       start_path: docs
+    - url: ./
+      branches: HEAD
+      start_path: docs-tools
     - url: ../shell-architecture
       branches: HEAD
       start_path: docs
@@ -82,9 +79,6 @@ content:
       branches: HEAD
       start_path: docs
     - url: ../project-map
-      branches: HEAD
-      start_path: docs
-    - url: ../grammaton-ui-shell
       branches: HEAD
       start_path: docs
     - url: ../terminal-gui-prompts

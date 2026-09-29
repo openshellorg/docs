@@ -5,6 +5,7 @@ on:
     branches: [main, master]
     paths:
       - "docs/**"
+      - "docs-tools/**"
       - "lib/**"
       - "scripts/**"
       - "CONTRIBUTING.md"

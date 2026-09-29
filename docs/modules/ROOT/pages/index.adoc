@@ -16,6 +16,6 @@ Read more: xref:philosophy.adoc[Philosophy].
 
 == Where next
 
-* xref:ecosystem.adoc[Ecosystem] — map of every docs component
+* xref:ecosystem.adoc[Ecosystem] — hub, architecture, Tools, and external cousins
 * xref:standard-intro.adoc[SOS Introduction] — start the standard
 * xref:shell-architecture::index.adoc[shell-architecture] — structured-shell thesis

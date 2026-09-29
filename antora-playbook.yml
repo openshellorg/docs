@@ -25,17 +25,11 @@ antora:
       include:
         - open-shell-org
         - shell-architecture
-        - about
-        - nu-require
-        - nu-emit
-        - project-map
+        - tools
       order:
         - open-shell-org
         - shell-architecture
-        - about
-        - nu-require
-        - nu-emit
-        - project-map
+        - tools
     - require: '@antora-supplemental/nav-typology'
     - require: '@antora-supplemental/nav-typology-diataxis'
     - '@antora-supplemental/build-stack'
@@ -69,9 +63,14 @@ content:
     - url: ./
       branches: HEAD
       start_path: docs
+    # Hub-owned ROOT for the shared `tools` component; member repos must use name: tools + modules/<id>/.
+    - url: ./
+      branches: HEAD
+      start_path: docs-tools
     - url: https://github.com/openshellorg/shell-architecture.git
       branches: [main]
       start_path: docs
+    # Tools members (migrate antora.yml to name: tools + modules/<id>/ in each repo).
     - url: https://github.com/openshellorg/nu-emit.git
       branches: [main]
       start_path: docs
@@ -91,10 +90,6 @@ content:
       branches: [main]
       start_path: docs
     - url: https://github.com/openshellorg/project-map.git
-      branches: [main]
-      start_path: docs
-    # Grammaton UI Shell moved from openshellorg/actor-shell to Desktop-Tooling/grammaton-ui-shell
-    - url: https://github.com/Desktop-Tooling/grammaton-ui-shell.git
       branches: [main]
       start_path: docs
     - url: https://github.com/openshellorg/terminal-gui-prompts.git

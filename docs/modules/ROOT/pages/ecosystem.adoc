@@ -1,7 +1,7 @@
 = Ecosystem
-:description: OpenShellOrg documentation components across sibling repositories.
+:description: How OpenShellOrg documentation on this hub is partitioned.
 
-OpenShellOrg docs are assembled from multiple Antora components — one per main project.
+The docs site is a small set of overlapping partitions: this hub (*open-shell-org*), *shell-architecture*, the shared *tools* component for installable OSO CLIs and libraries, and external cousins (PlayTime, DevCentr, desktop products) that are linked but not assembled here.
 
 == Standards and explanation
 
@@ -21,27 +21,34 @@ link:https://github.com/AMDphreak/connectome-fs[connectome-fs] owns node/edition
 * link:https://amdphreak.github.io/connectome-fs/manual/connectome-fs/0.1/explanation/shell-query-surface.html[Shell query surface]
 * link:https://amdphreak.github.io/connectome-fs/manual/connectome-fs/0.1/explanation/compatibility-projection.html[Compatibility projection]
 
-== Companion libraries
+== Tools
 
-* xref:nu-require::index.adoc[nu-require] — require / relaunch under Nushell
-* xref:nu-emit::index.adoc[nu-emit] — emit structured JSONL rows from C
-* https://github.com/openshellorg/project-map[project-map] / `lsgrouped` — project-type + file-role classification; grouped directory listing (not a PATH `ls` replacement)
+Installable OSO CLIs and companion libraries documented on this hub share one Antora component (`tools`). Landing page: xref:tools::index.adoc[Tools].
+
+=== Companion libraries
+
+* xref:tools:nu-require:index.adoc[nu-require] — require / relaunch under Nushell
+* xref:tools:nu-emit:index.adoc[nu-emit] — emit structured JSONL rows from C
+* xref:tools:project-map:index.adoc[project-map] — project-type + file-role classification; grouped directory listing (not a PATH `ls` replacement)
 * https://github.com/openshellorg/config-lifecycle[config-lifecycle] — classify / match / alert for config keys (`active` / `deprecated` / `expired` / `unknown`); never drop expired detection — xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management]
 
-== Planned / forked products
+=== Orientation and help
+
+* xref:tools:about:index.adoc[about] — machine orientation + command cards
+* xref:tools:info:index.adoc[info] — modern GNU Info TUI
+* xref:tools:prohelp:index.adoc[prohelp] — progressive help engine + global `help`
+* xref:tools:prohelp-cli:index.adoc[prohelp-cli] — bridges into D CLI frameworks
+* xref:tools:terminal-gui-prompts:index.adoc[terminal-gui-prompts] — promote confirm/input to native GUI dialogs; always echo prompt text for pipes
+
+== Planned shell products
 
 Spec and ownership live in shell-architecture:
 
 * xref:shell-architecture::shell-host-and-env-refresh.adoc[env-refresh + terminal fork] — Nu-first `env-refresh` CLI (planned) and https://github.com/openshellorg/terminal[`openshellorg/terminal`] (fork of Windows Terminal) with per-tab env health + Fix/Insert desync bar; DevCentr prefers these when installed
-* xref:grammaton-ui-shell::index.adoc[Grammaton UI Shell] — non-frustrating Windows/Linux UI shell on an Erlang-style actor runtime (D); Phase 1 `libbeam_d` landed (formerly actor-shell; now `Desktop-Tooling/grammaton-ui-shell`)
 
-== Orientation and help
+== Cousin products (outside this hub)
 
-* xref:about::index.adoc[about] — machine orientation + command cards
-* xref:info::index.adoc[info] — modern GNU Info TUI
-* xref:prohelp::index.adoc[prohelp] — progressive help engine + global `help`
-* xref:prohelp-cli::index.adoc[prohelp-cli] — bridges into D CLI frameworks
-* xref:terminal-gui-prompts::index.adoc[terminal-gui-prompts] — promote confirm/input to native GUI dialogs; always echo prompt text for pipes
+* https://github.com/Desktop-Tooling/grammaton-ui-shell[Grammaton UI Shell] — Desktop-Tooling UI shell on an Erlang-style actor runtime (not an OpenShellOrg Tools member)
 
 == PlayTime (cousin, not a component here)
 

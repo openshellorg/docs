@@ -4,7 +4,8 @@
 :page-usage-context: When you need an OSO companion CLI or library and want the canonical docs entry point
 :page-orig-author: Ryan Johnson
 :page-orig-author-github: AMDphreak
-:page-last-author: agent on behalf of OpenShellOrg
+:page-last-author: Ryan Johnson
+:page-last-author-github: AMDphreak
 :page-last-edited: 2026-09-29
 
 *Tools* is the shared Antora component for installable OpenShellOrg command-line utilities and companion libraries whose manuals are assembled on https://docs.opensh.org/[docs.opensh.org]. Each member publishes under `modules/<id>/` in its own repository; this hub owns the ROOT landing page and site navigation root for the partition.

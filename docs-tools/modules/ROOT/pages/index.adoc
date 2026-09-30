@@ -2,7 +2,8 @@
 :description: Installable OpenShellOrg CLIs and libraries documented on this hub.
 :page-audience: Practitioners, CLI authors, and doc readers browsing the hub
 :page-usage-context: When you need an OSO companion CLI or library and want the canonical docs entry point
-:page-orig-author: agent on behalf of OpenShellOrg
+:page-orig-author: Ryan Johnson
+:page-orig-author-github: AMDphreak
 :page-last-author: agent on behalf of OpenShellOrg
 :page-last-edited: 2026-09-29
 

@@ -1,5 +1,10 @@
 = Changelog
 
+== 2026-09-30 -- page-context 0.6.9 author chrome
+
+* Pin `@antora-supplemental/page-context` to `v0.6.9`; playbook attributes `page-context-author-label: username` and `page-context-author-avatar: without-icon`.
+* Tools ROOT landing credits Ryan Johnson (`page-orig-author-github: AMDphreak`) instead of the org placeholder.
+
 == 2026-09-29 -- Inline code in page titles and nav chrome
 
 * Supplemental CSS styles `<code>` inside page H1, side-nav labels, and Valentus breadcrumb trail text (AsciiDoc backticks in doctitles and nav xref labels).

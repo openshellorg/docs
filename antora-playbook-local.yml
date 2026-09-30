@@ -106,6 +106,8 @@ asciidoc:
     mermaid-client: ''
     mermaid-client-mode: client
     page-context-active: ''
+    page-context-author-label: username
+    page-context-author-avatar: without-icon
     page-context-keyword-base: '/open-shell-org/keywords'
 
 output:

@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-09-30 -- Config Lifecycle Management author credit
+
+* Config Lifecycle Management page credits Ryan Johnson (`page-orig-author-github` / `page-last-author-github: AMDphreak`).
+
 == 2026-09-30 -- Tools ROOT last-author credit
 
 * Tools ROOT landing `page-last-author` credits Ryan Johnson (`page-last-author-github: AMDphreak`).

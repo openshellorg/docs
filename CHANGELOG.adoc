@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-10-06 -- Dependency refresh
+
+* Refreshed deprecated transitive dependencies within existing ranges: `@ungap/structured-clone` 1.4.0 and `tar` 7.5.22.
+
 == 2026-10-05 -- Design Considerations: AI compatibility and text encoding
 
 * New xref:standard-design-considerations.adoc[Design Considerations] page with an *AI Compatibility Concerns* section and normative *Text Encoding* requirements TE-1 to TE-8: UTF-8 by default for files, pipes and console; no silent transcoding; loud explicit legacy opt-in; byte-order mark handling; round-trip safety; machine-readable encoding errors; discoverable effective encodings.

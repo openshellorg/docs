@@ -1,5 +1,10 @@
 = Changelog
 
+== 2026-10-05 -- Design Considerations: AI compatibility and text encoding
+
+* New xref:standard-design-considerations.adoc[Design Considerations] page with an *AI Compatibility Concerns* section and normative *Text Encoding* requirements TE-1 to TE-8: UTF-8 by default for files, pipes and console; no silent transcoding; loud explicit legacy opt-in; byte-order mark handling; round-trip safety; machine-readable encoding errors; discoverable effective encodings.
+* xref:standard-protocols.adoc[Mandatory Protocols] links the text encoding requirements; nav lists Design Considerations under The Standard.
+
 == 2026-09-30 -- Tools ROOT last-author credit
 
 * Tools ROOT landing `page-last-author` credits Ryan Johnson (`page-last-author-github: AMDphreak`).
@@ -63,7 +68,7 @@
 
 * Ecosystem: link xref:shell-architecture::tool-run-diagnostics.adoc[Tool runs and diagnostics] and xref:shell-architecture::command-channels.adoc[Command channels].
 
-== 2026-08-30 � Partner footer single entry points
+== 2026-08-30 -- Partner footer single entry points
 
 * Related footer: one homepage link per org (OpenShellOrg, DevCentr); drop docs/GitHub duplicates.
 
@@ -72,7 +77,7 @@
 * Philosophy + Ecosystem: PlayTime (Dev-Centr `scriptbook`) rhymes with argv honesty / host identity; engine is not in this hub yet.
 * Essays live in shell-architecture: PlayTime at the shell boundary, argv as execution currency, host identity as a contract.
 
-== 2026-08-11 � Math formula plumbing
+== 2026-08-11 -- Math formula plumbing
 
 * Enable stem: latexmath and KaTeX (site-math.js) on every docs page, even when unused
 

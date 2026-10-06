@@ -43,3 +43,8 @@ Summary:
 * Prefer a shared library for classify → match → alert.
 
 Full normative text: xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management Protocol].
+
+== Text Encoding
+
+Every compliant shell and every compliant tool that reads or writes text MUST meet the text encoding requirements in xref:standard-design-considerations.adoc#text-encoding[Design Considerations]: UTF-8 by default, no silent transcoding, explicit and reported legacy encodings, byte-order mark handling, round-trip safety, and machine-readable encoding errors.
+They exist because AI agents edit through the shell and cannot see corrupted text.

@@ -1,0 +1,103 @@
+= Design Considerations
+:description: Cross-cutting SOS requirements, starting with AI compatibility concerns: UTF-8 by default, no silent transcoding, loud legacy opt-in, BOM handling, round-trip safety, and machine-readable encoding errors.
+:page-audience: Shell implementers, CLI authors, tool maintainers, agent authors
+:page-usage-context: When designing a shell, shell runtime, or SOS-compliant tool that humans and AI agents both drive
+:page-orig-author: Grok Bot on behalf of Ryan Johnson
+:page-last-author: Grok Bot on behalf of Ryan Johnson
+:moji-dash: &#226;&#8364;&#8221;
+
+Some SOS requirements are not about flag syntax or a single protocol.
+They are properties every conforming shell and tool must have because of *who* drives them.
+This page collects those cross-cutting design considerations.
+
+The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[BCP 14] (RFC 2119, RFC 8174) when, and only when, they appear in all capitals.
+
+In this page, a *conforming shell* is a shell or shell runtime that claims SOS conformance, and a *conforming tool* is a CLI that claims SOS conformance and reads or writes text.
+
+== AI Compatibility Concerns
+
+AI agents now issue a large share of shell commands.
+They differ from human operators in ways that turn old, tolerable shell behaviour into defects:
+
+* They act on exit status and output text, and treat "exit 0" as "it worked." A failure that only a human eye would notice is, to an agent, success.
+* They do not see rendered output. Corrupted text is just more tokens.
+* They edit files in bulk through the shell, often far more files and lines than the task needed.
+* They usually commit under the human's identity, so history cannot attribute damage to the agent that caused it.
+
+The requirements in this section exist so that agents can rely on a conforming shell or tool to either do exactly what was asked or fail in a way a program can detect.
+Related existing requirements: the structured execution tree of the xref:standard-protocols.adoc[Safety-Valve Protocol] and the explainability rule of xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management].
+
+=== Text Encoding
+
+==== Rationale
+
+Shells that default to a legacy code page silently corrupt UTF-8.
+The canonical case is Windows PowerShell 5.1: `Get-Content` reads a UTF-8 file without a byte-order mark as the system ANSI code page (Windows-1252 on US-English systems), `Set-Content` writes ANSI, and `Out-File` and `>` write UTF-16LE.
+An agent that reads a file, changes one line and writes it back double-encodes every non-ASCII character in the file: an em dash becomes `{moji-dash}`.
+Nothing fails. The exit status is zero.
+
+This has broken real projects: in October 2026 an agent-made commit garbled a GitHub Actions workflow badly enough that GitHub rejected the file, and the same mechanism had already corrupted changelog prose a month earlier without anyone noticing.
+Practitioner write-up and repository guards: link:https://docs.devcentr.org/general-knowledge/explanation/infrastructure/text-encoding-and-ai-agents/[Dev-Centr: Text encoding and AI agents].
+
+==== Requirements
+
+[[te-1]]
+TE-1 UTF-8 by default::
+A conforming shell MUST use UTF-8 as the default encoding for reading text files, writing text files, text passed through pipes between commands, and console input and output.
+A conforming tool MUST read and write text as UTF-8 unless an encoding is explicitly requested.
+The default MUST NOT depend on the operating system's locale, ANSI code page, or OEM console code page.
+
+[[te-2]]
+TE-2 No silent transcoding::
+A conforming shell or tool MUST NOT convert text to or from any other encoding (including the system ANSI code page, the OEM console code page, and UTF-16) unless that conversion was explicitly requested (<<te-3>>).
+Input that is not valid UTF-8 MUST NOT be silently reinterpreted in another encoding or silently replaced with substitution characters.
+It MUST either be passed through as unmodified bytes (binary) or be rejected with an encoding error (<<te-6>>).
+
+[[te-3]]
+TE-3 Legacy encodings are a loud, explicit opt-in::
+A non-UTF-8 encoding MUST only be used when selected explicitly for that operation, for example `--encoding=windows-1252` (long flags follow the xref:standard-grammar.adoc[SOS grammar]).
+Each use SHOULD emit a diagnostic on the diagnostics channel, and MUST be reported in structured output, including the `--dry-run` execution tree, as the encoding actually used.
+A user, profile or environment setting that changes the default away from UTF-8 SHOULD produce a warning when the shell starts, and MUST be discoverable through <<te-7>>.
+
+[[te-4]]
+TE-4 Byte-order marks::
+Readers MUST accept a UTF-8 byte-order mark and MUST NOT expose it as content.
+Writers MUST NOT add a byte-order mark unless explicitly requested.
+When a conforming shell or tool rewrites an existing file in place, it SHOULD preserve that file's existing byte-order mark (present or absent) and line-ending convention.
+Input that begins with a UTF-16 or UTF-32 byte-order mark MAY be decoded, but MUST be reported as a non-default encoding in structured output and MUST NOT be written back in that encoding unless requested.
+
+[[te-5]]
+TE-5 Round-trip safety::
+Reading a valid UTF-8 text file and writing the result back without modification MUST produce byte-identical output.
+An edit MUST change only the bytes of the content being edited; characters outside the edited range MUST be preserved exactly.
+
+[[te-6]]
+TE-6 Machine-readable encoding errors::
+An encoding failure (invalid byte sequence, unexpected byte-order mark, UTF-16 where UTF-8 was expected, or a conversion that would lose characters) MUST result in a non-zero exit status or a structured error value, never in partially converted output presented as success.
+The error MUST be available in machine-readable form with at least: the path or stream name, the byte offset of the first failure, the encoding that was assumed, and an error kind.
++
+[source,json]
+----
+{
+  "error": "encoding",
+  "kind": "invalid-sequence",
+  "path": "CHANGELOG.adoc",
+  "byte_offset": 1842,
+  "assumed_encoding": "utf-8"
+}
+----
+
+[[te-7]]
+TE-7 Discoverable effective encodings::
+A conforming shell MUST expose, through a documented command or structured variable, the effective encodings it is using for file reads, file writes, pipes and the console, so that an agent can verify them before editing files.
+
+[[te-8]]
+TE-8 Console and native-command output::
+When the host console is configured for a non-UTF-8 code page, a conforming shell SHOULD switch its session to UTF-8.
+If it cannot, it MUST NOT silently decode native-command output through the legacy code page; it MUST report the mismatch as in <<te-6>>.
+
+==== Conformance notes (non-normative)
+
+* Windows PowerShell 5.1 does not meet TE-1, TE-2 or TE-4 with default settings. PowerShell 7 changed its defaults to UTF-8 without a byte-order mark, which addresses most of TE-1 and TE-4.
+* Repositories edited by agents through non-conforming shells should run a commit-time guard that rejects double-encoded byte signatures, plus a CI backstop. See link:https://docs.devcentr.org/general-knowledge/how-to/prevent-text-encoding-corruption/[Dev-Centr: Prevent text encoding corruption].
+* Authors of tools that intentionally produce or test mojibake (repair utilities, fixtures) should do so under an explicit opt-in per <<te-3>>.

@@ -6,5 +6,6 @@
 ** xref:standard-grammar.adoc[Formal Grammar]
 ** xref:standard-protocols.adoc[Mandatory Protocols]
 ** xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management]
+** xref:standard-design-considerations.adoc[Design Considerations]
 * Certification
 ** xref:certification-about.adoc[Certification Program]

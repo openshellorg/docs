@@ -1,5 +1,9 @@
 = Changelog
 
+== 2026-10-09 -- Facto emoji literals + official Twemoji
+
+* Register `@antora-supplemental/asciidoctor-emoji-literals` before official npm `asciidoctor-emoji` 0.5.x so pasted Unicode emoji in AsciiDoc render as Twemoji (interim until asciidoctor-emoji 1.x on `@asciidoctor/core` 4). Aligned with link:https://github.com/antora-supplemental/facto-stack[facto-stack] `playbook.fragment.yml`.
+
 == 2026-10-06 -- Dependency refresh
 
 * Refreshed deprecated transitive dependencies within existing ranges: `@ungap/structured-clone` 1.4.0 and `tar` 7.5.22.

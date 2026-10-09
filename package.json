@@ -18,6 +18,8 @@
   "dependencies": {
     "@antora-supplemental/page-context": "github:antora-supplemental/page-context#v0.6.9",
     "@antora/lunr-extension": "^1.0.0-alpha.13",
+    "@antora-supplemental/asciidoctor-emoji-literals": "github:antora-supplemental/asciidoctor-emoji-literals#main",
+    "asciidoctor-emoji": "^0.5.0",
     "asciidoctor-kroki": "^0.18.1"
   },
   "devDependencies": {
@@ -36,5 +38,11 @@
     "@antora/cli": "^3.1.14",
     "@antora/site-generator": "^3.1.14",
     "@dev-centr/themed-svg": "0.2.3"
+  },
+  "pnpm": {
+    "publicHoistPattern": [
+      "@antora-supplemental/asciidoctor-emoji-literals",
+      "asciidoctor-emoji"
+    ]
   }
 }

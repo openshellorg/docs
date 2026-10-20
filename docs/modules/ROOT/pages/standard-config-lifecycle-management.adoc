@@ -2,8 +2,10 @@
 :description: Never delete detection of outdated CLI config keys — deprecate, expire, and keep alerting forever.
 :page-audience: CLI authors, tool maintainers, agent authors
 :page-usage-context: When designing or evolving user/project/global config keys for a CLI or toolchain
-:page-orig-author: Composer on behalf of Ryan Johnson
-:page-last-author: Cursor agent on behalf of Ryan Johnson
+:page-orig-author: Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Ryan Johnson
+:page-last-author-github: AMDphreak
 :page-aliases: standard-config-key-sanitation.adoc
 
 SOS-compliant tools that evolve configuration keys MUST preserve *explainability* of every key they have ever recognized.

@@ -1,4 +1,5 @@
 # OpenShellOrg Docs — CI/production (Facto stack + OSO hub sources)
+# Local clones: facto-stack registers antora-local-content-sources (auto off in CI).
 site:
   title: OpenShellOrg Docs
   url: https://docs.opensh.org
@@ -19,44 +20,41 @@ urls:
 
 antora:
   extensions:
-    - '@antora/lunr-extension'
-    - require: '@antora-supplemental/unversioned-component-urls'
-    - require: '@antora-supplemental/site-nav-tree'
-      include:
-        - open-shell-org
-        - shell-architecture
-        - tools
-      order:
-        - open-shell-org
-        - shell-architecture
-        - tools
-    - require: '@antora-supplemental/nav-typology'
-    - require: '@antora-supplemental/nav-typology-diataxis'
-    - '@antora-supplemental/build-stack'
     - ./lib/verify-themed-svg-dark-mode.js
-    - '@antora-supplemental/page-edit'
-    - require: '@antora-supplemental/link-validator'
-      reportEmail: openshell@devcentr.org
-      softFail403: true
-      failLevel: none
-    - require: '@antora-supplemental/linkinator'
-      statusDefault: unchecked
-    - require: '@antora-supplemental/extension-lister'
-      layouts: [footer]
-    - require: '@antora-supplemental/orphan-finder/extension'
-      reportEmail: openshell@devcentr.org
-      failOnUnresolved: false
-    - require: '@antora-supplemental/page-context/antora'
-      component: open-shell-org
-      path: keywords
-    # Diagram rendering engines (Facto / antora-diagram-engines + Kroki — no alternate renderers):
-    # | Format | Engine |
-    # | [source,mermaid] listings | @antora-supplemental/mermaid-client (client runtime) |
-    # | plantuml, ditaa, … | asciidoctor-kroki → kroki-server-url |
-    # | zoom / lightbox chrome | @antora-supplemental/diagram-lightbox |
-    # | [.themed-svg] image::… committed SVGs | upstream mermaid-cli + mermaid-svg-css-vars; @dev-centr/themed-svg at site runtime (not AsciiDoc listing renderers) |
-    - require: '@antora-supplemental/mermaid-client/antora'
-    - require: '@antora-supplemental/diagram-lightbox'
+    - require: '@antora-supplemental/facto-stack'
+      profile: hub
+      siteNavTree:
+        enabled: true
+        include:
+          - open-shell-org
+          - shell-architecture
+          - tools
+        order:
+          - open-shell-org
+          - shell-architecture
+          - tools
+      linkValidator:
+        reportEmail: openshell@devcentr.org
+        softFail403: true
+        failLevel: none
+      orphanFinder:
+        reportEmail: openshell@devcentr.org
+        failOnUnresolved: false
+      pageContextAntora:
+        component: open-shell-org
+        path: keywords
+      softNavPageToc:
+        injectScript: false
+      mermaidClient:
+        enabled: true
+      diagramLightbox:
+        enabled: true
+      asciidocAttributes:
+        page-context-author-label: username
+        page-context-author-avatar: without-icon
+        page-context-keyword-base: '/open-shell-org/keywords'
+        mermaid-client: ''
+        mermaid-client-mode: client
 
 content:
   sources:

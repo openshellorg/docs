@@ -1,5 +1,10 @@
 = Changelog
 
+== Unreleased
+
+* **Compose pack + local content.** Single `@antora-supplemental/facto-stack` **v0.2.34** require (hub profile); removed `antora-playbook-local.yml`. Local clones via pack-registered `antora-local-content-sources`. Hub `.antora-source-id` for clone discovery.
+* Config Lifecycle Management page credits Ryan Johnson (`page-orig-author-github` / `page-last-author-github`: AMDphreak) — supersedes link:https://github.com/openshellorg/docs/pull/6[PR #6].
+
 == 2026-10-09 -- Facto emoji literals + official Twemoji
 
 * Register `@antora-supplemental/asciidoctor-emoji-literals` before official npm `asciidoctor-emoji` 0.5.x so pasted Unicode emoji in AsciiDoc render as Twemoji (interim until asciidoctor-emoji 1.x on `@asciidoctor/core` 4). Aligned with link:https://github.com/antora-supplemental/facto-stack[facto-stack] `playbook.fragment.yml`.

@@ -69,8 +69,7 @@ docs/                      # this repo (openshellorg/docs)
 │   ├── sos-grammar/       # @sos/grammar
 │   └── sos-validator-core/
 ├── assets/brand/
-├── antora-playbook.yml    # production (aggregates sibling repos)
-├── antora-playbook-local.yml
+├── antora-playbook.yml    # CI + local (facto-stack + local content sources)
 └── package.json
 ```
 
@@ -119,10 +118,8 @@ pnpm install
 pnpm dev
 pnpm build
 
-# Docs (Antora)
+# Docs (Antora — same playbook locally; clone markers resolve siblings)
 pnpm docs
-# or local sibling checkouts:
-pnpm docs:local
 
 # Themed SVG / diagram audits (hub static checks only; no upstream mermaid-cli)
 pnpm diagrams:check:all

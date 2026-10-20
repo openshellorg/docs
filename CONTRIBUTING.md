@@ -32,7 +32,7 @@ This hub still publishes those committed SVGs via Antora content sources; freshn
 ```bash
 pnpm install
 pnpm diagrams:check:all   # hub static audits only
-pnpm docs                 # or pnpm docs:local with sibling checkouts
+pnpm docs                 # antora-playbook.yml (local clones via .antora-source-id)
 ```
 
 See also [scripts/DIAGRAM-AUDITS.md](scripts/DIAGRAM-AUDITS.md).

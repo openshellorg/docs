@@ -2,6 +2,7 @@
 
 == Unreleased
 
+* Pin `@antora-supplemental/facto-stack` **v0.2.37** (disk-search banner prints once, as ASCII, on Windows).
 * Pin `@antora-supplemental/facto-stack` **v0.2.36** (opaque search chrome).
 * **Compose pack + local content.** Single `@antora-supplemental/facto-stack` **v0.2.34** require (hub profile); removed `antora-playbook-local.yml`. Local clones via pack-registered `antora-local-content-sources`. Hub `.antora-source-id` for clone discovery.
 * Config Lifecycle Management page credits Ryan Johnson (`page-orig-author-github` / `page-last-author-github`: AMDphreak) — supersedes link:https://github.com/openshellorg/docs/pull/6[PR #6].

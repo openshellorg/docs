@@ -18,7 +18,7 @@
     "@chenglou/pretext": "^0.0.4"
   },
   "devDependencies": {
-    "@antora-supplemental/facto-stack": "github:antora-supplemental/facto-stack#v0.2.35",
+    "@antora-supplemental/facto-stack": "github:antora-supplemental/facto-stack#v0.2.36",
     "@antora/cli": "^3.1.14",
     "@antora/site-generator": "^3.1.14",
     "@dev-centr/themed-svg": "0.2.3"

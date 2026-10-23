@@ -2,6 +2,7 @@
 
 == Unreleased
 
+* Float `@antora-supplemental/facto-stack` on rolling minor git pin **`#v0.2`** (resolves **v0.2.64** today).
 * New xref:standard-cli-output.adoc[CLI Output] standard (CO-1 to CO-20): default output shows only outcome, changes, decisions and the log path; failures explain themselves inline; sectioned logs, `--verbose`, `--json` / JSON Lines, per-OS log locations, prompts, exit codes, and stdout/stderr use. Listed under The Standard in the nav.
 * Pin `@antora-supplemental/facto-stack` **v0.2.40** (search bar stays on screen above the footer).
 * `pnpm antora` installs when the lockfile is newer than node_modules (git tag bumps). It does not move the facto-stack pin by itself; pull the repo first.

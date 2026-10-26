@@ -160,7 +160,7 @@ That list comes from redub's dispatch table in `source/app.d`, not from its help
 Two more gaps in the same release (redub `main` at `7cf2af7`):
 
 * `redub help` is not a command. `help` falls through to the run path like any other word and is read as a package named `help`; only `--help` prints help. CD-16 requires `<tool> help` to list the commands.
-* The help text says that with no command redub `will default to \"run\"`, but a bare `redub` runs without saying so. CD-6 requires every bare run to state which action it ran.
+* The help text says that with no command redub `will default to "run"`, but a bare `redub` runs without saying so. CD-6 requires every bare run to state which action it ran.
 
 This is how `dubx search` came to fetch a package named `search`: the word reached redub, whose catch-all read it as a package to run, so a request to search became a fetch of an unrelated package.
 No tool in the chain reported an unknown command.

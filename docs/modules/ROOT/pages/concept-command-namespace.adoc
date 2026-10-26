@@ -1,0 +1,76 @@
+= Command namespace and context requests
+:description: Proposed. Replace PATH lookup, the current-folder prompt and environment activation with a hierarchical command namespace, declared input signatures, and named isolation levels.
+:page-audience: Shell designers, CLI authors, package-manager and version-manager authors
+:page-usage-context: When deciding how a shell finds commands, how a command learns the current folder, or how a session switches tool versions
+:page-orig-author: Grok Bot on behalf of Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Grok Bot on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+
+CAUTION: *Concept, proposed.* Nothing here is part of The Standard yet. Rule ids (`NS-n`) are provisional and may change before any part is adopted.
+
+Today a shell gives commands their context in three implicit ways: it finds them by searching the folders on `PATH`, it hands every process the current folder whether or not it needs one, and it "activates" environments by editing variables in the session.
+This page proposes replacing all three with explicit models: a hierarchical *command namespace*, *input signatures* that say which context a command will request, and named *isolation levels* for anything that changes the namespace for a while.
+
+The key words MUST, SHOULD and MAY follow https://www.rfc-editor.org/info/bcp14[BCP 14].
+
+== Why change
+
+* *PATH is a flat list searched in order.* Every command competes for one name; the winner is decided by folder order that installers edit and users cannot see; nothing records who put a name there or which version it is.
+* *The current folder is ambient.* It is printed before the prompt as if it were part of every command, and every process inherits it. The user cannot tell before pressing Enter whether a command will act on it.
+* *Activation is a hidden edit.* A Python venv is a persistent folder; `activate` only edits `PATH`, `VIRTUAL_ENV` and the prompt for one session. The edit is invisible except for a prompt prefix, and the word "environment" hides what actually changed. See link:https://devcentr.org/blog/2026-10-26-virtual-environments-are-neither-virtual-nor-temporary[Virtual environments are neither virtual nor temporary].
+
+Programming languages solved the first problem long ago with modules and qualified names. The context a person works in should come from what they want to do, not from which folder they are in.
+
+== Command namespace
+
+NS-1:: A conforming shell MUST resolve the first word of a command through a hierarchical command namespace, not by searching folders. Nodes are slash-separated paths of lowercase words grouped by task, for example `install`, `install/npm`, `vcs/status`.
+
+NS-2:: A tool MUST enter the namespace by a *registration manifest* that names every node it claims, its package, version and publisher. The shell host MUST record each registration (who, what, when).
+
+NS-3:: Two manifests claiming the same node MUST be reported as a conflict. The shell MUST NOT let the most recent installer win silently.
+
+NS-4:: An unknown first word MUST be a usage error with did-you-mean across the namespace, as xref:standard-cli-dispatch.adoc[CLI Dispatch] CD-1 requires of a single tool.
+
+NS-5:: Running a file by path MUST stay possible, but only explicitly (a path-shaped token or a `run` command). A shell MAY import `PATH` as a read-only `legacy` subtree during migration and MUST mark commands resolved that way.
+
+NS-6:: A node MUST declare its CLI style (strict by default, per xref:standard-cli-styles.adoc[CLI Styles] CS-1 and CS-2). A resolver-style front door such as `install` is a node whose children are providers registered by each package manager.
+
+NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help.
+
+NS-8:: When a version manager controls a node, the manifest for each version SHOULD mark which commands and flags were added, removed or changed since the previous release. This is a visual cue and learning aid, not a full diff.
+
+== Context requests
+
+NS-9:: A command node SHOULD publish an *input signature* declaring which ambient context it will request: current folder (none, read, write, and under which flags), named environment variables, identity, network and stdin.
+
+NS-10:: A shell MUST give a command the current folder only when its signature requests it (native protocol), and SHOULD show, before the command runs, whether the folder will be used. A command with no signature MUST be shown as "may use current folder".
+
+NS-11:: The current folder SHOULD be displayed as an input at the end of the command line, truncated to at most half the screen width, with a setting to keep the leaf folder at the right or left edge of its slot.
+
+NS-12:: The command composition area SHOULD keep a fixed height of two to three lines (context, input, transient status) so that status shown while typing does not move the input line. This extends the two-line layout in xref:shell-architecture::prompt-spatial-layout.adoc[Prompt spatial layout] and the multi-line paste preview in xref:shell-architecture::shell-display-layers.adoc[Shell display layers].
+
+== Isolation levels
+
+NS-13:: Anything that changes the namespace or the process's view of the system for a while SHOULD be described by three properties: *level* (overlay, fence, partition, guest), *lifetime* (run, session, kept), and *scope* (process, session, folder, user, machine). Definitions: link:https://docs.devcentr.org/general-knowledge/reference/shells/isolation-levels.html[Isolation levels] (Dev-Centr glossary).
+
+NS-14:: An overlay (venv activation, a version switch, a project pin) SHOULD be implemented as a layer on top of the command namespace, with precedence machine < user < folder < session, and MUST be shown in the composition area with its full term, for example "kept overlay: .venv, attached to this session".
+
+== What already exists, and what is new
+
+* *Plan 9* has no `PATH`; `/bin` is a union of bound folders in a per-process namespace. This page keeps the per-session layering but makes the tree one of tasks with metadata, not of files.
+* *PowerShell* finds cmdlets by verb-noun through modules and `Get-Command`, and exposes stores as drives through providers. Module lookup still walks a path list (`PSModulePath`), and native executables still use `PATH`.
+* *Windows App Paths* is a registry of command names to executables used by `ShellExecute`, not by consoles. It is flat and has no metadata.
+* *Nushell* gives built-in commands declared signatures; external commands are still found on `PATH`.
+* *git, cargo and kubectl plugins* fake a hierarchy with file names (`git-foo` becomes `git foo`).
+* *Nix, Homebrew, Debian alternatives, asdf and mise* control which binary a name points to, by profiles, links or shims; they still publish into one flat `PATH`.
+
+New here: externals register into one task-shaped tree with owners, versions and signatures; the current folder becomes a declared input; and temporary changes are named by level, lifetime and scope.
+
+== Related
+
+* xref:standard-cli-dispatch.adoc[CLI Dispatch] and xref:standard-cli-styles.adoc[CLI Styles (draft)]
+* xref:standard-cli-output.adoc[CLI Output]
+* xref:shell-architecture::persistent-shell-context.adoc[Persistent shell context]
+* xref:shell-architecture::entrypoint-dispatch.adoc[Shell pains: the project says one version, your machine runs another]
+* xref:shell-architecture::argv-as-execution-currency.adoc[Argv as execution currency]

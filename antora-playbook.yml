@@ -14,6 +14,8 @@ site:
     site_home_label: OpenShellOrg home
     header_doc_title: OpenShellOrg Docs
     nav_typology_diataxis: 'true'
+    # Valentus 4.3+: breadcrumb component dropdown lists only site-nav-tree roots (+ current).
+    valentus_bc_components: site-nav-tree
 
 urls:
   html_extension_style: indexify
@@ -113,7 +115,7 @@ content:
 
 ui:
   bundle:
-    url: https://github.com/antora-supplemental/valentus-theme/releases/download/v4.2.2/ui-bundle.zip
+    url: https://github.com/antora-supplemental/valentus-theme/releases/download/v4.3.0/ui-bundle.zip
     snapshot: true
   supplemental_files: ./supplemental-ui
 

@@ -2,6 +2,7 @@
 
 == Unreleased
 
+* UI: Valentus **v4.3.0** and `@antora-supplemental/facto-stack` **v0.3.1** (mermaid-client / diagram-lightbox `-v0.2.2` tags). The hub fixes moved upstream, so the hub copies are gone: `site-inline-title-code.css`, `site-nav-column-scroll.css`, `site-math.js`, `site-toc-main-article.js`, `in-site-nav-tree.js` and the `breadcrumbs.hbs` override. The breadcrumb component filter is now the Valentus opt-in site key `valentus_bc_components: site-nav-tree`. `head-meta.hbs` is resynced to Valentus 4.3.0 plus the hub additions.
 * Playbook: the `ns` tool is renamed `name` (repo openshellorg/name). Concept page NS-2 notes JSON5 manifests; NS-7 records the decided `+` free-flag sigil.
 * Playbook: add the Tools components from command-namespace, ns, install, versions and isolate.
 * New proposed concept page xref:concept-command-namespace.adoc[Command namespace and context requests] (NS-1 to NS-14): hierarchical command namespace instead of PATH, input signatures for context requests (current folder as declared input), fixed-height composition area, isolation levels (overlay, fence, partition, guest). Listed under Concepts (proposed) in the nav.

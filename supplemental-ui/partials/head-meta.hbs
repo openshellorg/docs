@@ -1,4 +1,4 @@
-{{!-- OSO hub override of valentus-theme v4.2.2 head-meta.hbs: stock content plus the hub stylesheet links marked below. --}}
+{{!-- OSO hub override of valentus-theme v4.3.0 head-meta.hbs: stock content plus the hub additions marked below. --}}
 {{!--
   HACK (interim paint-hold): hide the document until layered supplemental CSS has
   loaded, preference attrs are set, and web fonts are ready. Default UI paints
@@ -29,12 +29,11 @@ document.documentElement.classList.add('valentus-fouc-pending')
 <link rel="stylesheet" href="{{{uiRootPath}}}/css/site-font-size.css">
 <link rel="stylesheet" href="{{{uiRootPath}}}/css/site-math.css">
 <link rel="stylesheet" href="{{{uiRootPath}}}/css/site-themed-svg.css">
+<link rel="stylesheet" href="{{{uiRootPath}}}/css/site-inline-title-code.css">
 {{!-- OSO hub additions (after Valentus layers) --}}
 {{> mermaid-client-styles}}
 {{> diagram-lightbox-styles}}
 <link rel="stylesheet" href="{{{uiRootPath}}}/css/site-lifecycle-status.css">
-<link rel="stylesheet" href="{{{uiRootPath}}}/css/site-nav-column-scroll.css">
-<link rel="stylesheet" href="{{{uiRootPath}}}/css/site-inline-title-code.css">
 {{!-- Color scheme: html.dark-theme / data-theme come from the chassis
   @antora-supplemental/color-scheme head hook (playbook extension). Valentus only
   maps its dm-navbar key to the html hook here. --}}

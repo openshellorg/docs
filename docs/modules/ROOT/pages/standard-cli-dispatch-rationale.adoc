@@ -56,6 +56,17 @@ No opt-out is offered because there is nothing to preserve: most packages do not
 The timeline in CD-15 gives users a warning release before the break, and the fixed message shape in CD-13 means the warning always contains the exact replacement command, so fixing a script is a copy-paste.
 Keeping `--strict` accepted after the switch (CD-14) means scripts that opted in early never break.
 
+== Verbs and nouns (CS-9, CS-10)
+
+Implicit or natural-language dispatch fits tools whose name is a verb.
+`install foo`, `open foo` and `make target` read as sentences: the tool name is the verb and the leftover token is its object.
+A tool named with a noun, such as `git`, `cargo` or `redub`, puts the verb in the first-argument slot instead.
+When that slot is filled with an object, as in `redub foo`, the command has no verb, and the user has to guess whether `foo` is a verb or an object.
+That guess is the mental-model violation, and it is the same guess that turned `dubx search` into a fetch.
+(`dub` is arguably a verb itself, which may be part of why `dub foo` has bothered people less.)
+
+So CS-10 recommends the resolver style only for verb-named tools, and the strict style with verb subcommands for noun-named ones; CS-9 makes that a single decision for the whole tool.
+
 == Why strict is the default style
 
 Implicit resolution is not always wrong; a universal `install <thing>` that searches several package managers can be genuinely helpful.

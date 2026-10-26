@@ -100,6 +100,7 @@ Style checklist (xref:standard-cli-styles.adoc[CLI Styles]):
 
 * [ ] The tool declares exactly one style for its whole command surface (CS-9).
 * [ ] No command or subcommand uses a different style; the other style's behaviour, if wanted, ships as a separate tool (CS-9).
+* [ ] Advisory (SHOULD): if the tool uses the resolver style, its name is a verb; a noun-named tool uses the strict style with verb subcommands (CS-10).
 
 Example script (POSIX shell):
 

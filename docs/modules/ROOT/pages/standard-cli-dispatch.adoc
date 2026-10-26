@@ -71,7 +71,7 @@ It MUST fail with an error that says this tool does not implement the command an
 == Migration for tools with implicit behaviour
 
 CD-11:: An existing tool that has implicit behaviour (a catch-all, a silent default, ignored arguments) MUST, in its current major version:
-. warn on *every* implicit use, on stderr, with the explicit replacement spelled out in full (for example `use: dub run foo`);
+. warn on *every* implicit use, on stderr, with the explicit replacement spelled out in full (for example `use: redub run foo`);
 . offer an opt-in strict mode, by flag, config setting and environment variable, that turns every implicit use into the CD-1 / CD-7 error.
 
 CD-12:: In the next major version, strict errors MUST become the default.
@@ -149,14 +149,14 @@ $ echo $?
 2
 ----
 
-=== Worked migration: dub and redub
+=== Worked migration: redub
 
-`dub`, the D package manager, treats an unknown first word as a package name: `dub foo` behaves as `dub run foo`, fetching the package if it is not present.
-`redub` is a drop-in replacement for part of `dub` and behaves the same way for words it does not recognise.
+`redub` is a drop-in replacement for part of `dub`, the D package manager.
+Any first word that is not one of its own commands falls through to its run path, which reads the word as a package name: `redub foo` behaves as `redub run foo`, fetching the package `foo` if it is not the local project.
 Its own commands are `build`, `build-universal`, `update`, `setup`, `clean`, `describe`, `deps`, `test`, `init`, `install`, `configure`, `use` and `run`, plus `watch` in some builds.
 `search` is not among them.
 
-This is how `dubx search` came to fetch a package named `search`: the word reached a tool whose catch-all read it as a package to run, so a request to search became a fetch of an unrelated package.
+This is how `dubx search` came to fetch a package named `search`: the word reached redub, whose catch-all read it as a package to run, so a request to search became a fetch of an unrelated package.
 No tool in the chain reported an unknown command.
 
 *Wrapper: `search` under redub.*
@@ -173,40 +173,42 @@ $ echo $?
 2
 ----
 
-*Implicit catch-all: `dub foo` running a package.*
+*Implicit catch-all: `redub foo` running a package.*
 Today (non-conforming):
 
 [source,text]
 ----
-$ dub foo
-Fetching foo 1.2.0...
-Building foo ~master...
-Running foo
+$ redub foo
+(fetches package foo, builds it, runs it)
 ----
 
 Current major version, migration release (CD-11, CD-13, CD-14): behaviour unchanged, warning on every use, strict opt-in available.
 
 [source,text]
 ----
-$ dub foo
-warning: 'foo' is not a dub command; running package 'foo' implicitly is deprecated
-  use: dub run foo
-  this will be an error in dub 2.0; enable now with --strict or DUB_STRICT=1
-Fetching foo 1.2.0...
+$ redub foo
+warning: 'foo' is not a redub command; running package 'foo' implicitly is deprecated
+  use: redub run foo
+  this will be an error in redub 2.0; enable now with --strict or REDUB_STRICT=1
+(fetches package foo, builds it, runs it)
 ----
 
 [source,text]
 ----
-$ dub --strict foo
+$ redub --strict foo
 error: unknown command 'foo'
-  to run a package named foo: dub run foo
-  see: dub help
+  to run a package named foo: redub run foo
+  see: redub --help
 $ echo $?
 2
 ----
 
-Next major version (CD-12, CD-15): the strict error above is the default for `dub foo`; `dub run foo` is the only way to run the package.
-(The version number `2.0` is illustrative; each project names its own next major version.)
+Next major version (CD-12, CD-15): the strict error above is the default for `redub foo`; `redub run foo` is the only way to run the package.
+(The version number `2.0`, the `--strict` flag and the `REDUB_STRICT` variable are illustrative; each project names its own.)
+
+For comparison, current `dub` rejects an unknown first word with `Unknown command` and exit code `1`.
+Its one remaining word-level implicit form is a file shortcut: if `./foo` or `./foo.d` exists, `dub foo` runs that file as a single-file package (`dub run --single`), so a local file can shadow the command line.
+That is a minor implicit form under CD-11, not a fetch.
 
 == Conformance checklist
 

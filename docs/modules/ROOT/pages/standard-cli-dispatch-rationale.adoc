@@ -22,9 +22,8 @@ The asymmetry is why CD-1 makes the unknown command an error and CD-2 forbids ac
 
 === Motivating case
 
-`dub` treats `dub foo` as `dub run foo`.
-`redub`, a drop-in replacement, does the same for words outside its own command list.
-When a user ran `dubx search`, the word `search` reached a dispatcher whose catch-all read it as a package name, and a package called `search` was fetched.
+`redub`, a drop-in replacement for part of `dub`, treats any word outside its own command list as a package to run: `redub foo` behaves as `redub run foo`.
+When a user ran `dubx search`, the word `search` reached redub, whose catch-all read it as a package name, and a package called `search` was fetched.
 Nothing was malicious and every tool behaved as designed; the design itself turned an intent ("search") into an unrelated action (fetch and run).
 
 The case is useful precisely because it is ordinary.

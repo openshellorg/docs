@@ -74,6 +74,21 @@ content:
     - url: https://github.com/openshellorg/nu-emit.git
       branches: [main]
       start_path: docs
+    - url: https://github.com/openshellorg/command-namespace.git
+      branches: [main]
+      start_path: docs
+    - url: https://github.com/openshellorg/ns.git
+      branches: [main]
+      start_path: docs
+    - url: https://github.com/openshellorg/install.git
+      branches: [main]
+      start_path: docs
+    - url: https://github.com/openshellorg/versions.git
+      branches: [main]
+      start_path: docs
+    - url: https://github.com/openshellorg/isolate.git
+      branches: [main]
+      start_path: docs
     - url: https://github.com/openshellorg/nu-require.git
       branches: [main]
       start_path: docs

@@ -167,4 +167,4 @@ The reason for the failure is on screen; the log holds the rest.
 * *Scripts need a stable contract.* Separating results (stdout) from diagnostics (stderr), meaningful exit codes, and versioned JSON fields let tools compose in pipelines without scraping human text.
 * *CI is a different audience.* There is no one to rerun with `--verbose` after the runner is gone, so CI and non-TTY runs may need full output by default.
 
-See also xref:standard-design-considerations.adoc[Design Considerations] for the AI compatibility concerns this page builds on.
+See also xref:standard-design-considerations.adoc[Design Considerations] for the AI compatibility concerns this page builds on, and xref:standard-cli-dispatch.adoc[CLI Dispatch] for which input a tool must reject as a usage error (exit code `2`).

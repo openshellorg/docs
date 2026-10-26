@@ -16,13 +16,17 @@ The key words MUST, SHOULD and MAY follow https://www.rfc-editor.org/info/bcp14[
 
 == Rules for all styles
 
-CS-1:: *Strict is the default.* A command that does not declare a style is strict, and MUST meet every rule in xref:standard-cli-dispatch.adoc[CLI Dispatch].
+CS-1:: *Strict is the default.* A tool that does not declare a style is strict, and MUST meet every rule in xref:standard-cli-dispatch.adoc[CLI Dispatch].
 
-CS-2:: A non-strict style MUST be *announced*: declared in help for the command that uses it, in reference docs, and in the `--json` result (`"style": "<name>"`).
+CS-2:: A non-strict style MUST be *announced*: declared in the tool's help, in reference docs, and in the `--json` result (`"style": "<name>"`).
 
-CS-3:: A non-strict style MUST be scoped to named commands (for example `install`), never to the whole tool's top-level dispatch. Unknown top-level command tokens remain CD-1 errors in every style.
+CS-3:: A non-strict style changes how a command's arguments are resolved (for example the target of `install`), never the tool's top-level dispatch. Unknown top-level command tokens remain CD-1 errors in every style.
 
 CS-4:: No style MAY silently fetch, build or run anything. Each style only changes how a request is *resolved*, and always reports the resolution.
+
+CS-9:: A CLI MUST declare exactly one style for its whole command surface, and MUST NOT mix styles across its commands or subcommands. A tool that wants the other style's behaviour MUST ship it as a separate tool.
++
+The strict and resolver styles are philosophically incompatible: one promises that input is taken literally or rejected, the other promises that loose input is interpreted. A tool that mixes them leaves the user unable to predict which promise applies to the command in front of them, which breaks their mental model of the whole tool.
 
 == Strict style (default)
 
@@ -30,7 +34,7 @@ The contract is xref:standard-cli-dispatch.adoc[CLI Dispatch] as written: a clos
 
 == Resolver style (natural-language)
 
-A resolver-style command accepts a loose name or phrase and resolves it to a concrete target, for example `install ripgrep` searching several system and language package managers.
+A resolver-style tool accepts a loose name or phrase and resolves it to a concrete target, for example `install ripgrep` searching several system and language package managers.
 
 CS-5:: The tool MUST print what it resolved before acting: each candidate with its source (package manager or registry), exact name, version and publisher where known.
 
@@ -61,6 +65,5 @@ The essay link:https://devcentr.org/news/2026-08-13-intents-not-shell-translatio
 
 == Open questions
 
-* Whether styles are declared per command, per tool, or both.
 * The registry of style names, and who may add one.
 * Whether a resolver style may ever skip confirmation (CS-7) for packages already pinned in a lockfile.

@@ -89,7 +89,17 @@ Run each case with default settings (and again with `--strict` for the *Migratin
 | 0
 | every command the dispatcher accepts is listed
 | CD-16
+
+| `<tool> --help` and `<tool> <command> --help` for every command, plus `--json` results
+| 0
+| one and the same declared style (`strict` if none is declared) for every command and subcommand; no command declares or behaves in another style
+| CS-9
 |===
+
+Style checklist (xref:standard-cli-styles.adoc[CLI Styles]):
+
+* [ ] The tool declares exactly one style for its whole command surface (CS-9).
+* [ ] No command or subcommand uses a different style; the other style's behaviour, if wanted, ships as a separate tool (CS-9).
 
 Example script (POSIX shell):
 

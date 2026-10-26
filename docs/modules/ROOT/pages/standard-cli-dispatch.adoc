@@ -75,17 +75,7 @@ CD-11:: An existing tool that has implicit behaviour (a catch-all, a silent defa
 . offer an opt-in strict mode, by flag, config setting and environment variable, that turns every implicit use into the CD-1 / CD-7 error.
 
 CD-12:: In the next major version, strict errors MUST become the default.
-The full changeover is required, not optional: a tool that only warns, or that keeps implicit behaviour as the default past the next major version, does not conform.
-A tool MAY keep the old behaviour behind an explicit, documented opt-out (for example `--legacy-implicit`) for one further major version, and the opt-out MUST itself warn on every use.
-
-[WARNING]
-.Pending decision: the `--legacy-implicit` allowance in CD-12
-====
-The opt-out sentence in CD-12 has *not* been approved by the standard's owner (Ryan Johnson).
-The stated intent is that the changeover is mandatory with no opt-out.
-Until a decision is recorded here, implementers SHOULD NOT ship such an opt-out, and certification reviewers MUST treat CD-12 as if the opt-out sentence were absent.
-The sentence may be removed without changing the id or the rest of the rule.
-====
+The full changeover is required, not optional: a tool that only warns, or that keeps implicit behaviour as the default past the next major version, does not conform. There is no opt-out: a tool MUST NOT keep implicit behaviour behind a legacy flag, setting or environment variable.
 
 CD-13:: The migration warning (CD-11) MUST be a single block on stderr that contains, in this order:
 . the line `warning: '<X>' is not a <tool> command; <what the tool is doing implicitly> is deprecated`;

@@ -52,6 +52,7 @@ Naming the tool that does implement a command keeps the user moving and keeps th
 
 Deprecation warnings that never become errors leave implicit behaviour in place forever: users learn to ignore the warning, and new scripts keep depending on the old form.
 A dated changeover at the next major version is what actually removes the behaviour, and semantic versioning already tells users that a major version may break them.
+No opt-out is offered because there is nothing to preserve: most packages do not care whether they were invoked implicitly or explicitly.
 
 The timeline in CD-15 gives users a warning release before the break, and the fixed message shape in CD-13 means the warning always contains the exact replacement command, so fixing a script is a copy-paste.
 Keeping `--strict` accepted after the switch (CD-14) means scripts that opted in early never break.

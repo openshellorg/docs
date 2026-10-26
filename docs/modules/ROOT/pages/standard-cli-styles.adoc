@@ -31,6 +31,8 @@ The strict and resolver styles are philosophically incompatible: one promises th
 CS-10:: The resolver (natural-language) style SHOULD be used only by tools whose name is a verb. A tool named with a noun SHOULD use the strict style, with verbs as its subcommands.
 +
 Implicit dispatch reads well when the tool name is the verb: `install foo`, `open foo` and `make target` are sentences, with the leftover token as the verb's object. A tool named with a noun, such as `git`, `cargo` or `redub`, puts the verb in the first-argument slot. Filling that slot with an object, as in `redub foo`, leaves the command with no verb, so the user has to guess whether `foo` is a verb or an object. That guess is the mental-model violation. Because CS-9 gives a tool one style for its whole surface, the choice is made once, per tool, and the tool's name is the first thing to check.
++
+A name's grammatical role is judged by its usage role to the people who use the tool, not by its spelling or origin. To downstream developers `dub` is a noun, the tool they invoke with verb subcommands such as `dub build` and `dub run`, even though it happens to look like an English verb.
 
 == Strict style (default)
 

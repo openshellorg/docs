@@ -63,7 +63,8 @@ Implicit or natural-language dispatch fits tools whose name is a verb.
 A tool named with a noun, such as `git`, `cargo` or `redub`, puts the verb in the first-argument slot instead.
 When that slot is filled with an object, as in `redub foo`, the command has no verb, and the user has to guess whether `foo` is a verb or an object.
 That guess is the mental-model violation, and it is the same guess that turned `dubx search` into a fetch.
-(`dub` is arguably a verb itself, which may be part of why `dub foo` has bothered people less.)
+Whether a name is a verb or a noun is decided by the role it plays for the people who use it, not by its spelling or origin.
+`dub` looks like an English verb, but to downstream developers it is a noun: the tool they invoke, with verbs as its subcommands (`dub build`, `dub run`).
 
 So CS-10 recommends the resolver style only for verb-named tools, and the strict style with verb subcommands for noun-named ones; CS-9 makes that a single decision for the whole tool.
 

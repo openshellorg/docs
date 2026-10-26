@@ -155,6 +155,12 @@ $ echo $?
 Any first word that is not one of its own commands falls through to its run path, which reads the word as a package name: `redub foo` behaves as `redub run foo`, fetching the package `foo` if it is not the local project.
 Its own commands are `build`, `build-universal`, `update`, `setup`, `clean`, `describe`, `deps`, `test`, `init`, `install`, `configure`, `use` and `run`, plus `watch` in some builds.
 `search` is not among them.
+That list comes from redub's dispatch table in `source/app.d`, not from its help: today `redub --help` lists `init`, `run`, `build`, `test`, `describe` and `clean`, then `update`, `build-universal`, `watch`, `install` and `use` as additions, and omits `setup`, `deps` and `configure` (CD-16).
+
+Two more gaps in the same release (redub `main` at `7cf2af7`):
+
+* `redub help` is not a command. `help` falls through to the run path like any other word and is read as a package named `help`; only `--help` prints help. CD-16 requires `<tool> help` to list the commands.
+* The help text says that with no command redub `will default to \"run\"`, but a bare `redub` runs without saying so. CD-6 requires every bare run to state which action it ran.
 
 This is how `dubx search` came to fetch a package named `search`: the word reached redub, whose catch-all read it as a package to run, so a request to search became a fetch of an unrelated package.
 No tool in the chain reported an unknown command.

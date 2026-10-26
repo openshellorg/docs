@@ -1,0 +1,63 @@
+= CLI Dispatch: rationale
+:navtitle: Rationale
+:description: Why CLI Dispatch forbids guessing: what goes wrong when a bare word becomes a package to run, and why the changeover to strict must be mandatory.
+:page-audience: CLI authors, tool maintainers, reviewers citing the standard
+:page-usage-context: When explaining or defending a CLI Dispatch rule in a design review or an upstream issue
+:page-orig-author: Grok Bot on behalf of Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Grok Bot on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+
+This page is non-normative.
+The rules live in xref:standard-cli-dispatch.adoc[CLI Dispatch]; this page explains them so a maintainer asked to adopt them can see the reasoning, not just the requirement.
+
+== Guessing turns typos into actions (CD-1 to CD-4)
+
+A catch-all dispatcher reads "anything I do not recognise" as "something to fetch or run".
+That makes the set of inputs that cause network access and code execution unbounded: every misspelling, every command from a different version of the tool, and every command meant for a sibling tool qualifies.
+
+An error costs the user one retry.
+A wrong guess can cost a download, a build, a run of code nobody reviewed, or, in the best case, a confusing message about a package that does not exist.
+The asymmetry is why CD-1 makes the unknown command an error and CD-2 forbids acting before the command is known.
+
+=== Motivating case
+
+`dub` treats `dub foo` as `dub run foo`.
+`redub`, a drop-in replacement, does the same for words outside its own command list.
+When a user ran `dubx search`, the word `search` reached a dispatcher whose catch-all read it as a package name, and a package called `search` was fetched.
+Nothing was malicious and every tool behaved as designed; the design itself turned an intent ("search") into an unrelated action (fetch and run).
+
+The case is useful precisely because it is ordinary.
+Package registries accept new names from anyone, so the package a bare word resolves to can change from one day to the next without the tool changing at all.
+
+== Silence hides surface (CD-7, CD-8, CD-16)
+
+When a tool ignores input it does not understand, nobody can tell whether a flag did something, did nothing, or does something undocumented.
+A GUI launcher that accepts and drops `--reset` looks identical to one that reset settings.
+Rejecting stray input is a cheap proof that the documented surface is the whole surface.
+CD-16 closes the other side: whatever dispatches must also appear in help.
+
+== Agents read errors, not intent
+
+Scripts and agents cannot see what a human "meant".
+They see an exit code and stderr.
+A stable exit code `2` plus a did-you-mean line is something they can act on; a successful run of the wrong package is not.
+
+== Wrappers must not pretend (CD-9, CD-10, CD-17)
+
+A wrapper that forwards everything inherits every catch-all below it, and one that silently does nothing makes failure look like success.
+Naming the tool that does implement a command keeps the user moving and keeps the wrapper honest about its scope.
+
+== Why the changeover is mandatory (CD-11 to CD-15)
+
+Deprecation warnings that never become errors leave implicit behaviour in place forever: users learn to ignore the warning, and new scripts keep depending on the old form.
+A dated changeover at the next major version is what actually removes the behaviour, and semantic versioning already tells users that a major version may break them.
+
+The timeline in CD-15 gives users a warning release before the break, and the fixed message shape in CD-13 means the warning always contains the exact replacement command, so fixing a script is a copy-paste.
+Keeping `--strict` accepted after the switch (CD-14) means scripts that opted in early never break.
+
+== Why strict is the default style
+
+Implicit resolution is not always wrong; a universal `install <thing>` that searches several package managers can be genuinely helpful.
+It is wrong when it is silent.
+xref:standard-cli-styles.adoc[CLI Styles] keeps strict as the default and lets other styles exist only under a contract that shows the resolution, asks before acting on ambiguity, and never fetches or runs silently.

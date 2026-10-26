@@ -8,6 +8,10 @@
 ** xref:standard-config-lifecycle-management.adoc[Config Lifecycle Management]
 ** xref:standard-cli-output.adoc[CLI Output]
 ** xref:standard-cli-dispatch.adoc[CLI Dispatch]
+*** xref:standard-cli-dispatch-rationale.adoc[Rationale]
+*** xref:standard-cli-dispatch-implementers.adoc[Implementer Guidelines]
+** xref:standard-cli-styles.adoc[CLI Styles (draft)]
 ** xref:standard-design-considerations.adoc[Design Considerations]
 * Certification
 ** xref:certification-about.adoc[Certification Program]
+** xref:certification-cli-dispatch.adoc[CLI Dispatch Conformance]

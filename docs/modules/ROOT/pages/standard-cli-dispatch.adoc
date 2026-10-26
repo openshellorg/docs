@@ -14,7 +14,15 @@ The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted a
 
 In this page, a *conforming tool* is a CLI that claims conformance with this standard, and a *command token* is the word in the position where the tool expects a command or subcommand name.
 Requirement ids (`CD-n`) are stable so tools, reviews and certification can cite them.
+An id is never reused or renumbered; a withdrawn rule keeps its id and is marked withdrawn.
 Where and how errors are printed is governed by xref:standard-cli-output.adoc[CLI Output]; this page governs which input produces an error at all.
+
+Companion pages:
+
+* xref:standard-cli-dispatch-rationale.adoc[CLI Dispatch: rationale] explains why each rule exists (non-normative).
+* xref:standard-cli-dispatch-implementers.adoc[CLI Dispatch: implementer guidelines] shows how to build a conforming dispatcher (non-normative).
+* xref:certification-cli-dispatch.adoc[CLI Dispatch conformance] defines levels, the self-test and how to claim conformance.
+* xref:standard-cli-styles.adoc[CLI Styles] (draft) defines the strict style this page describes and the contract any other style must meet.
 
 NOTE: This page is about how a single tool dispatches its own arguments.
 It is unrelated to Entrypoint Dispatch in `shell-architecture`, which covers how a shell refuses or re-executes entrypoints.
@@ -41,7 +49,7 @@ A tool MUST NOT resolve a token by searching packages, files, plugins or the net
 
 == Bare invocation
 
-CD-5:: In the strict style (see <<cli-styles>>), a bare invocation (the tool name with no command) SHOULD print help (or a short usage summary pointing to help) and perform no action.
+CD-5:: In the strict style (see xref:standard-cli-styles.adoc[CLI Styles]), a bare invocation (the tool name with no command) SHOULD print help (or a short usage summary pointing to help) and perform no action.
 
 CD-6:: If a tool does have a default action for a bare invocation, that default MUST be documented in its help and reference documentation, and every bare run MUST state which action it ran (for example `no command given; running default: build`).
 The default action MUST NOT be a catch-all that interprets later words as targets (CD-3 still applies).
@@ -70,22 +78,37 @@ CD-12:: In the next major version, strict errors MUST become the default.
 The full changeover is required, not optional: a tool that only warns, or that keeps implicit behaviour as the default past the next major version, does not conform.
 A tool MAY keep the old behaviour behind an explicit, documented opt-out (for example `--legacy-implicit`) for one further major version, and the opt-out MUST itself warn on every use.
 
-[[cli-styles]]
-== CLI styles
-
-[NOTE]
+[WARNING]
+.Pending decision: the `--legacy-implicit` allowance in CD-12
 ====
-This note is non-normative.
-
-CLI _styles_ will each have their own behaviour contract.
-The *strict style* is the default and is the style this page defines.
-
-A future *natural-language style* (for example a universal `install <thing>` that resolves a name across package managers and prints disambiguation output) may allow implicit resolution under its own contract.
-That contract will require the tool to show what it resolved, offer disambiguation, and never act on an ambiguous match without confirmation.
-
-The natural-language style is to be specified separately (TBD; no page yet).
-Until it is, no tool can claim it, and every conforming tool is held to the strict style.
+The opt-out sentence in CD-12 has *not* been approved by the standard's owner (Ryan Johnson).
+The stated intent is that the changeover is mandatory with no opt-out.
+Until a decision is recorded here, implementers SHOULD NOT ship such an opt-out, and certification reviewers MUST treat CD-12 as if the opt-out sentence were absent.
+The sentence may be removed without changing the id or the rest of the rule.
 ====
+
+CD-13:: The migration warning (CD-11) MUST be a single block on stderr that contains, in this order:
+. the line `warning: '<X>' is not a <tool> command; <what the tool is doing implicitly> is deprecated`;
+. the line `  use: <the exact explicit command that does the same thing>`, copy-pasteable;
+. the line `  this will be an error in <tool> <next major version>; enable now with <flag> or <ENV>=1`.
+The warning MUST appear before any action output, MUST NOT be suppressed by `--quiet` (xref:standard-cli-output.adoc[CO-10]), and MUST appear in the machine-readable result as an item needing attention (xref:standard-cli-output.adoc[CO-12]).
+
+CD-14:: The strict opt-in (CD-11) MUST be spelled consistently: the flag `--strict` (or `--strict-dispatch` if `--strict` is taken), the environment variable `<TOOL>_STRICT=1`, and a config key documented next to them.
+The flag takes precedence over the environment variable, and the environment variable over config.
+Once strict is the default (CD-12), the same flag MUST remain accepted as a no-op so scripts written during migration keep working.
+
+CD-15:: The migration MUST follow this timeline:
+. *Release W* (the first warning release, a minor or patch release of the current major version N): CD-11 warnings and the CD-14 strict opt-in ship together. Release notes MUST announce the change and name the major version in which strict becomes the default.
+. *At least one further release in major N* SHOULD ship before N+1, so users have a release in which to react to the warnings.
+. *Release N+1.0*: strict is the default (CD-12). Release notes MUST list every implicit form that is now an error, with its replacement.
+A tool MUST NOT announce a strict default for a major version and then ship that version without it.
+
+== Help and documentation
+
+CD-16:: `<tool> help` and `<tool> --help` MUST list every command the dispatcher accepts, including aliases (CD-4) and the bare-invocation default if any (CD-6).
+A command that dispatches but is missing from help is hidden surface and violates CD-7.
+
+CD-17:: A wrapper or drop-in replacement (CD-9) MUST document which commands it implements itself, which it forwards and to what, and which it rejects, and MUST keep that list in step with the underlying tool versions it supports.
 
 == Examples
 
@@ -138,17 +161,15 @@ $ echo $?
 
 === Worked migration: dub and redub
 
-`dub` treats an unknown first word as a package to fetch and run, and `redub` is a drop-in replacement for part of `dub`.
+`dub`, the D package manager, treats an unknown first word as a package name: `dub foo` behaves as `dub run foo`, fetching the package if it is not present.
+`redub` is a drop-in replacement for part of `dub` and behaves the same way for words it does not recognise.
+Its own commands are `build`, `build-universal`, `update`, `setup`, `clean`, `describe`, `deps`, `test`, `init`, `install`, `configure`, `use` and `run`, plus `watch` in some builds.
+`search` is not among them.
 
-*Wrapper: `dub search` under redub.*
-Non-conforming, the replacement guesses or silently does nothing useful:
+This is how `dubx search` came to fetch a package named `search`: the word reached a tool whose catch-all read it as a package to run, so a request to search became a fetch of an unrelated package.
+No tool in the chain reported an unknown command.
 
-[source,text]
-----
-$ redub search json
-(builds the current project, or exits 0 with no output)
-----
-
+*Wrapper: `search` under redub.*
 Conforming (CD-10):
 
 [source,text]
@@ -156,7 +177,8 @@ Conforming (CD-10):
 $ redub search json
 error: redub does not implement 'search'
   'search' is implemented by dub: dub search json
-  see: redub help for the commands redub implements
+  redub implements: build, build-universal, update, setup, clean, describe, deps, test, init, install, configure, use, run
+  see: redub --help
 $ echo $?
 2
 ----
@@ -172,14 +194,14 @@ Building foo ~master...
 Running foo
 ----
 
-Current major version, migration release (CD-11): behaviour unchanged, warning on every use, strict opt-in available.
+Current major version, migration release (CD-11, CD-13, CD-14): behaviour unchanged, warning on every use, strict opt-in available.
 
 [source,text]
 ----
 $ dub foo
 warning: 'foo' is not a dub command; running package 'foo' implicitly is deprecated
   use: dub run foo
-  this will be an error in the next major version; enable now with --strict or DUB_STRICT=1
+  this will be an error in dub 2.0; enable now with --strict or DUB_STRICT=1
 Fetching foo 1.2.0...
 ----
 
@@ -193,9 +215,12 @@ $ echo $?
 2
 ----
 
-Next major version (CD-12): the strict error above is the default for `dub foo`; `dub run foo` is the only way to run the package.
+Next major version (CD-12, CD-15): the strict error above is the default for `dub foo`; `dub run foo` is the only way to run the package.
+(The version number `2.0` is illustrative; each project names its own next major version.)
 
 == Conformance checklist
+
+The full self-test and the conformance levels are on xref:certification-cli-dispatch.adoc[CLI Dispatch conformance].
 
 * [ ] An unknown command prints `unknown command <X>`, a did-you-mean suggestion when one is close, and the valid commands or the help command (CD-1).
 * [ ] Unknown commands go to stderr and exit `2`, and nothing is fetched, written, built or run first (CD-1, CD-2).
@@ -203,16 +228,9 @@ Next major version (CD-12): the strict error above is the default for `dub foo`;
 * [ ] A bare invocation shows help, or runs a documented default and says which action it ran (CD-5, CD-6).
 * [ ] A tool or GUI launcher that takes no arguments errors on any argument or flag it receives (CD-7).
 * [ ] Unknown flags, extra positionals and missing arguments are usage errors with exit `2` (CD-8).
-* [ ] A wrapper or drop-in replacement forwards only commands the underlying tool implements, and names the tool that implements anything else (CD-9, CD-10).
-* [ ] A tool with implicit behaviour warns on every implicit use with the explicit replacement, and offers a strict opt-in (CD-11).
-* [ ] Strict errors are the default by the next major version; warnings alone do not conform (CD-12).
-
-== Rationale
-
-* *Guessing turns typos into actions.* A catch-all that fetches or runs whatever word it is given converts a misspelling into a network fetch, a build, or arbitrary code execution. An error costs one retry; a wrong guess can cost much more.
-* *Silence hides surface.* When a tool ignores input it does not understand, users and agents cannot tell whether a flag did something, did nothing, or does something undocumented. Rejecting it proves there is no hidden surface.
-* *Agents read errors, not intent.* An agent that typos a command needs an exit code and a suggestion it can act on, not a run of an unrelated package.
-* *Wrappers must not pretend.* A drop-in replacement that guesses at commands it does not implement breaks scripts in ways that look like success. Naming the tool that does implement the command keeps the user moving.
-* *Warnings alone never finish a migration.* Deprecation warnings that never become errors leave implicit behaviour in place forever. A dated changeover at the next major version is what actually removes it.
+* [ ] A wrapper or drop-in replacement forwards only commands the underlying tool implements, and names the tool that implements anything else (CD-9, CD-10, CD-17).
+* [ ] A tool with implicit behaviour warns on every implicit use in the CD-13 format, and offers `--strict` / `<TOOL>_STRICT` (CD-11, CD-13, CD-14).
+* [ ] Strict errors are the default by the next major version, on the announced timeline; warnings alone do not conform (CD-12, CD-15).
+* [ ] Help lists every accepted command, alias and default (CD-16).
 
 See also xref:standard-cli-output.adoc[CLI Output] for where errors are printed and what exit codes mean.

@@ -1,0 +1,132 @@
+= CLI Dispatch conformance
+:navtitle: CLI Dispatch Conformance
+:description: Conformance levels, a self-test with expected exit codes and stderr, how to claim CLI Dispatch conformance, and how to report a tool that does not conform.
+:page-audience: CLI maintainers seeking conformance, reviewers, users reporting non-conformance
+:page-usage-context: When testing a tool against CLI Dispatch, stating conformance in a README, or filing a non-conformance report
+:page-orig-author: Grok Bot on behalf of Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Grok Bot on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+
+This page defines how a tool shows that it meets xref:standard-cli-dispatch.adoc[CLI Dispatch].
+The key words MUST, SHOULD and MAY follow https://www.rfc-editor.org/info/bcp14[BCP 14].
+It complements the general xref:certification-about.adoc[Certification Program].
+
+IMPORTANT: Who grants certification, whether a third-party review is required, and the final name and artwork of any badge are open decisions.
+Until they are recorded here, only *self-declared conformance* (below) is available, and it MUST NOT be presented as OSO certification.
+
+== Levels
+
+[cols="1,3"]
+|===
+| Level | Meaning
+
+| *Migrating*
+| The tool is in a current-major migration release: CD-11, CD-13, CD-14 and CD-15 are met (warnings in the fixed format, strict opt-in, announced flip version), and with strict enabled every self-test below passes.
+
+| *Strict*
+| Every rule CD-1 to CD-17 is met with default settings. This is the level that conforms; *Migrating* is a time-limited step towards it and lapses when the announced major version ships.
+|===
+
+A tool that keeps implicit behaviour as its default after the announced major version has neither level.
+
+== Self-test
+
+Run each case with default settings (and again with `--strict` for the *Migrating* level), in a sandbox with no network access.
+"stderr contains" means the listed text appears on stderr; stdout MUST be empty in every error case.
+`<tool>` is the tool under test; `zzqx` is any word that is not a command.
+
+[cols="3,1,4,1"]
+|===
+| Command | Exit | stderr contains | Rules
+
+| `<tool> zzqx`
+| 2
+| `unknown command 'zzqx'` and a help pointer or command list
+| CD-1, CD-3
+
+| `<tool> <known command with one letter swapped>` (e.g. `biuld`)
+| 2
+| `unknown command` and `did you mean: <known command>`
+| CD-1
+
+| `<tool> zzqx` with network disabled and a file-write monitor
+| 2
+| no network or file activity is observed
+| CD-2
+
+| `<tool>`
+| 0
+| help or usage on stdout/stderr, or `running default: <action>`
+| CD-5, CD-6
+
+| `<tool> --zzqx`
+| 2
+| `--zzqx` named as unknown
+| CD-8
+
+| `<no-argument tool or GUI launcher> zzqx`
+| 2
+| `takes no arguments` (or equivalent) naming `zzqx`
+| CD-7
+
+| `<wrapper> <command only the underlying tool has>`
+| 2
+| `does not implement '<command>'` and the tool that does
+| CD-10
+
+| `<tool> zzqx` in a migration release, strict off
+| per legacy behaviour
+| the three CD-13 lines, before any other output
+| CD-11, CD-13
+
+| `<tool> --strict zzqx` and `<TOOL>_STRICT=1 <tool> zzqx`
+| 2
+| `unknown command 'zzqx'`
+| CD-14
+
+| `<tool> --help`
+| 0
+| every command the dispatcher accepts is listed
+| CD-16
+|===
+
+Example script (POSIX shell):
+
+[source,sh]
+----
+t=pkg
+out=$($t zzqx 2>err.txt); code=$?
+[ "$code" -eq 2 ] || echo "FAIL CD-1: exit $code"
+[ -z "$out" ] || echo "FAIL CO-20: stdout not empty"
+grep -q "unknown command 'zzqx'" err.txt || echo "FAIL CD-1: message"
+----
+
+== Claiming conformance
+
+A project that passes the self-test MAY state conformance in its README or reference docs.
+The statement MUST name the level, the standard page, the date it was checked and the tool version, for example:
+
+[source,text]
+----
+Conforms to OpenShellOrg CLI Dispatch (level: Strict), checked 2026-10-26 against pkg 3.0.0.
+https://docs.opensh.org/open-shell-org/standard-cli-dispatch.html
+----
+
+A *Migrating* statement MUST also name the major version in which strict becomes the default.
+A project MAY link a self-test transcript.
+A badge is planned; its name and artwork are pending (see the note at the top).
+
+== Reporting non-conformance
+
+Report non-conformance to the tool's own issue tracker first.
+A report SHOULD contain:
+
+. the tool name and exact version;
+. the exact command, its stdout, stderr and exit code;
+. the rule ids it violates (for example `CD-3, CD-2`);
+. the conforming behaviour expected, quoting the rule;
+. for tools with implicit behaviour, a pointer to CD-11 to CD-15 so the maintainer sees the migration path, not just the complaint.
+
+Keep reports factual and neutral: describe what the tool did, not the maintainers.
+Reports about the standard itself (an unclear or wrong rule) go to the https://github.com/openshellorg/docs/issues[openshellorg/docs issue tracker].

@@ -1,0 +1,66 @@
+= CLI Styles
+:description: Draft. A CLI style is a named behaviour contract for how a tool interprets input. Strict is the default; a resolver style may allow implicit resolution only under an announced contract.
+:page-audience: CLI authors, designers of resolver-style tools such as a universal installer
+:page-usage-context: When a tool wants behaviour other than strict dispatch and needs to know what contract it must meet
+:page-orig-author: Grok Bot on behalf of Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Grok Bot on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+
+CAUTION: *Draft.* This page is a proposal. Its rule ids (`CS-n`) are provisional and may change before the page is marked stable. Only the strict style can be claimed today.
+
+A *style* is a named contract for how a tool turns input into action.
+Every style has its own behaviour contract; a tool declares which style each command uses, and users can rely on that contract.
+
+The key words MUST, SHOULD and MAY follow https://www.rfc-editor.org/info/bcp14[BCP 14].
+
+== Rules for all styles
+
+CS-1:: *Strict is the default.* A command that does not declare a style is strict, and MUST meet every rule in xref:standard-cli-dispatch.adoc[CLI Dispatch].
+
+CS-2:: A non-strict style MUST be *announced*: declared in help for the command that uses it, in reference docs, and in the `--json` result (`"style": "<name>"`).
+
+CS-3:: A non-strict style MUST be scoped to named commands (for example `install`), never to the whole tool's top-level dispatch. Unknown top-level command tokens remain CD-1 errors in every style.
+
+CS-4:: No style MAY silently fetch, build or run anything. Each style only changes how a request is *resolved*, and always reports the resolution.
+
+== Strict style (default)
+
+The contract is xref:standard-cli-dispatch.adoc[CLI Dispatch] as written: a closed command table, unknown input rejected with exit `2`, no implicit resolution.
+
+== Resolver style (natural-language)
+
+A resolver-style command accepts a loose name or phrase and resolves it to a concrete target, for example `install ripgrep` searching several system and language package managers.
+
+CS-5:: The tool MUST print what it resolved before acting: each candidate with its source (package manager or registry), exact name, version and publisher where known.
+
+CS-6:: When more than one candidate matches, the tool MUST print disambiguation output and MUST NOT act until the user picks one. Non-interactive runs (no TTY, CI, `--json`) MUST exit `2` with the candidate list instead of picking.
+
+CS-7:: Even with a single candidate, the tool MUST ask for confirmation before any fetch, install or run, unless the user passed an explicit flag such as `--yes` together with a fully qualified target (for example `winget:BurntSushi.ripgrep.MSVC`).
+
+CS-8:: Resolution MUST be reproducible from its output: the printed resolution includes the fully qualified strict command that does the same thing, so the user can run it directly next time.
+
+Example:
+
+[source,text]
+----
+$ ix install ripgrep
+style: resolver (install)
+3 candidates for 'ripgrep':
+  1) winget   BurntSushi.ripgrep.MSVC   14.1.1
+  2) scoop    ripgrep                   14.1.1
+  3) cargo    ripgrep                   14.1.1  (builds from source)
+choose 1-3, or rerun with a qualified name (e.g. ix install winget:BurntSushi.ripgrep.MSVC):
+----
+
+== Prior art in OpenShellOrg
+
+No OpenShellOrg repository yet describes a universal `install <anything>` tool.
+The closest existing idea is xref:tools:nu-require:install-offer.adoc[nu-require Install Offer], a one-shot install hint (`winget` / `brew` / docs) when Nushell is missing, which already follows CS-4 in spirit: fail loudly rather than degrade silently.
+The essay link:https://devcentr.org/news/2026-08-13-intents-not-shell-translation[Intents, not shell translation] (linked from xref:ecosystem.adoc[Ecosystem]) is related background on intent-level commands.
+
+== Open questions
+
+* Whether styles are declared per command, per tool, or both.
+* The registry of style names, and who may add one.
+* Whether a resolver style may ever skip confirmation (CS-7) for packages already pinned in a lockfile.

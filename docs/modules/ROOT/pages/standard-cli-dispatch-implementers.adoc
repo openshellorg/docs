@@ -1,0 +1,74 @@
+= CLI Dispatch: implementer guidelines
+:navtitle: Implementer Guidelines
+:description: How to build a dispatcher that meets CLI Dispatch: closed command tables, did-you-mean, argument validation, wrapper allowlists and a staged strict migration.
+:page-audience: CLI authors, maintainers adopting CLI Dispatch in an existing tool
+:page-usage-context: When writing or refactoring the code that parses a command line and picks an action
+:page-orig-author: Grok Bot on behalf of Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Grok Bot on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+
+This page is non-normative guidance for meeting xref:standard-cli-dispatch.adoc[CLI Dispatch].
+Where it says "do", the rule it serves is cited.
+
+== Dispatch flow
+
+[source,mermaid]
+----
+flowchart TD
+  A[argv] --> B{command token present?}
+  B -- no --> C{documented default? CD-6}
+  C -- no --> H[print help, exit 0 CD-5]
+  C -- yes --> D[announce default, run it]
+  B -- yes --> E{token in command table or fixed alias? CD-4}
+  E -- yes --> F[validate flags and positionals CD-8]
+  F -- ok --> G[run command]
+  F -- bad --> X[usage error on stderr, exit 2]
+  E -- no --> L{migration release and implicit form? CD-11}
+  L -- yes, strict off --> W[CD-13 warning, then legacy action]
+  L -- no, or strict on --> U[unknown command + did-you-mean, exit 2 CD-1]
+----
+
+== Keep the command table closed
+
+* Hold commands in one static table: name, aliases, handler, argument spec. The dispatcher looks up the token there and nowhere else (CD-4).
+* Do all parsing and validation before any side effect (CD-2). A common bug is resolving a package or opening a network connection while still deciding what the command is.
+* Generate help from the same table so CD-16 holds by construction.
+
+== Did-you-mean
+
+* Compare the unknown token against command names and aliases with Damerau-Levenshtein distance; suggest matches at distance 1 or 2 (or 1 for tokens of 4 characters or fewer), plus unique prefixes.
+* Suggest at most three. If none is close, print the command list or the help command instead (CD-1).
+* Never run the suggestion.
+
+== Tools that take no arguments
+
+* A GUI launcher's `main` should check `argc` (or the platform equivalent) and exit `2` with a message on any argument (CD-7).
+* On Windows GUI-subsystem programs there may be no console; write the message to an attached console if present, otherwise show it in a dialog, and still exit `2`.
+* If the OS passes arguments the tool must accept (for example a file path from a file association, or a platform activation flag), document them; they are then expected input, not stray input.
+
+== Wrappers and drop-ins
+
+* Keep an explicit allowlist: commands implemented locally, commands forwarded (and to which tool), and everything else rejected with CD-10's message (CD-9, CD-17).
+* Do not forward unknown words "just in case": the underlying tool may have a catch-all, which is how `dubx search` fetched a package named `search`.
+* Version the allowlist against the underlying tool versions you support.
+
+== Staging the strict migration
+
+. Add the strict code path first, behind `--strict` / `<TOOL>_STRICT=1` / a config key (CD-14). Test it.
+. In the same release, add the CD-13 warning to every implicit path. Grep for every place the dispatcher falls back: unknown token, ignored flag, silent default.
+. Announce in release notes which major version flips the default (CD-15).
+. In the next major version, invert the default and keep `--strict` as an accepted no-op.
+
+Exact warning text, reused in every tool:
+
+[source,text]
+----
+warning: '<X>' is not a <tool> command; <implicit action> is deprecated
+  use: <explicit command>
+  this will be an error in <tool> <N+1>; enable now with --strict or <TOOL>_STRICT=1
+----
+
+== Testing
+
+Run the self-test on xref:certification-cli-dispatch.adoc[CLI Dispatch conformance] in CI, using a sandbox with no network so CD-2 violations fail loudly instead of quietly downloading.

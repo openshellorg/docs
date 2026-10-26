@@ -5,14 +5,14 @@
   font-size: 0.95em;
 }
 .doc .lifecycle-status-active {
-  color: var(--adt-admonition-tip, #059669);
+  color: var(--valentus-admonition-tip, #059669);
 }
 .doc .lifecycle-status-deprecated {
-  color: var(--adt-admonition-warning, #d97706);
+  color: var(--valentus-admonition-warning, #d97706);
 }
 .doc .lifecycle-status-expired {
-  color: var(--adt-admonition-important, #dc2626);
+  color: var(--valentus-admonition-important, #dc2626);
 }
 .doc .lifecycle-status-unknown {
-  color: var(--adt-admonition-note, #2563eb);
+  color: var(--valentus-admonition-note, #2563eb);
 }

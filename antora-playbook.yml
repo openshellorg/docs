@@ -49,6 +49,8 @@ antora:
         enabled: true
       diagramLightbox:
         enabled: true
+      relatedDocs:
+        sites: none
       asciidocAttributes:
         page-context-author-label: username
         page-context-author-avatar: without-icon
@@ -101,26 +103,13 @@ ui:
   supplemental_files: ./supplemental-ui
 
 asciidoc:
-  extensions:
-    - '@antora-supplemental/asciidoctor-emoji-literals'
-    - asciidoctor-emoji
-    # Kroki bakes PlantUML and other non-Mermaid diagram types; mermaid-client skips [source,mermaid].
-    - asciidoctor-kroki
-    - '@antora-supplemental/page-context'
+  # facto-stack bundles the AsciiDoc extensions (emoji-literals, emoji, kroki, page-context)
+  # and stem/kroki/page-context defaults; hub page-context values live in asciidocAttributes above.
   attributes:
-    stem: latexmath
     experimental: ""
     idprefix: ""
     idseparator: "-"
     page-pagination: ""
-    kroki-server-url: https://kroki.io
-    kroki-fetch-diagram: true
-    mermaid-client: ''
-    mermaid-client-mode: client
-    page-context-active: ''
-    page-context-author-label: username
-    page-context-author-avatar: without-icon
-    page-context-keyword-base: '/open-shell-org/keywords'
 
 output:
   dir: build/site

@@ -26,7 +26,7 @@ Programming languages solved the first problem long ago with modules and qualifi
 
 NS-1:: A conforming shell MUST resolve the first word of a command through a hierarchical command namespace, not by searching folders. Nodes are slash-separated paths of lowercase words grouped by task, for example `install`, `install/npm`, `vcs/status`.
 
-NS-2:: A tool MUST enter the namespace by a *registration manifest* that names every node it claims, its package, version and publisher. The shell host MUST record each registration (who, what, when).
+NS-2:: A tool MUST enter the namespace by a *registration manifest* that names every node it claims, its package, version and publisher. The shell host MUST record each registration (who, what, when). Manifests are written in JSON5 and validated by JSON Schema after parsing (see https://github.com/openshellorg/command-namespace[command-namespace]).
 
 NS-3:: Two manifests claiming the same node MUST be reported as a conflict. The shell MUST NOT let the most recent installer win silently.
 
@@ -36,7 +36,7 @@ NS-5:: Running a file by path MUST stay possible, but only explicitly (a path-sh
 
 NS-6:: A node MUST declare its CLI style (strict by default, per xref:standard-cli-styles.adoc[CLI Styles] CS-1 and CS-2). A resolver-style front door such as `install` is a node whose children are providers registered by each package manager.
 
-NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help.
+NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help. Free flags use the `+` sigil: you add them together, and their order doesn't matter (`+yes +verbose`). The inspection tool is https://github.com/openshellorg/name[`name`] (`name which`, `name conflicts`).
 
 NS-8:: When a version manager controls a node, the manifest for each version SHOULD mark which commands and flags were added, removed or changed since the previous release. This is a visual cue and learning aid, not a full diff.
 

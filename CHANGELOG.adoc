@@ -2,6 +2,7 @@
 
 == Unreleased
 
+* Playbook: the `ns` tool is renamed `name` (repo openshellorg/name). Concept page NS-2 notes JSON5 manifests; NS-7 records the decided `+` free-flag sigil.
 * Playbook: add the Tools components from command-namespace, ns, install, versions and isolate.
 * New proposed concept page xref:concept-command-namespace.adoc[Command namespace and context requests] (NS-1 to NS-14): hierarchical command namespace instead of PATH, input signatures for context requests (current folder as declared input), fixed-height composition area, isolation levels (overlay, fence, partition, guest). Listed under Concepts (proposed) in the nav.
 * New xref:standard-cli-dispatch.adoc[CLI Dispatch] standard (CD-1 to CD-12): unknown commands are usage errors (stderr, exit 2, did-you-mean); no implicit catch-all for bare words; documented and announced bare-invocation defaults (help preferred); no-argument tools and GUI launchers reject any input; wrappers forward only known commands and name the tool that implements the rest; mandatory migration (warn on every implicit use plus strict opt-in now, strict by default next major). Non-normative note on CLI styles, worked dub/redub example and conformance checklist. Listed under The Standard in the nav and cross-linked from xref:standard-cli-output.adoc[CLI Output].

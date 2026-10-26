@@ -77,7 +77,7 @@ content:
     - url: https://github.com/openshellorg/command-namespace.git
       branches: [main]
       start_path: docs
-    - url: https://github.com/openshellorg/ns.git
+    - url: https://github.com/openshellorg/name.git
       branches: [main]
       start_path: docs
     - url: https://github.com/openshellorg/install.git

@@ -2,6 +2,7 @@
 
 == Unreleased
 
+* UI: Valentus **v4.3.1**. The current page in the breadcrumb is no longer underlined.
 * Changelog: moved from the root `CHANGELOG.adoc` into the `changelog` module of the `open-shell-org` component (xref:changelog:index.adoc[Changelog] in the nav). Detail reports and saved prompts go under `changelog-details/history/`.
 * Concept page NS-6: the resolver command is literally `install`; install(1) lives at `legacy/install` with a PROVISIONAL passthrough.
 * New xref:ROOT:standard-cli-help.adoc[CLI Help] standard (CH-1 to CH-24), based on prohelp: `--help`, `-h` and `help` (as a command for tools with subcommands) must print help; bare invocation; progressive content and line budgets; an authored prohelp document as the source of truth, rendered through `prohelp.intercept` and gated by `prohelp check --strict`; subcommand help; help on stdout with exit 0, error help on stderr with exit 2; text subtree dump and (provisional) JSON help; did-you-mean ties to CD-1. Lists the features prohelp 0.2.3 still needs. Listed under The Standard next to CLI Dispatch; CLI Dispatch CD-1, CD-5, CD-6, CD-8 and CD-16 link to the CH rules; CLI Dispatch conformance gains help self-test rows.

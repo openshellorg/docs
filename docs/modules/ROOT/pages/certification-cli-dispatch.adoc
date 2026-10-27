@@ -141,7 +141,7 @@ Run each case with default settings (and again with `-strict` for the *Migrating
 | CS-9
 |===
 
-Help rows above cover the parts of xref:standard-cli-help.adoc[CLI Help] that a black-box test can see; the full list is its conformance checklist (CH-1 to CH-24).
+Help rows above cover the parts of xref:standard-cli-help.adoc[CLI Help] that a black-box test can see; the full list is its conformance checklist (CH-1 to CH-26).
 
 Style checklist (xref:standard-cli-styles.adoc[CLI Styles]):
 

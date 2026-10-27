@@ -225,7 +225,7 @@ unsetopt BANG_HIST
 A tool cannot change its parent shell, so this is user setup. An OSO installer or setup script MAY add these lines.
 * *Fallback suffix `~` (Decided, Ryan: "Yes, ~ is the fallback").* Conforming tools MUST accept `~` with exactly the same meaning as `!` (`-force~`, `-clean~~`), only as a stand-in for `!` in shells that mangle it. `~` was the only tested character that is not already a sigil (`+` is taken by free flags) and reached the program unchanged in every shell tested, including zsh with `extendedglob` (a trailing `~` is not a pattern) and bash/zsh tilde expansion (which only applies at the start of a word).
 * *Which spelling docs and help teach (Decided, Ryan).* "The docs/instructions should/will teach different syntax for those shells until they redress their bad choice." Documentation, instructions and tool help teach `~` for interactive bash and zsh (and any other shell that is not OSO certified for `!`) until those shells fix it, and `!` everywhere else. The canonical spelling is still `!`. Turning history expansion off (`set +H`, `unsetopt BANG_HIST`, above) is how a bash or zsh user becomes conforming and can type `!`. Where help adapts to the shell, it uses the same detection as the notices: bash, zsh and undetectable shells are shown `~`.
-* *No guard against mangled `!` (Decided, Ryan).* "If someone attempts to use the wrong syntax in zsh, they should just see bad output." Tools do not try to detect arguments that history expansion has mangled (`-cleanpython3 ...`), and help carries no extra warning about it: the user gets whatever the mangled arguments produce, usually an unknown-option usage error (CD-8). Shell companion: Decided, library only. There is no shell-side companion (no plugin that rewrites `!` before the shell expands it); the CLI framework library does all of this on its own.
+* *No guard against mangled `!` (Decided, Ryan).* "If someone attempts to use the wrong syntax in zsh, they should just see bad output." Tools do not try to detect arguments that history expansion has mangled (`-cleanpython3 ...`), and help carries no extra warning about it: the user gets whatever the mangled arguments produce, usually an unknown-option usage error (CD-8). The library side is unchanged by this: all MUSTs above are met by the CLI framework library alone. An OPTIONAL shell companion can do more for interactive bash and zsh; see <<shell-companion>>.
 * *Fallback notice (MUST).* Ryan: when a fallback is used, it must be "abundantly obvious that the incompatible shells are incompatible and not oso certified". Whenever a conforming tool receives an option with the `~` fallback suffix, it MUST print a prominent notice on stderr, on every use. The notice does not change stdout or the exit code, and `-quiet` MUST NOT silence it. It MUST be visibly highlighted: a coloured `notice:` label when stderr is a terminal, plain text otherwise (CH-19). It MUST:
 ** say that the fallback was used because the current shell expands `!` and is not OSO certified;
 ** name the shell when it can be detected. `$BASH_VERSION` and `$ZSH_VERSION` are shell variables that a child process does not see, so detect it from the parent process instead (`/proc/$PPID/exe` or `ps -p $PPID -o comm=` on Unix, the parent process image on Windows), falling back to `$SHELL` (the login shell, which may not be the one running) and saying "your shell" when nothing is reliable;
@@ -309,6 +309,38 @@ PowerShell's `@` (splatting) and `#` (comment) are special only at the start of 
 
 
 *Bare `--`:* whether the token `--` (exactly two dashes, nothing after) stays the end-of-options marker is a separate question. It does not conflict with reserving `--x` and `---x`, because it has no name after the dashes. It could conflict with a candidate that gives a bare repeated dash a meaning of its own (for example a bare `---` for "session scope from here on"); if one of those is chosen, the end-of-options marker has to be decided at the same time.
+
+[[shell-companion]]
+=== Optional shell companion (PROVISIONAL)
+
+Ryan: "rewriting is useful, so is the other use-cases. build as much facility as you can into these companions for both".
+
+This section is OPTIONAL and separate from the library MUSTs above. Tools MUST NOT depend on a companion, and nothing in NS-15 or CLI Dispatch changes when one is installed. The baseline for shells is library-generated completions, `<tool> completions zsh|bash|fish|pwsh` (xref:ROOT:standard-cli-help.adoc#ch-26[CH-26], SHOULD). A shell companion is an optional enhancement for interactive bash and zsh, the two shells that are not OSO certified for `!`. It reads the tool's JSON help (xref:ROOT:standard-cli-help.adoc[CH-23] plus the PROVISIONAL xref:ROOT:standard-cli-help.adoc#ch-25[CH-25] additions) and caches it per tool and version.
+
+[cols="1,2,2",options="header"]
+|===
+|Facility |zsh |bash
+
+|Rewrite a trailing `!` on NS-15 option words to `~` when you press Enter (`-force!` becomes `-force~`, `-x-v-z!` becomes `-x-v-z~`). Quoted text, comments and real history references (`!!`, `!$`) are never touched.
+|`accept-line` widget
+|`bind -x` with an Enter macro
+
+|Completion: commands, options at each depth (under the hierarchy candidate, a `--child` is offered only after its `-parent`), intensity levels shown as `~` where the shell expands `!`, enum and path operands
+|`compdef`, with descriptions
+|`complete -F`
+
+|Highlighting of illegal NS-15 tokens: letter-hyphen names (`-f-stop`), mixed groups (`-x-dry-run`), orphan children, undeclared names (`-xvz` only if the tool does not declare it), too many intensity levels
+|Live, as you type (`region_highlight`)
+|A warning when you press Enter, or on a key; bash cannot colour part of the line as you type
+
+|Inline hints for what each intensity level of the option under the cursor means
+|Live, under the line (`POSTDISPLAY`)
+|On a key (Alt-h)
+|===
+
+* Because the companion rewrites `!` to `~`, the tool still receives `~` and still prints the not-certified notice on every use. The companion does not and cannot silence it; the shell is still not OSO certified.
+* zsh treats `!"` specially: it removes the `!` from `"-force!"` and leaves an unbalanced quote, so the shell waits at a `dquote>` prompt. This is zsh history expansion, not the companion; a companion leaves quoted text alone.
+* Home: a prototype exists, with pty tests in real bash 5.2 and zsh 5.9. Where it is published is pending Ryan's choice.
 
 == What already exists, and what is new
 

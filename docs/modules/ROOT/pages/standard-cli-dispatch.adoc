@@ -22,7 +22,7 @@ Companion pages:
 * xref:standard-cli-dispatch-rationale.adoc[CLI Dispatch: rationale] explains why each rule exists (non-normative).
 * xref:standard-cli-dispatch-implementers.adoc[CLI Dispatch: implementer guidelines] shows how to build a conforming dispatcher (non-normative).
 * xref:certification-cli-dispatch.adoc[CLI Dispatch conformance] defines levels, the self-test and how to claim conformance.
-* xref:standard-cli-help.adoc[CLI Help] defines which help invocations a tool answers, where help comes from (prohelp) and how help uses stdout, stderr and exit codes (CH-1 to CH-24).
+* xref:standard-cli-help.adoc[CLI Help] defines which help invocations a tool answers, where help comes from (prohelp) and how help uses stdout, stderr and exit codes (CH-1 to CH-26).
 * xref:standard-cli-styles.adoc[CLI Styles] (draft) defines the strict style this page describes and the contract any other style must meet.
 
 NOTE: This page is about how a single tool dispatches its own arguments.

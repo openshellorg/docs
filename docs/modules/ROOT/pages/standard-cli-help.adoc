@@ -159,6 +159,12 @@ The field names are a public interface (CO-13).
 +
 _Prohelp gap:_ prohelp has no JSON output. Until it does, this rule is *provisional*: a tool is not marked non-conforming for missing it, and the field set above is the requirement for prohelp to implement.
 
+[[ch-25]]
+CH-25 (PROVISIONAL):: The JSON help of CH-23 SHOULD describe options precisely enough for shell tooling. Each option object carries `name`, `aliases`, `summary`, and when they apply: `levels` (an array whose entry _i_ is the meaning of the option with _i_+1 intensity suffixes, `-clean!` … `-clean!!!`), `operand` (`name`, `type` one of `path`, `file`, `dir`, `string`, `int`, `enum`, and `values` for `enum`) and `children` (options one dash deeper under the NS-15 hierarchy candidate, nested to any depth). Each command carries `operands` with the same `name`/`type`/`values` shape, options that apply everywhere go in `global_options`, and the document carries the tool `version` so consumers can cache it per version. Provisional until the repeated-dash question (NS-15) is decided and prohelp emits it.
+
+[[ch-26]]
+CH-26:: A tool SHOULD generate shell completions from the same help source: `<tool> completions zsh|bash|fish|pwsh` prints a completion script for that shell on stdout. This is the baseline. An OPTIONAL shell companion (xref:ROOT:concept-command-namespace.adoc#shell-companion[NS-15 shell companion]) may add more on top for interactive bash and zsh, but a tool MUST NOT depend on one.
+
 == Did-you-mean and errors
 
 CH-24:: Every dispatch error (CD-1, CD-7, CD-8, CD-10) MUST name the exact help command that resolves it, such as `see: <tool> help` or `see: <tool> help <command>`, and that command MUST work under CH-2 and CH-15.
@@ -196,6 +202,8 @@ Each belongs in `openshellorg/prohelp` (or prohelp-cli where noted); until then 
 * [ ] Help-system notices go to stderr and `PROHELP_QUIET=1` silences them (CH-20).
 * [ ] `<tool> ? *` dumps the help tree as text (CH-22); JSON help when available (CH-23, provisional).
 * [ ] Every dispatch error names a working help command (CH-24).
+* [ ] JSON help carries option levels, operand types and children (CH-25, provisional).
+* [ ] `<tool> completions zsh|bash|fish|pwsh` prints a completion script (CH-26).
 
 Self-test cases are in xref:certification-cli-dispatch.adoc[CLI Dispatch conformance].
 

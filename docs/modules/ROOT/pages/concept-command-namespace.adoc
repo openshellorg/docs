@@ -59,7 +59,7 @@ NS-14:: An overlay (venv activation, a version switch, a project pin) SHOULD be 
 [#option-syntax]
 == Option syntax (NS-15)
 
-NS-15:: A conforming tool's own options MUST use a single dash (`-`), read by these rules. `-` options are the contextual flags of NS-7: their meaning depends on the verb and their order matters (`install -npm <pkgname>`). The rules apply to any argument that starts with `-` and is not exactly `-`; the `+` free (non-contextual) flags of NS-7 are not affected.
+NS-15:: A conforming tool's own options MUST use a single dash (`-`), read by these rules. `-` options are the contextual flags of NS-7: their meaning depends on the verb and their order matters (`install -npm <pkgname>`). The rules apply to any argument that starts with `-` and is not exactly `-` (a switch; bare words are values or bare-word nodes, <<token-kinds>>); the `+` free (non-contextual) flags of NS-7 are not affected.
 +
 . `-word` is a *long option*. A word is two or more characters, and hyphenated words are allowed: `-version`, `-dry-run`, `-strict-dispatch`.
 . A *short alias* is a single letter: `-v`. A short alias and a long option MAY name the same option (`-v` and `-version`).
@@ -118,6 +118,33 @@ Later one-letter parts inside a long name (`-ipv-4`) are legal; only the *first*
 * *Grouping needs a visible separator that survives every shell.* A colon (`-:xvz`) never reads as grouping; quotes (`-"xvz"`) are stripped by the shell; `;` ends a command; parentheses need quoting in bash and PowerShell. A hyphen between single letters is plain, typeable and unquoted everywhere.
 * *Letter-hyphen names are ambiguous.* Cabal's `-f-foo` means "disable flag foo", which is exactly the `-f -foo` versus `-f-foo` ambiguity this rule removes; GHC avoids it with `-fno-foo` and `-XNoFoo`. Banning a leading letter-hyphen keeps every group unambiguous.
 
+[#token-kinds]
+=== Token kinds and bare-word nodes (decided)
+
+Decided 2026-10-26 (Ryan). An OSO command line has exactly three kinds of token:
+
+. *Switches*: tokens that start with `-` (and are not exactly `-`), read by the NS-15 rules above (`-version`, `-v`, `-x-v-z`). The `+` free flags of NS-7 are a separate sigil and are unchanged.
+. *Values*: bare strings, such as operands and option arguments (`<pkgname>`, `file.txt`, the `-` operand).
+. *Bare-word nodes*: subcommands such as `help` and `commit`, written without a sigil.
+
+*Resolution rule.* A bare word is a node only where the command namespace declares a node with that name at that position (the path read so far, NS-1, NS-7). Anywhere else, a bare word is a value. A parser and a linter MUST resolve bare words against the namespace this way; a bare word MUST NOT be treated as a switch or flagged as an illegal NS-15 token.
+
+This keeps `<command> help` valid alongside `-help`, and reconciles xref:standard-cli-help.adoc[CH-2] with NS-15: `help` is a declared bare-word node, while `-help` is the switch of CH-1.
+
+[cols="2,3"]
+|===
+|Command line |Reading
+
+|`git commit -amend` |`commit` is a declared node under `git`; `-amend` is a switch
+|`git help commit` |`help` is a declared node; `commit` is a declared node under it (or a value naming the command, per the tool's table)
+|`redub help` |`help` is a node if `redub` declares it (CH-2 requires it); otherwise `help` is a value, a package named `help`
+|`install -npm help` |if `install/npm` declares no `help` node at that position, `help` is the value (a package name)
+|`echo commit` |`echo` declares no nodes, so `commit` is a value
+|===
+
+*OPEN:* how a user forces a value when it collides with a declared node name (for example a package named `help`): quoting does not help, because the shell strips quotes; candidates are an end-of-options marker or a value prefix. Not decided.
+
+_Prohelp today:_ prohelp keeps its `<command> help` and `<command> ?` syntax for now (decided for now, may revisit). `help` as a node already meets CH-2; `?` and the lack of `-help` remain the OSO deviations.
 [#legacy-double-dash]
 === `--long` is a deprecated legacy alias (decided)
 
@@ -329,7 +356,7 @@ This section is OPTIONAL and separate from the library MUSTs above. Tools MUST N
 |`compdef`, with descriptions
 |`complete -F`
 
-|Highlighting of illegal NS-15 tokens: letter-hyphen names (`-f-stop`), mixed groups (`-x-dry-run`), orphan children, undeclared names (`-xvz` only if the tool does not declare it), too many intensity levels
+|Highlighting of illegal NS-15 tokens: letter-hyphen names (`-f-stop`), mixed groups (`-x-dry-run`), orphan children, undeclared names (`-xvz` only if the tool does not declare it), too many intensity levels. Bare words are never highlighted as options; they are nodes only where the namespace declares one at that position, otherwise values (<<token-kinds>>)
 |Live, as you type (`region_highlight`)
 |A warning when you press Enter, or on a key; bash cannot colour part of the line as you type
 

@@ -40,6 +40,8 @@ CH-2:: A tool that has subcommands MUST also accept `help` as a command: `<tool>
 `help` MUST therefore be listed among the tool's commands (CD-16) and MUST NOT fall through to any other path.
 A tool without subcommands MAY accept `help` the same way.
 +
+`help` here is a bare-word node, not an option: under NS-15 a command line has switches (`-help`), values and bare-word nodes, and a bare word is a node only where the tool's namespace declares one at that position (xref:concept-command-namespace.adoc#token-kinds[NS-15 token kinds]). A tool that meets CH-2 declares `help` as a node at the top level (and under each command that takes `help`), so `<tool> help` and `<tool> -help` are both legal and do not conflict.
++
 This closes the case shown in xref:standard-cli-dispatch.adoc[CLI Dispatch]: `redub help` is read as a package named `help` and run, while only `redub --help` (redub's current, legacy GNU-style spelling) prints help. Under CH-2 that tool does not conform until `redub help` prints help (and under CD-3 it must not run anything either way).
 +
 _Prohelp today:_ `help` is already a trigger in `intercept`, so a tool that calls `intercept` before its dispatcher meets CH-2 for the top level.

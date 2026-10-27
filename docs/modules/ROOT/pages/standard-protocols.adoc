@@ -5,18 +5,18 @@ Compliance with SOS requires implementing specific interaction patterns.
 
 == The "Safety-Valve" Protocol
 
-Every compliant tool must implement a `--dry-run` flag.
+Every compliant tool must implement a `-dry-run` flag (single-dash, xref:concept-command-namespace.adoc#option-syntax[NS-15]; `--dry-run` is a deprecated legacy alias).
 
 === Interaction Requirements
 
-. *Dry Run Output*: When `--dry-run` is passed, the tool MUST NOT perform any destructive actions.
+. *Dry Run Output*: When `-dry-run` is passed, the tool MUST NOT perform any destructive actions.
 . *Execution Tree*: The tool MUST output the exact execution tree (the logical steps it would have taken) in structured *JSON* format.
 . *Machine Readability*: This allows for CI/CD pipelines to validate command intent before execution on production systems.
 
 [source,bash]
 ----
 # Example
-my-app --file=data.json --delete --dry-run
+my-app -file data.json -delete -dry-run
 ----
 
 Output:

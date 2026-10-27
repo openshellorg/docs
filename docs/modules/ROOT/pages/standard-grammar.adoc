@@ -3,19 +3,22 @@
 
 Standardized Operations Syntax (SOS) replaces loosely defined POSIX guidelines with a strict CFG based on the *Standardized Operations Syntax*.
 
-== Mandatory Flag Permutation
+Option spelling follows xref:concept-command-namespace.adoc#option-syntax[NS-15]; switch values follow xref:concept-command-namespace.adoc#switch-kinds[NS-15 switch kinds]. This page summarizes them; where they differ, NS-15 governs.
+
+== Switches and values
 
 To prevent "greedy" consumption of positional arguments and ensure unambiguous parsing:
 
-* *ENFORCED:* `--flag=value`
-* *DEPRECATED:* `-f value`
+* *REQUIRED:* `-flag value`. Long options use a single dash; a value switch takes its value as the next, space-separated argument.
+* *NOT ALLOWED:* `-flag=value`. Hyphen switches never use `=` (xref:concept-command-namespace.adoc#switch-kinds[NS-15]).
+* *DEPRECATED:* `--flag value`. `--long` is a legacy alias of `-long`, scheduled for removal in the next major revision of the standard; frameworks MUST warn about it at build time and at run time (xref:concept-command-namespace.adoc#legacy-double-dash[NS-15]).
 
-Every long-form flag MUST use the equals sign for assignment.
-Positional arguments follow flags and are never consumed by them.
+Whether a switch takes a value is declared by the tool's command namespace, so a switch never consumes a positional argument it did not declare. *PROPOSED:* fixed arity, with no optional values: a plain switch takes 0 values, a value switch exactly 1 (xref:concept-command-namespace.adoc#switch-kinds[NS-15 switch kinds]).
 
 == Key Syntax Rules
 
-. *Short Flags*: `-v`, `-f` (atomic, no value assignment via space).
-. *Long Flags*: `--verbose`, `--file=path/to/script`.
-. *Double Dash*: `--` terminates all flag parsing; all subsequent arguments are treated as positionals.
-. *Ordering*: Tools must not be sensitive to flag ordering among themselves.
+. *Short aliases*: one letter, `-v`, `-f`. There is no implicit bundling: `-xvz` is the long option `xvz`; groups are written `-x-v-z`.
+. *Long options*: `-verbose`, `-file path/to/script`.
+. *Values that look like switches or nodes*: a lone `:` makes the next argument a value, and a lone `::` makes the rest of the line values (xref:concept-command-namespace.adoc#token-kinds[NS-15 token kinds]). This replaces the POSIX `--` terminator; repeated dashes are reserved.
+. *Ordering*: contextual `-` options may depend on order (NS-7); `+` free flags are order-independent.
+. *PROPOSED:* a bare `name=value` assignment (no hyphen, as in `dd if=`) where the namespace declares the name (xref:concept-command-namespace.adoc#switch-kinds[NS-15 switch kinds]).

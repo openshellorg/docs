@@ -55,8 +55,8 @@ It MUST either be passed through as unmodified bytes (binary) or be rejected wit
 
 [[te-3]]
 TE-3 Legacy encodings are a loud, explicit opt-in::
-A non-UTF-8 encoding MUST only be used when selected explicitly for that operation, for example `--encoding=windows-1252` (long flags follow the xref:standard-grammar.adoc[SOS grammar]).
-Each use SHOULD emit a diagnostic on the diagnostics channel, and MUST be reported in structured output, including the `--dry-run` execution tree, as the encoding actually used.
+A non-UTF-8 encoding MUST only be used when selected explicitly for that operation, for example `-encoding windows-1252` (single-dash options with space-separated values, xref:concept-command-namespace.adoc#switch-kinds[NS-15]; see the xref:standard-grammar.adoc[SOS grammar]).
+Each use SHOULD emit a diagnostic on the diagnostics channel, and MUST be reported in structured output, including the `-dry-run` execution tree, as the encoding actually used.
 A user, profile or environment setting that changes the default away from UTF-8 SHOULD produce a warning when the shell starts, and MUST be discoverable through <<te-7>>.
 
 [[te-4]]

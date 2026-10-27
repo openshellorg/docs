@@ -204,7 +204,7 @@ Repeated `-` keeps no meaning.
 [#intensity-suffix]
 ==== Intensity suffix `!` and the fallback `~`
 
-*Decided (Ryan):* `!` is the canonical intensity suffix (`-force!`, `-clean!!`). Documentation and examples MUST use `!`. Ryan: shells that break `!` "need to get on my level, not I on theirs". The hierarchy candidate as a whole stays OPEN; the suffix character does not.
+*Decided (Ryan):* `!` is the canonical intensity suffix (`-force!`, `-clean!!`). Ryan: shells that break `!` "need to get on my level, not I on theirs". The hierarchy candidate as a whole stays OPEN; the suffix character does not.
 
 * *Non-conforming shells.* Interactive bash and interactive zsh expand `!` (history expansion) by default, so `-clean!!` arrives as `-clean` followed by the previous command line. These shells are NON-CONFORMING for OSO unless history expansion is turned off. The fix, in the rc file:
 +
@@ -221,8 +221,9 @@ unsetopt BANG_HIST
 ----
 +
 A tool cannot change its parent shell, so this is user setup. An OSO installer or setup script MAY add these lines.
-* *Fallback suffix (PROVISIONAL, chosen by test, for Ryan to confirm): `~`.* Conforming tools MUST accept `~` with exactly the same meaning as `!` (`-force~`, `-clean~~`), only as a stand-in for `!` in shells that mangle it. Documentation and examples use `!`; `~` appears only in compatibility notes like this one. `~` was the only tested character that is not already a sigil (`+` is taken by free flags) and reached the program unchanged in every shell tested, including zsh with `extendedglob` (a trailing `~` is not a pattern) and bash/zsh tilde expansion (which only applies at the start of a word).
-* *Implementer note.* A conforming tool SHOULD detect an argument that looks history-expanded where a `!` suffix was expected, where that is feasible: a known option name followed by unexpected text (`-cleanpython3`), or a destructive option given without the `!` the user probably typed. It should then say so on stderr and point at the shell setup above. At minimum its help MUST mention the requirement.
+* *Fallback suffix (PROVISIONAL, chosen by test, for Ryan to confirm): `~`.* Conforming tools MUST accept `~` with exactly the same meaning as `!` (`-force~`, `-clean~~`), only as a stand-in for `!` in shells that mangle it. `~` was the only tested character that is not already a sigil (`+` is taken by free flags) and reached the program unchanged in every shell tested, including zsh with `extendedglob` (a trailing `~` is not a pattern) and bash/zsh tilde expansion (which only applies at the start of a word).
+* *Which spelling docs and help teach (Decided, Ryan).* "The docs/instructions should/will teach different syntax for those shells until they redress their bad choice." Documentation, instructions and tool help teach `~` for interactive bash and zsh (and any other shell that is not OSO certified for `!`) until those shells fix it, and `!` everywhere else. The canonical spelling is still `!`. Turning history expansion off (`set +H`, `unsetopt BANG_HIST`, above) is how a bash or zsh user becomes conforming and can type `!`. Where help adapts to the shell, it uses the same detection as the notices: bash, zsh and undetectable shells are shown `~`.
+* *No guard against mangled `!` (Decided, Ryan).* "If someone attempts to use the wrong syntax in zsh, they should just see bad output." Tools do not try to detect arguments that history expansion has mangled (`-cleanpython3 ...`), and help carries no extra warning about it: the user gets whatever the mangled arguments produce, usually an unknown-option usage error (CD-8). A shell-side companion (a plugin that rewrites `!` before the shell expands it) is not planned.
 * *Fallback notice (MUST).* Ryan: when a fallback is used, it must be "abundantly obvious that the incompatible shells are incompatible and not oso certified". Whenever a conforming tool receives an option with the `~` fallback suffix, it MUST print a prominent notice on stderr, on every use. The notice does not change stdout or the exit code, and `-quiet` MUST NOT silence it. It MUST be visibly highlighted: a coloured `notice:` label when stderr is a terminal, plain text otherwise (CH-19). It MUST:
 ** say that the fallback was used because the current shell expands `!` and is not OSO certified;
 ** name the shell when it can be detected. `$BASH_VERSION` and `$ZSH_VERSION` are shell variables that a child process does not see, so detect it from the parent process instead (`/proc/$PPID/exe` or `ps -p $PPID -o comm=` on Unix, the parent process image on Windows), falling back to `$SHELL` (the login shell, which may not be the one running) and saying "your shell" when nothing is reliable;
@@ -259,18 +260,18 @@ notice: '-clean~~' used the fallback suffix '~', which is only for shells that a
 ** *OPEN (Ryan undecided): an environment hint.* The user's rc file could export a variable such as `OSO_SHELL_BANG=literal` (next to `set +H` / `unsetopt BANG_HIST`) or `OSO_SHELL_BANG=expands`, and the library would trust it for bash and zsh. Not adopted; without it, bash and zsh default to the not-certified notice.
 
 .Shell compatibility for the `!` suffix
-[cols="2,2,3"]
+[cols="2,2,2,3"]
 |===
-|Shell |Status |Notes
+|Shell |Status |Type this |Notes
 
-|bash, non-interactive (scripts, `bash -c`) |conforming as-is |history expansion is off
-|bash, interactive |conforming with setup |`set +H` in `~/.bashrc`; otherwise use `~`
-|zsh, non-interactive |conforming as-is |
-|zsh, interactive |conforming with setup |`unsetopt BANG_HIST` in `~/.zshrc`; otherwise use `~`
-|fish |conforming as-is |no history expansion
-|PowerShell 7 |conforming as-is |
-|Windows PowerShell 5.1 |conforming as-is |
-|cmd.exe |conforming as-is |with delayed expansion off (the default). With delayed expansion on (`cmd /v:on` or the registry setting), `!` is stripped: `-force!` arrives as `-force`; use `~`
+|bash, non-interactive (scripts, `bash -c`) |conforming as-is |`install -clean!! ripgrep` |history expansion is off
+|bash, interactive |not conforming until setup |`install -clean~~ ripgrep` |after `set +H` in `~/.bashrc`: `install -clean!! ripgrep`
+|zsh, non-interactive |conforming as-is |`install -clean!! ripgrep` |
+|zsh, interactive |not conforming until setup |`install -clean~~ ripgrep` |after `unsetopt BANG_HIST` in `~/.zshrc`: `install -clean!! ripgrep`
+|fish |conforming as-is |`install -clean!! ripgrep` |no history expansion
+|PowerShell 7 |conforming as-is |`install -clean!! ripgrep` |
+|Windows PowerShell 5.1 |conforming as-is |`install -clean!! ripgrep` |
+|cmd.exe |conforming as-is |`install -clean!! ripgrep` |with delayed expansion off (the default). With delayed expansion on (`cmd /v:on` or the registry setting), `!` is stripped (`-force!` arrives as `-force`); type `install -clean~~ ripgrep`
 |===
 
 .Unquoted suffix safety (tested 2026-10-26; bash 5.2, zsh, fish, PowerShell 7.4.6 on Linux; Windows PowerShell 5.1 and cmd.exe on Windows 11)

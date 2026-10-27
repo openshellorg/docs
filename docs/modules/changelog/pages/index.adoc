@@ -2,6 +2,7 @@
 
 == Unreleased
 
+* Build: `@antora-supplemental/facto-stack` **v0.4.1** (`antora-search-chat` **v0.1.26**): the search box corners no longer show the search surface color in light and dark mode.
 * Build: `@antora-supplemental/facto-stack` **v0.4.0**, which brings `antora-search-chat` **v0.1.25** (readable search dropdown in dark mode; light mode unchanged) and runs the built-in contrast check (`contrast-check-v0.3.0`) on every build in light and dark mode with the search results open. The build fails on dark-mode and search-state WCAG AA errors; other findings are reported only. No workflow change. `contrast-check.suppress.json` (wired through the `contrastCheck` pack key) accepts the existing dark-mode findings in page-context labels, highlight.js shell colors and the link-validator report select until 2027-01-31; they are follow-ups upstream.
 * UI: Valentus **v4.3.1**. The current page in the breadcrumb is no longer underlined.
 * Changelog: moved from the root `CHANGELOG.adoc` into the `changelog` module of the `open-shell-org` component (xref:changelog:index.adoc[Changelog] in the nav). Detail reports and saved prompts go under `changelog-details/history/`.

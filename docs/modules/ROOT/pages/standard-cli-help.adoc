@@ -1,0 +1,206 @@
+= CLI Help
+:description: Which help invocations a CLI must answer, what help contains, where it comes from (an authored prohelp document), and how help behaves on stdout, stderr and exit codes.
+:page-audience: CLI authors, tool maintainers, prohelp integrators, agent authors
+:page-usage-context: When adding help to a command-line tool, wiring prohelp into a CLI, or checking that help, bare invocation and errors point at each other correctly
+:page-orig-author: Grok Bot on behalf of Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Grok Bot on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+
+Help is the one part of a CLI every user reaches for first.
+A conforming tool answers the usual ways of asking for help, shows a short progressive overview instead of a wall of text, and builds that help from an authored document rather than from strings scattered through its code.
+
+OpenShellOrg help is based on https://github.com/openshellorg/prohelp[prohelp], the progressive help specification and reference library (DUB package `prohelp`, 0.2.3 at the time of writing).
+Prohelp solves help only; argument parsing and dispatch stay with the tool's CLI framework (see xref:prohelp-cli::index.adoc[prohelp-cli] for D with arsd.cli).
+
+The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[BCP 14] (RFC 2119, RFC 8174) when, and only when, they appear in all capitals.
+
+In this page, a *conforming tool* is a CLI that claims conformance with this standard, a *help document* is the authored prohelp schema for a tool, and a *help trigger* is an argument that asks for help.
+Requirement ids (`CH-n`) are stable so tools, reviews and certification can cite them.
+An id is never reused or renumbered; a withdrawn rule keeps its id and is marked withdrawn.
+
+This page builds on xref:standard-cli-dispatch.adoc[CLI Dispatch] (which input is an error, bare invocation, CD-16 help completeness) and xref:standard-cli-output.adoc[CLI Output] (stdout versus stderr, exit codes, `--json`).
+
+.Current prohelp versus required prohelp
+[NOTE]
+====
+Each rule says whether prohelp already provides the behaviour.
+*Prohelp today* describes what prohelp does or documents now.
+*Prohelp gap* marks behaviour this standard requires that prohelp does not yet provide; until prohelp adds it, a conforming tool MUST provide it itself (around its `prohelp.intercept` call).
+The gaps are collected in <<prohelp-gaps>>.
+====
+
+== Help invocations
+
+CH-1:: A conforming tool MUST print help when its first argument is `--help` or `-h`.
++
+_Prohelp today:_ `prohelp.intercept(args)` treats `?`, `help`, `--help`, `-h` and `--?` (case-insensitive) in the first argument position as help triggers.
+
+CH-2:: A tool that has subcommands MUST also accept `help` as a command: `<tool> help` prints the same top-level help as `<tool> --help`, and `<tool> help <command>` prints help for that command.
+`help` MUST therefore be listed among the tool's commands (CD-16) and MUST NOT fall through to any other path.
+A tool without subcommands MAY accept `help` the same way.
++
+This closes the case shown in xref:standard-cli-dispatch.adoc[CLI Dispatch]: `redub help` is read as a package named `help` and run, while only `redub --help` prints help. Under CH-2 that tool does not conform until `redub help` prints help (and under CD-3 it must not run anything either way).
++
+_Prohelp today:_ `help` is already a trigger in `intercept`, so a tool that calls `intercept` before its dispatcher meets CH-2 for the top level.
+
+CH-3:: A conforming tool SHOULD accept `?` as a help trigger, and MAY accept `--?`.
+The `?` form is the progressive entry point (`<tool> ? <section>`).
+Because `?` is a glob character in many shells, documentation SHOULD show it quoted where that matters.
++
+_Prohelp today:_ both are triggers; `prohelp ?` and `<tool> ? <section>` are the documented forms.
+
+CH-4:: A help trigger MUST take precedence over every other interpretation of the first argument: no package, file, plugin or target named `help`, `-h` or `?` may shadow it (CD-3, CD-4).
+Help MUST perform no action other than printing help (CD-2): no network access, builds, file writes or process launches.
++
+_Prohelp today:_ calling `intercept` first, as prohelp documents, gives precedence; the interceptor only reads the help document and prints.
+
+== Bare invocation
+
+CH-5:: A bare invocation (the tool name with no arguments) of a strict-style tool SHOULD print the top-level help overview, or a short usage line that names the exact help command, and perform no action (CD-5).
+If the tool runs a default action instead, its help MUST name that default and the bare run MUST announce it (CD-6), and `--help` MUST still print help without running the default.
++
+_Prohelp today:_ `intercept` returns `false` when there are no arguments, so bare-invocation behaviour is the tool's own choice. A tool meets CH-5 by rendering its top-level help when `args.length < 2`; prohelp has no single call for that (see <<prohelp-gaps>>).
+
+== Content and structure
+
+CH-6:: Help MUST be progressive.
+The top-level view (Level 0) MUST be an overview that fits a screen: the tool's name, title and one-line summary, then its top-level sections or commands, each with a one-line summary.
+Detail lives one level down (`<tool> ? <section>`), not in the overview.
++
+_Prohelp today:_ the help document is a tree of `section` entries under a `command`; prohelp renders one section per view in a box panel, and enforces sliding-scale line budgets (20 lines for the Level 0 menu; 20 / 40 / 60 lines by depth in the prohelp-cli model).
+
+CH-7:: The help document MUST set `name`, `summary`, `homepage`, `docs` and `issues`, and every section MUST have a non-empty summary.
+`title` and `description` SHOULD be set.
++
+_Prohelp today:_ these are fields of the `command` model; prohelp warns at run time when `homepage`, `docs` or `issues` is empty, and `prohelp check` reports empty summaries, missing discovery URLs, empty sections and line-budget overruns.
+
+CH-8:: Help MUST list every command the dispatcher accepts, including aliases and any bare-invocation default (CD-16), and every flag each command accepts.
+Help MUST NOT document a command or flag the dispatcher rejects.
++
+_Prohelp gap:_ prohelp does not read the dispatcher, so it cannot check this; the tool's tests must (for example by comparing the dispatch table with the help document's sections).
+
+CH-9:: A tool that declares a non-strict style MUST state it in its top-level help (CS-2).
+
+CH-10:: Help SHOULD be localized when the tool ships other languages, and MUST fall back to English when the requested locale is missing.
++
+_Prohelp today:_ locale blocks in the document, OS locale detection, overrides such as `?:de`, and fallback to `en`.
+
+== Source of truth
+
+CH-11:: A conforming tool's help MUST come from an authored prohelp help document, not from strings assembled in code.
+The document MAY be `help.sdl` (canonical) or a whole-document `help.md`, `help.adoc` or `help.cmk` with frontmatter; section bodies MAY be pulled from shared files with `content-ref`.
+Generated help (for example a framework's automatic `--help` built from method signatures) MUST NOT be the shipped help; a generator MAY scaffold a help document that people then edit.
++
+_Prohelp today:_ all these formats load into the same `Command` tree (see xref:prohelp::authoring.adoc[Authoring schemas]); `prohelp init` scaffolds a `help.sdl`, and `prohelp fill` completes it.
+
+CH-12:: The help document MUST ship with the tool and be found without network access.
+It SHOULD sit beside the binary, or be embedded in it.
++
+_Prohelp today:_ the global `help` command and `prohelp --as-help` look beside the binary (and one directory up) for `help.sdl`, `help.md` / `help.markdown`, `help.adoc` / `help.asciidoc`, `help.cmk`, then `<cmd>.help.*`. `intercept` called with a default `InterceptConfig` reads `help.sdl` from the *current directory* only, so a tool MUST pass an `InterceptConfig` that points at its shipped document.
++
+_Prohelp gap:_ `intercept` does not yet use the beside-the-binary discovery order by default, and cannot yet read an embedded document.
+
+CH-13:: A conforming tool MUST render help through prohelp: by calling `prohelp.intercept(args)` before its own argument parser (D, or other languages through FFI), or through prohelp-cli for D tools built on arsd.cli.
+A tool MUST NOT keep a second, hand-written help text that can drift from the document.
++
+_Prohelp today:_ `intercept` is the documented one-line integration; the C-compatible API is planned, not shipped.
+
+CH-14:: A project's CI MUST run `prohelp check --strict` against the shipped help document, so empty or over-budget help cannot ship.
++
+_Prohelp today:_ `prohelp check --strict` fails the process on findings; the reusable workflow `openshellorg/prohelp/.github/workflows/check-schema.yml` runs it (pin a release tag rather than `@main`).
+
+== Subcommand help
+
+CH-15:: For every command `<c>`, these MUST all print help for `<c>`: `<tool> help <c>` (when CH-2 applies), `<tool> ? <c>`, and `<tool> <c> --help` / `<tool> <c> -h`.
+Nested commands follow the same pattern (`<tool> ? <c> <sub>`).
++
+_Prohelp today:_ `<tool> ? <c>` and `<tool> help <c>` resolve `<c>` as a section path in the document. With the prohelp-cli folder model, `help/<version>/<c>/help.sdl` mirrors the command and subdirectory names are the navigation tokens.
++
+_Prohelp gap:_ `intercept` only inspects the first argument, so `<tool> <c> --help` is not intercepted. Until prohelp handles a trailing trigger, the tool MUST map `<c> --help` to the `<c>` section itself.
+
+CH-16:: A help path that names no section or command MUST be a usage error under CD-1: name the token, offer a did-you-mean suggestion when one is close, point to the top-level help, write to stderr and exit `2`.
++
+_Prohelp gap:_ today `intercept` prints `prohelp error: Category path '<path>' not found.` on *stdout*, offers no suggestion, and returns `true`, so a tool that returns `0` after `intercept` exits `0`.
+
+== Output, exit codes and streams
+
+CH-17:: Requested help is a result: it MUST go to stdout (CO-19) and the tool MUST exit `0`.
++
+_Prohelp today:_ rendered help goes to stdout.
+
+CH-18:: Help that the tool prints because of an error (the help pointer in a CD-1 or CD-8 error, or a usage summary after bad input) MUST go to stderr with the error, and the tool MUST exit `2`.
+A missing or unreadable help document MUST be an error: message on stderr and a non-zero exit code.
++
+_Prohelp today:_ a missing `help.sdl` or a parse error is reported on stderr. _Prohelp gap:_ `intercept` returns only a boolean, so the tool cannot tell success from failure and the documented pattern (`if (prohelp.intercept(args)) return 0;`) exits `0`. Prohelp needs to return a status (or exit code).
+
+CH-19:: Help MUST NOT emit colour or terminal control sequences when stdout is not a terminal, and MUST stay readable on consoles that cannot draw Unicode boxes.
++
+_Prohelp today:_ colour only when stdout is a TTY; Unicode boxes when the console is UTF-8 or piped, ASCII `+|-` on legacy Windows code pages; overrides `PROHELP_ASCII=1` and `PROHELP_UNICODE=1`.
+
+CH-20:: Notices about the help system itself (missing metadata, missing shell wrapper, feature-request nudges) MUST go to stderr, MUST NOT appear in the help body, and MUST be suppressible.
++
+_Prohelp today:_ suppressible with `PROHELP_QUIET=1`.
+
+CH-21:: An interactive full-screen help viewer MAY be offered, but MUST be opt-in (for example `?:i`) and MUST NOT start when stdout is not a terminal.
++
+_Prohelp today:_ `?:i` / `?:interactive` opens the TUI only when stdout is a TTY; otherwise text help prints.
+
+== Machine-readable help
+
+CH-22:: A conforming tool MUST offer a plain-text dump of a help subtree for scripts and agents, with no interactive behaviour and no colour when piped.
++
+_Prohelp today:_ `<tool> ? <section> *` (or `all`) prints the section and all its descendants.
+
+CH-23:: A conforming tool MUST offer help as JSON on stdout (`<tool> --help --json`, or the `?:json` suffix): the command tree with name, title, summary, description, `homepage`, `docs`, `issues`, the declared style (CS-2), and for each section or command its name, summary, body and child sections, with the requested locale applied.
+The field names are a public interface (CO-13).
++
+_Prohelp gap:_ prohelp has no JSON output. Until it does, this rule is *provisional*: a tool is not marked non-conforming for missing it, and the field set above is the requirement for prohelp to implement.
+
+== Did-you-mean and errors
+
+CH-24:: Every dispatch error (CD-1, CD-7, CD-8, CD-10) MUST name the exact help command that resolves it, such as `see: <tool> help` or `see: <tool> help <command>`, and that command MUST work under CH-2 and CH-15.
+Suggestions offered by did-you-mean (CD-1) SHOULD be drawn from the same command list the help document shows, so a suggestion is always a documented command.
++
+_Prohelp gap:_ prohelp has no did-you-mean for commands or help paths; tools supply it in their dispatcher.
+
+[[prohelp-gaps]]
+== Requirements for prohelp to add
+
+This standard requires these behaviours, which prohelp 0.2.3 does not yet provide.
+Each belongs in `openshellorg/prohelp` (or prohelp-cli where noted); until then the tool provides them.
+
+. *Status from `intercept`* (CH-16, CH-18): return a result or exit code instead of `bool`, so help success exits `0` and errors exit non-zero.
+. *Unknown help path is a usage error* (CH-16): message on stderr, did-you-mean over section names, exit `2`.
+. *Trailing triggers* (CH-15): handle `<tool> <c> --help` / `-h` by mapping it to section `<c>`.
+. *Bare-invocation helper* (CH-5): one call that renders the Level 0 overview for a no-argument run.
+. *Beside-the-binary discovery in `intercept`* (CH-12): use the same discovery order as `help` and `--as-help` instead of the current directory, and support an embedded document.
+. *JSON help* (CH-23): `?:json` / `--help --json` emitting the field set in CH-23.
+. *Dispatch cross-check* (CH-8): a way to compare the help document's commands with a list the tool supplies (for example from prohelp-cli's planned arsd.cli bridge) and fail `prohelp check` on a mismatch.
+. *C-compatible API* (CH-13): already planned in prohelp, needed for non-D tools.
+
+== Conformance checklist
+
+* [ ] `--help` and `-h` print help and exit `0` (CH-1, CH-17).
+* [ ] A tool with subcommands accepts `help` and `help <command>`; `help` is never read as a target (CH-2, CH-4).
+* [ ] Bare invocation shows help, or announces its documented default; `--help` never runs the default (CH-5).
+* [ ] The Level 0 overview fits the line budget and every section has a summary (CH-6, CH-7).
+* [ ] Help lists every accepted command, alias, flag and default, and nothing the dispatcher rejects (CH-8, CD-16).
+* [ ] Help comes from a shipped prohelp document rendered through prohelp; no hand-written duplicate (CH-11 to CH-13).
+* [ ] CI runs `prohelp check --strict` (CH-14).
+* [ ] `<tool> <c> --help`, `<tool> ? <c>` and `<tool> help <c>` agree for every command (CH-15).
+* [ ] An unknown help path is an error on stderr with exit `2` (CH-16).
+* [ ] Requested help on stdout, exit `0`; error help on stderr, exit `2`; no colour when piped (CH-17 to CH-19).
+* [ ] Help-system notices go to stderr and `PROHELP_QUIET=1` silences them (CH-20).
+* [ ] `<tool> ? *` dumps the help tree as text (CH-22); JSON help when available (CH-23, provisional).
+* [ ] Every dispatch error names a working help command (CH-24).
+
+Self-test cases are in xref:certification-cli-dispatch.adoc[CLI Dispatch conformance].
+
+== See also
+
+* xref:standard-cli-dispatch.adoc[CLI Dispatch]
+* xref:standard-cli-output.adoc[CLI Output]
+* xref:standard-cli-styles.adoc[CLI Styles (draft)]
+* xref:prohelp::index.adoc[Prohelp], xref:prohelp::authoring.adoc[Authoring schemas], xref:prohelp::intercept-api.adoc[Intercept API], xref:prohelp::global-help.adoc[Global help]
+* xref:prohelp-cli::index.adoc[prohelp-cli]

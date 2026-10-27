@@ -90,11 +90,33 @@ Run each case with default settings (and again with `--strict` for the *Migratin
 | every command the dispatcher accepts is listed
 | CD-16
 
+| `<tool> -h` and (for a tool with subcommands) `<tool> help`; stdout captured
+| 0
+| nothing on stderr except help-system notices; stdout is the same help as `<tool> --help`; `help` is not run as a target
+| xref:standard-cli-help.adoc[CH-1], CH-2, CH-4, CH-17
+
+| `<tool> help <command>`, `<tool> ? <command>` and `<tool> <command> --help` for every command
+| 0
+| help for that command on stdout, the same for all three forms
+| CH-15
+
+| `<tool> help zzqx` (or `<tool> ? zzqx`)
+| 2
+| `zzqx` named as unknown, a pointer to top-level help; stdout empty
+| CH-16, CH-18
+
+| `<tool> --help \| cat`
+| 0
+| no colour or terminal control sequences in stdout
+| CH-19
+
 | `<tool> --help` and `<tool> <command> --help` for every command, plus `--json` results
 | 0
 | one and the same declared style (`strict` if none is declared) for every command and subcommand; no command declares or behaves in another style
 | CS-9
 |===
+
+Help rows above cover the parts of xref:standard-cli-help.adoc[CLI Help] that a black-box test can see; the full list is its conformance checklist (CH-1 to CH-24).
 
 Style checklist (xref:standard-cli-styles.adoc[CLI Styles]):
 

@@ -22,6 +22,7 @@ Companion pages:
 * xref:standard-cli-dispatch-rationale.adoc[CLI Dispatch: rationale] explains why each rule exists (non-normative).
 * xref:standard-cli-dispatch-implementers.adoc[CLI Dispatch: implementer guidelines] shows how to build a conforming dispatcher (non-normative).
 * xref:certification-cli-dispatch.adoc[CLI Dispatch conformance] defines levels, the self-test and how to claim conformance.
+* xref:standard-cli-help.adoc[CLI Help] defines which help invocations a tool answers, where help comes from (prohelp) and how help uses stdout, stderr and exit codes (CH-1 to CH-24).
 * xref:standard-cli-styles.adoc[CLI Styles] (draft) defines the strict style this page describes and the contract any other style must meet.
 
 NOTE: This page is about how a single tool dispatches its own arguments.
@@ -32,7 +33,7 @@ It is unrelated to Entrypoint Dispatch in `shell-architecture`, which covers how
 CD-1:: An unknown command token MUST be an error. A conforming tool MUST:
 . print `unknown command <X>`, naming the token it received;
 . offer a did-you-mean suggestion when a known command is close (for example by edit distance or prefix);
-. list the valid commands, or point to the exact help command that lists them;
+. list the valid commands, or point to the exact help command that lists them (xref:standard-cli-help.adoc[CH-24]);
 . write all of this to stderr (xref:standard-cli-output.adoc[CO-20]);
 . exit with the usage error code `2` (xref:standard-cli-output.adoc[CO-18]).
 
@@ -49,9 +50,9 @@ A tool MUST NOT resolve a token by searching packages, files, plugins or the net
 
 == Bare invocation
 
-CD-5:: In the strict style (see xref:standard-cli-styles.adoc[CLI Styles]), a bare invocation (the tool name with no command) SHOULD print help (or a short usage summary pointing to help) and perform no action.
+CD-5:: In the strict style (see xref:standard-cli-styles.adoc[CLI Styles]), a bare invocation (the tool name with no command) SHOULD print help (or a short usage summary pointing to help) and perform no action (see xref:standard-cli-help.adoc[CH-5]).
 
-CD-6:: If a tool does have a default action for a bare invocation, that default MUST be documented in its help and reference documentation, and every bare run MUST state which action it ran (for example `no command given; running default: build`).
+CD-6:: If a tool does have a default action for a bare invocation, that default MUST be documented in its help and reference documentation, and every bare run MUST state which action it ran (for example `no command given; running default: build`). `--help` MUST still print help without running the default (xref:standard-cli-help.adoc[CH-5]).
 The default action MUST NOT be a catch-all that interprets later words as targets (CD-3 still applies).
 
 == Unexpected input
@@ -59,7 +60,7 @@ The default action MUST NOT be a catch-all that interprets later words as target
 CD-7:: Unexpected input MUST be rejected, including by tools that take no arguments.
 A tool or GUI launcher that accepts no positional arguments or flags MUST exit with an error (usage code `2`, message on stderr) when it receives any, instead of silently ignoring them, so users know there is no hidden surface.
 
-CD-8:: Unknown flags, surplus positional arguments, and missing required arguments MUST be errors under the same rules as CD-1: name the offending input, point to help, write to stderr, exit `2`.
+CD-8:: Unknown flags, surplus positional arguments, and missing required arguments MUST be errors under the same rules as CD-1: name the offending input, point to help (xref:standard-cli-help.adoc[CH-18], xref:standard-cli-help.adoc[CH-24]), write to stderr, exit `2`.
 
 == Wrappers and drop-in replacements
 
@@ -97,6 +98,7 @@ A tool MUST NOT announce a strict default for a major version and then ship that
 
 CD-16:: `<tool> help` and `<tool> --help` MUST list every command the dispatcher accepts, including aliases (CD-4) and the bare-invocation default if any (CD-6).
 A command that dispatches but is missing from help is hidden surface and violates CD-7.
+Which help invocations MUST work (including `<tool> help` as a command), what help contains and where it comes from are governed by xref:standard-cli-help.adoc[CLI Help] (CH-1, CH-2, CH-8, CH-15).
 
 CD-17:: A wrapper or drop-in replacement (CD-9) MUST document which commands it implements itself, which it forwards and to what, and which it rejects, and MUST keep that list in step with the underlying tool versions it supports.
 

@@ -25,6 +25,9 @@ antora:
     - ./lib/verify-themed-svg-dark-mode.js
     - require: '@antora-supplemental/facto-stack'
       profile: hub
+      # Built-in contrast check (facto-stack >= 0.4.0): defaults, plus this hub's known dark-mode findings (expire 2027-01-31).
+      contrastCheck:
+        suppress: contrast-check.suppress.json
       siteNavTree:
         enabled: true
         include:

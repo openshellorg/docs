@@ -75,6 +75,11 @@ Run each case with default settings (and again with `-strict` for the *Migrating
 | the token named as an invalid option
 | CD-8, NS-15
 
+| `<tool> --help`, if the tool still accepts the transitional `--` alias
+| 0
+| help on stdout; on stderr a CD-13 warning that names `-help` and says the spelling will be removed (the framework's build of the tool also warned for every declared `--` spelling)
+| CD-13, NS-15
+
 | `<no-argument tool or GUI launcher> zzqx`
 | 2
 | `takes no arguments` (or equivalent) naming `zzqx`

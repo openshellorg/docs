@@ -68,7 +68,7 @@ NS-15:: A conforming tool's own options MUST use a single dash (`-`), read by th
 . A long option name MUST NOT start with a single letter followed by a hyphen (`-d-lang`, `-f-stop`, `-f-number`); spell it `-dlang`, `-fstop`, `-fnumber`. A token that starts like a group and continues with a longer word (`-d-lang`, `-x-dry-run`) MUST be a usage error (xref:standard-cli-dispatch.adoc[CD-8]: stderr, exit `2`).
 . A lone `-` is an operand, not an option (stdin or stdout, as in `-f -`), and MUST stay legal.
 +
-Whether `--long` is still accepted as a legacy alias is *OPEN* (see below). Documentation and examples MUST use the single-dash form.
+`--long` is a transitional legacy alias that WILL be removed; frameworks MUST warn about it at build time and at run time (<<legacy-double-dash>>). Repeated dashes (`--x`, `---x`) are reserved for a future meaning, which is OPEN (<<reserved-repeated-dash>>). Documentation and examples MUST use the single-dash form.
 
 === Grammar
 
@@ -80,7 +80,7 @@ token   = "-"                              ; operand (stdin/stdout), NS-15 item 
         | "-" letter                       ; short alias            -v
         | "-" letter 1*("-" letter)        ; explicit group         -x-v-z
         | "-" word *("-" part)             ; long option            -version, -dry-run, -xvz
-        | "--" ...                         ; OPEN: legacy alias (see below)
+        | "--" ...                         ; transitional legacy alias of "-"; repeated "-" reserved (see below)
 letter  = %x61-7A / DIGIT                  ; one character
 word    = 2*( %x61-7A / DIGIT )            ; two or more characters
 part    = 1*( %x61-7A / DIGIT )
@@ -106,7 +106,8 @@ Later one-letter parts inside a long name (`-ipv-4`) are legal; only the *first*
 |`-f-stop` |no |`error: invalid option '-f-stop': a one-letter part followed by '-' starts a group` / `  did you mean: -fstop, or -f -stop` / `  see: <tool> -help`
 |`-d-lang` |no |same error; did you mean `-dlang`
 |`-x-dry-run` |no |`error: invalid option '-x-dry-run': mixes the switch -x with the long option -dry-run` / `  write: -x -dry-run` / `  see: <tool> -help`
-|`--help` |OPEN |legacy alias of `-help` if the tool still accepts it (see below)
+|`--help` |transitional |legacy alias of `-help` if the tool still accepts it; warns on stderr (`use: <tool> -help`), and will be removed
+|`---help` |reserved |no meaning yet (OPEN); a tool MUST NOT define one
 |===
 
 === Why
@@ -115,11 +116,35 @@ Later one-letter parts inside a long name (`-ipv-4`) are legal; only the *first*
 * *Grouping needs a visible separator that survives every shell.* A colon (`-:xvz`) never reads as grouping; quotes (`-"xvz"`) are stripped by the shell; `;` ends a command; parentheses need quoting in bash and PowerShell. A hyphen between single letters is plain, typeable and unquoted everywhere.
 * *Letter-hyphen names are ambiguous.* Cabal's `-f-foo` means "disable flag foo", which is exactly the `-f -foo` versus `-f-foo` ambiguity this rule removes; GHC avoids it with `-fno-foo` and `-XNoFoo`. Banning a leading letter-hyphen keeps every group unambiguous.
 
-=== OPEN: `--long` as a legacy alias
+[#legacy-double-dash]
+=== `--long` is a transitional legacy alias (decided)
 
-*Status: OPEN, for Ryan to decide.* Should `--long` (GNU style) still be accepted as an alias of `-long`?
+*Status: Decided.* `--long` (GNU style) is a *transitional legacy alias* of `-long`, and it WILL be removed. Repeated dashes (`--`, `---`) are reserved for a future meaning (<<reserved-repeated-dash>>), so the alias cannot stay.
 
-*Recommendation (PROVISIONAL):* yes, during migration only. A tool MAY accept `--long` as a *deprecated legacy alias* of `-long`; when it does, it SHOULD warn on each use in the CD-13 format (name the single-dash spelling) and the alias MAY be removed in a later major version. Documentation, help and examples MUST NOT show `--long`. The bare end-of-options marker `--` is a separate question and is not decided by this recommendation.
+* During the transition a tool MAY accept `--long` as an alias of `-long`. Documentation, help and examples MUST NOT show it.
+* A conforming CLI framework or library (for example prohelp, or wrappers around arsd.cli) MUST warn at compile or build time when a tool declares a `--` spelling, naming the single-dash replacement.
+* A conforming framework or library, and any tool that accepts the alias, MUST warn at run time when a user types a `--` form: on stderr, in the CD-13 format, naming the single-dash replacement. For example:
++
+[source,text]
+----
+warning: '--help' is a legacy spelling and will be removed
+  use: <tool> -help
+----
+* The bare end-of-options marker `--` (a token that is exactly `--`) is a separate, undecided question; see <<reserved-repeated-dash>> for how it relates to the reservation.
+
+[#reserved-repeated-dash]
+=== Repeated `-` is reserved (OPEN)
+
+*Status: OPEN, for Ryan to decide.* What `--x` and `---x` will mean is not decided; until then they are reserved, and new tools MUST NOT give them a meaning of their own.
+
+Repeated `+` already means levels (NS-7: `+`, `++`, `+++`), so using repeated `-` for intensity would duplicate it. Candidates, in no order:
+
+* *Scope:* `--x` passes the option on to subcommands; `---x` widens it to the session or global scope.
+* *Config persistence:* `-x` for this run, `--x` saved for the project, `---x` saved for the user.
+* *Danger-confirmation gate:* a repeated dash marks an option that needs an explicit confirmation step.
+* *Leave it reserved* with no meaning.
+
+*Bare `--`:* whether the token `--` (exactly two dashes, nothing after) stays the end-of-options marker is a separate question. It does not conflict with reserving `--x` and `---x`, because it has no name after the dashes. It could conflict with a candidate that gives a bare repeated dash a meaning of its own (for example a bare `---` for "session scope from here on"); if one of those is chosen, the end-of-options marker has to be decided at the same time.
 
 == What already exists, and what is new
 

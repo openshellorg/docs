@@ -117,6 +117,8 @@ Nested commands follow the same pattern (`<tool> ? <c> <sub>`).
 +
 _Prohelp today:_ `<tool> ? <c>` and `<tool> help <c>` resolve `<c>` as a section path in the document. With the prohelp-cli folder model, `help/<version>/<c>/help.sdl` mirrors the command and subdirectory names are the navigation tokens.
 +
+_Prohelp gap (NS-15):_ prohelp does not yet warn when a help document or tool declares a `--` spelling (build time), or when a user types `--help` / `--?` (run time, CD-13 format on stderr, naming `-help` / `-?`). xref:concept-command-namespace.adoc#option-syntax[NS-15] requires both of a conforming framework.
++
 _Prohelp gap:_ `intercept` only inspects the first argument, so `<tool> <c> -help` (or the legacy `<tool> <c> --help`) is not intercepted. Until prohelp handles a trailing trigger, the tool MUST map `<c> -help` to the `<c>` section itself.
 
 CH-16:: A help path that names no section or command MUST be a usage error under CD-1: name the token, offer a did-you-mean suggestion when one is close, point to the top-level help, write to stderr and exit `2`.

@@ -142,15 +142,19 @@ This keeps `<command> help` valid alongside `-help`, and reconciles xref:standar
 |Command line |Reading
 
 |`git commit -amend` |`commit` is a declared node under `git`; `-amend` is a switch
-|`git help commit` |`help` is a declared node; `commit` is a declared node under it (or a value naming the command, per the tool's table)
+|`help git commit` |shell-level help: `help` is the node; `git` and `commit` are values naming the namespace path `git/commit` (decided)
+|`git help commit` |compatibility path: `help` is a declared node under `git`; `commit` is a value naming the path, and the same help resource is served
+|`install : help` |`:` marks the next token as a value: installs a package named `help`
 |`redub help` |`help` is a node if `redub` declares it (CH-2 requires it); otherwise `help` is a value, a package named `help`
 |`install -npm help` |if `install/npm` declares no `help` node at that position, `help` is the value (a package name)
 |`echo commit` |`echo` declares no nodes, so `commit` is a value
 |===
 
-*OPEN:* how a user forces a value when it collides with a declared node name (for example a package named `help`): quoting does not help, because the shell strips quotes; candidates are an end-of-options marker or a value prefix. Not decided.
+*Value escape (DECIDED 2026-10-26, Ryan).* A colon token means "treat the following as a value". It is how a user passes a value that collides with a declared node name; quoting does not help, because the shell strips quotes. `install : help` installs a package named `help`. It is not `--` and not a value prefix. *PROPOSED* spelling: a lone `:` token, with `::` as an alternative; the spelling is OPEN.
 
-_Prohelp today:_ prohelp keeps its `<command> help` and `<command> ?` syntax for now (decided for now, may revisit). `help` as a node already meets CH-2; `?` and the lack of `-help` remain the OSO deviations.
+*Help paths (DECIDED 2026-10-26, Ryan).* Help is help-first. The primary mode is shell-level `help <path>` (prohelp), which serves help for every command from the help resources tools ship. Under shell-level help the path tokens are values naming a namespace path: in `help git commit`, `git` and `commit` are values. `<command> help` and `-help` are compatibility paths to the same resource.
+
+_Prohelp today:_ prohelp keeps its `<command> help` and `<command> ?` syntax for now (decided for now, may revisit). `help` as a node already meets CH-2, and shell-level `help <path>` is the primary mode; `?` and the lack of `-help` remain the OSO deviations.
 [#legacy-double-dash]
 === `--long` is a deprecated legacy alias (decided)
 

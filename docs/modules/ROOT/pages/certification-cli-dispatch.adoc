@@ -82,7 +82,7 @@ Run each case with default settings (and again with `-strict` for the *Migrating
 
 | `<tool> -<option>~` (fallback intensity suffix), also with `-quiet`
 | same as `-<option>!`
-| stdout identical to the `!` form; on stderr a highlighted `notice:` (coloured only when stderr is a terminal) saying the shell expands `!` and is not OSO certified, naming the shell when detectable, linking certification-about, asking the user to request certification, and giving the `set +H` / `unsetopt BANG_HIST` fix; `-quiet` does not suppress it
+| stdout identical to the `!` form; on stderr a highlighted `notice:` (coloured only when stderr is a terminal) saying the shell expands `!` and is not OSO certified, naming the shell when detectable, linking certification-about, asking the user to request certification, and giving the `set +H` / `unsetopt BANG_HIST` fix. Run it at least twice in a row and once with `-quiet`: the notice appears on every invocation, and no environment variable or config setting silences it
 | CH-19, NS-15
 
 | `<no-argument tool or GUI launcher> zzqx`

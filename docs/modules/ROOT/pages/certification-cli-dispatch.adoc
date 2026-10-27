@@ -85,6 +85,11 @@ Run each case with default settings (and again with `-strict` for the *Migrating
 | stdout identical to the `!` form; on stderr a highlighted `notice:` (coloured only when stderr is a terminal) saying the shell expands `!` and is not OSO certified, naming the shell when detectable, linking certification-about, asking the user to request certification, and giving the `set +H` / `unsetopt BANG_HIST` fix. Run it at least twice in a row and once with `-quiet`: the notice appears on every invocation, and no environment variable or config setting silences it
 | CH-19, NS-15
 
+| `<tool> -<option>~` run from a shell that passes `!` through (fish, PowerShell 7, Windows PowerShell 5.1, cmd); repeat it, and once with `-quiet`
+| same as `-<option>!`
+| stdout identical to the `!` form; on stderr, on every run including with `-quiet`, a highlighted `notice:` that says the fallback is only for shells that are not OSO certified, that this shell supports `!`, and gives the canonical spelling (`use: <tool> -<option>!`). Run from bash or zsh, or with the shell undetectable, the tool prints the not-certified notice instead
+| CH-19, NS-15
+
 | `<no-argument tool or GUI launcher> zzqx`
 | 2
 | `takes no arguments` (or equivalent) naming `zzqx`

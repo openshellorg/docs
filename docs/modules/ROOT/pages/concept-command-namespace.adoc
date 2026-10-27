@@ -242,6 +242,21 @@ notice: '-clean~~' used the fallback suffix '~' for '!'.
 ----
 +
 *Silencing: Decided (Ryan).* "I'd rather it complain every time to drive the point home." The notice MUST be printed on every invocation that uses the fallback suffix. There is no mute of any kind: no environment variable, no config setting, no once-per-session mode, and `-quiet` does not suppress it.
+* *Fallback used where `!` works (MUST).* Ryan: "If someone uses a compat syntax in a shell that supports !, we should complain there too". When a conforming tool receives the `~` fallback and the detected shell passes `!` through unchanged, it MUST print a different notice on stderr, on every use. There is no mute, `-quiet` does not suppress it, and stdout and the exit code are unchanged. The notice says the fallback is only for shells that are not OSO certified, that this shell supports `!`, and gives the canonical spelling. If the shell cannot be detected, the tool prints the not-certified notice instead.
++
+Example (stderr; `notice:` coloured on a terminal):
++
+[source,text]
+----
+notice: '-clean~~' used the fallback suffix '~', which is only for shells that are not OSO certified.
+  Your shell (fish, from the parent process) supports '!'.
+  use: install -clean!! ripgrep
+----
+* *What the library can detect (PROVISIONAL).* The CLI framework library decides which notice to print, on its own, with no help from the shell:
+** *Shell identity: detectable.* The parent process is the shell that ran the tool: `/proc/$PPID/exe` or `ps -p $PPID -o comm=` on Unix, the parent process image on Windows. When the parent is a launcher (`env`, `sudo`, `make`) rather than a shell, walk up the process tree; `$SHELL` names only the login shell and is a last resort.
+** *History-expansion state: not detectable.* A child process cannot see whether the parent bash or zsh has history expansion on, or whether it is interactive. `$BASH_VERSION`, `$ZSH_VERSION`, `set -o` and `setopt` state are not exported, and stdin being a terminal is only a heuristic (an interactive shell running a script still gives the script a terminal).
+** *So:* fish, PowerShell 7, Windows PowerShell 5.1 and cmd (delayed expansion off is the default; the library cannot see `/v:on` either) get the "supports `!`" notice. bash and zsh always get the not-certified notice, even when history expansion is in fact off or the run is non-interactive, because the library cannot tell. Unknown shells get the not-certified notice.
+** *OPEN (Ryan undecided): an environment hint.* The user's rc file could export a variable such as `OSO_SHELL_BANG=literal` (next to `set +H` / `unsetopt BANG_HIST`) or `OSO_SHELL_BANG=expands`, and the library would trust it for bash and zsh. Not adopted; without it, bash and zsh default to the not-certified notice.
 
 .Shell compatibility for the `!` suffix
 [cols="2,2,3"]

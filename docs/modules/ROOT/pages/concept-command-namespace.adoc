@@ -144,13 +144,13 @@ This keeps `<command> help` valid alongside `-help`, and reconciles xref:standar
 |`git commit -amend` |`commit` is a declared node under `git`; `-amend` is a switch
 |`help git commit` |shell-level help: `help` is the node; `git` and `commit` are values naming the namespace path `git/commit` (decided)
 |`git help commit` |compatibility path: `help` is a declared node under `git`; `commit` is a value naming the path, and the same help resource is served
-|`install : help` |`:` marks the next token as a value: installs a package named `help`
+|`encode -output : -final.mkv -codec x264` |: makes `-final.mkv` a value for `-output` rather than a switch; `-codec x264` is read normally
 |`redub help` |`help` is a node if `redub` declares it (CH-2 requires it); otherwise `help` is a value, a package named `help`
 |`install -npm help` |if `install/npm` declares no `help` node at that position, `help` is the value (a package name)
 |`echo commit` |`echo` declares no nodes, so `commit` is a value
 |===
 
-*Value escape (DECIDED 2026-10-26, Ryan).* A colon token means "treat the following as a value". It is how a user passes a value that collides with a declared node name; quoting does not help, because the shell strips quotes. `install : help` installs a package named `help`. It is not `--` and not a value prefix. *PROPOSED* spelling: a lone `:` token, with `::` as an alternative; the spelling is OPEN.
+*Value escape (DECIDED 2026-10-26, Ryan).* A colon token means "treat the following as a value". Its main use is around switches: a value that starts with `-` would otherwise be read as a switch, and quoting does not help, because the shell strips quotes. In `encode -output : -final.mkv -codec x264`, the colon makes `-final.mkv` a value for `-output` rather than a switch. It also covers a value that collides with a declared node name. It is not `--` and not a value prefix. *PROPOSED* scope (not confirmed): a lone `:` escapes exactly the next token; a lone `::` escapes all remaining tokens.
 
 *Help paths (DECIDED 2026-10-26, Ryan).* Help is help-first. The primary mode is shell-level `help <path>` (prohelp), which serves help for every command from the help resources tools ship. Under shell-level help the path tokens are values naming a namespace path: in `help git commit`, `git` and `commit` are values. `<command> help` and `-help` are compatibility paths to the same resource.
 

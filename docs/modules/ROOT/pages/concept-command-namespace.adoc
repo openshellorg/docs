@@ -158,15 +158,32 @@ This keeps `<command> help` valid alongside `-help`, and reconciles xref:standar
 
 *Why not quotes.* Shells strip quotes before building argv, so `install "help"` and `install help` reach the tool as the same argument. Quoting cannot tell a node from a value; only a token the tool itself sees can.
 
-[#attached-values]
-*Attached switch values (PROPOSED, Ryan supports, not final).* A switch takes its value in attached form, `-name=value`, quoted when the shell needs it (`-output="my file.mkv"`), and the spec would enforce it. A value that starts with a hyphen is then unambiguous without `:` (`-output=-final.mkv`).
+[#switch-kinds]
+*Switch kinds (DECIDED 2026-10-26, Ryan).* Switches come in two kinds:
 
-*OPEN:* this interacts with space-separated switch values used in examples elsewhere, which are not rewritten yet:
+* *Function-like* switches modify what the command does, like a modifier on a function call. They take space-separated operands and never use `=`. `install -npm <pkgname>` is the switch `-npm` followed by the operand `<pkgname>`, not `-npm=<pkgname>`: in Ryan's words, npm isn't a variable assigned the value antora.
+* *Variable-like* switches assign a value to a setting, with `=`: `-output=out.mkv`, quoted when the shell needs it (`-output="my file.mkv"`). A value that starts with a hyphen is then unambiguous without `:` (`-output=-final.mkv`).
 
-* this page: `git remote add -name x` (order and scope, above) and `encode --crf 23` (hierarchy candidate); also `install -npm <pkgname>` in NS-7, NS-15 and the repeated-dash section, if `<pkgname>` is read as the value of `-npm` rather than an operand;
-* xref:certification-cli-dispatch.adoc[CLI Dispatch certification]: `<tool> -strict zzqx`, if `zzqx` is a value of `-strict`;
-* the changelog (Unreleased): `git remote add -name x`; `encode -codec x264 --crf 23 --preset slow -output out.mkv`;
-* command-namespace `spec.adoc`: `git remote add -name x`; `provisional.adoc` (free-flag and repeated-dash rows): `encode -codec x264 --crf 23 --preset slow -output out.mkv`, `install --prefer-npm prettier`, `vcs --verbose status`.
+`=` applies only to variable-like switches.
+
+*PROPOSED:* the command namespace declares each switch's kind (function-like or variable-like), so parsers, help and linters can check `=` use per switch. A fuller taxonomy, based on programming-language elements, comes later.
+
+*Existing examples, classified.* None are rewritten. Variable-like examples still written with a space are flagged for Ryan.
+
+[cols="3,1,3"]
+|===
+|Example (where) |Kind |Note
+
+|`install -npm <pkgname>` (NS-7, NS-15, repeated-dash section; command-namespace `spec.adoc`, `provisional.adoc`, `CHANGELOG.adoc`) |function-like |decided; operand stays space-separated
+|`install --prefer-npm prettier` (`provisional.adoc`, repeated-dash row) |function-like |`prettier` is the operand of `install`
+|`vcs --verbose status` (`provisional.adoc`, repeated-dash row) |function-like |no value; `status` is a node
+|`install -clean`, `--clean`, `---clean` (danger gate) |function-like |no value
+|`<tool> -strict zzqx` (xref:certification-cli-dispatch.adoc[CLI Dispatch certification]) |function-like |no value; `zzqx` is an unknown command
+|`git remote add -name x` (order and scope, above; changelog; command-namespace `spec.adoc`) |variable-like |*flagged for Ryan:* written with a space, would be `-name=x`
+|`-output out.mkv` in `encode -codec x264 --crf 23 --preset slow -output out.mkv` (changelog; `provisional.adoc`, hierarchy candidate) |variable-like |*flagged for Ryan*
+|`--crf 23`, `--preset slow` (same example; `encode --crf 23` in the hierarchy candidate) |variable-like |*flagged for Ryan*; also bound up with the OPEN hierarchy candidate
+|`-codec x264` (same example) |variable-like, unclear |*flagged for Ryan*: a value assignment, but also the parent of `--crf` and `--preset` under the hierarchy candidate
+|===
 
 *Help paths (DECIDED 2026-10-26, Ryan).* Help is help-first. The primary mode is shell-level `help <path>` (prohelp), which serves help for every command from the help resources tools ship. Under shell-level help the path tokens are values naming a namespace path: in `help git commit`, `git` and `commit` are values. `<command> help` and `-help` are compatibility paths to the same resource.
 

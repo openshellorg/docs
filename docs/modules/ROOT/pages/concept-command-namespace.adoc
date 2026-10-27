@@ -131,7 +131,7 @@ Decided 2026-10-26 (Ryan). An OSO command line has exactly three kinds of token:
 
 This keeps `<command> help` valid alongside `-help`, and reconciles xref:standard-cli-help.adoc[CH-2] with NS-15: `help` is a declared bare-word node, while `-help` is the switch of CH-1.
 
-*Order and scope (DECIDED 2026-10-26, Ryan).* Bare-word nodes impose a fixed order, and each node narrows scope: everything after a node is interpreted inside it. In `git remote add -name=x`, `remote` is read inside `git`, `add` inside `git remote`, and `-name=x` is a switch and value of `git remote add`.
+*Order and scope (DECIDED 2026-10-26, Ryan).* Bare-word nodes impose a fixed order, and each node narrows scope: everything after a node is interpreted inside it. In `git remote add -name x`, `remote` is read inside `git`, `add` inside `git remote`, and `-name x` is a switch and value of `git remote add`.
 
 *PROPOSED (not decided) corollaries:*
 
@@ -159,32 +159,34 @@ This keeps `<command> help` valid alongside `-help`, and reconciles xref:standar
 *Why not quotes.* Shells strip quotes before building argv, so `install "help"` and `install help` reach the tool as the same argument. Quoting cannot tell a node from a value; only a token the tool itself sees can.
 
 [#switch-kinds]
-*Switch kinds (DECIDED 2026-10-26, Ryan).* Switches come in two kinds:
+*Switch values (DECIDED 2026-10-26, Ryan; reverses the earlier `=` rule).* Hyphen switches take their values space-separated, never with `=`, for predictability. `ls -r -depth 5 Z:/code` is the headline example: `-r` is a plain switch, `-depth` is a value switch whose value is `5`, and `Z:/code` is the operand. Because the namespace says `-depth` takes one value and `-r` takes none, nothing is ambiguous.
 
-* *Function-like* switches modify what the command does, like a modifier on a function call. They take space-separated operands and never use `=`. `install -npm <pkgname>` is the switch `-npm` followed by the operand `<pkgname>`, not `-npm=<pkgname>`: in Ryan's words, npm isn't a variable assigned the value antora.
-* *Variable-like* switches assign a value to a setting, with `=`: `-output=out.mkv`, quoted when the shell needs it (`-output="my file.mkv"`). A value that starts with a hyphen is then unambiguous without `:` (`-output=-final.mkv`).
+*Switch kinds (conceptual).* The function-like versus variable-like distinction stays as a way to think about switches, but it no longer changes the syntax:
 
-`=` applies only to variable-like switches, and for them it is a strong rule (DECIDED 2026-10-26, Ryan).
+* *Function-like* switches modify what the command does. `install -npm <pkgname>` is the switch `-npm` followed by the operand `<pkgname>`: in Ryan's words, npm isn't a variable assigned the value antora.
+* *Variable-like* switches set a value: `-output out.mkv`, `-depth 5`.
 
-*Why `=`.* `ls -r=5 Z:/code` is unambiguous: recurse to depth 5 in `Z:/code`. `ls -r 5 Z:/code` is not: is `5` a depth, or a folder named `5`? A variable-like switch MAY take an optional value: bare `-r` means unlimited depth, `-r=5` means depth 5. Only `=` lets the parser tell the two apart.
+Both are written the same way; what matters to the parser is the arity the namespace declares.
 
-*PROPOSED:* the command namespace declares each switch's kind (function-like or variable-like), so parsers, help and linters can check `=` use per switch. A fuller taxonomy, based on programming-language elements, comes later.
+*PROPOSED: fixed arity.* The namespace declares each switch's arity, and there are no optional values. A plain switch takes 0 values; a value switch takes exactly 1, space-separated (like PowerShell's `-Recurse` and `-Depth 5`). A fuller taxonomy based on programming-language elements may come later.
 
-*Existing examples, classified.* Variable-like examples are now written with `=`; `-codec x264` stays as is and is OPEN.
+*PROPOSED: bare assignment.* A bare `name=value` token, with no hyphen, as in `dd if=disk.img` and `make CC=clang`. It is recognized only when the namespace declares `name` as an assignment at that position; anywhere else the token is a value, and `:` forces a value. Caveats: it breaks the earlier idea that variables carry a `-`, and a value that itself contains `=` (`key=a=b`, a URL query) needs a defined split rule (first `=` only) or `:`.
+
+*Existing examples, classified.* All stay space-separated.
 
 [cols="3,1,3"]
 |===
 |Example (where) |Kind |Note
 
-|`install -npm <pkgname>` (NS-7, NS-15, repeated-dash section; command-namespace `spec.adoc`, `provisional.adoc`, `CHANGELOG.adoc`) |function-like |decided; operand stays space-separated
+|`install -npm <pkgname>` (NS-7, NS-15, repeated-dash section; command-namespace `spec.adoc`, `provisional.adoc`, `CHANGELOG.adoc`) |function-like |a switch, then an operand
 |`install --prefer-npm prettier` (`provisional.adoc`, repeated-dash row) |function-like |`prettier` is the operand of `install`
 |`vcs --verbose status` (`provisional.adoc`, repeated-dash row) |function-like |no value; `status` is a node
 |`install -clean`, `--clean`, `---clean` (danger gate) |function-like |no value
 |`<tool> -strict zzqx` (xref:certification-cli-dispatch.adoc[CLI Dispatch certification]) |function-like |no value; `zzqx` is an unknown command
-|`git remote add -name=x` (order and scope, above; changelog; command-namespace `spec.adoc`) |variable-like |converted to `=`
-|`-output=out.mkv` in `encode -codec x264 --crf=23 --preset=slow -output=out.mkv` (changelog; `provisional.adoc`, hierarchy candidate) |variable-like |converted to `=`
-|`--crf=23`, `--preset=slow` (same example; `encode --crf=23` in the hierarchy candidate) |variable-like |converted to `=`; still children of `-codec` under the OPEN hierarchy candidate
-|`-codec x264` (same example) |OPEN |left as is: a value assignment, but also the parent of `--crf` and `--preset` under the hierarchy candidate. Suggestion (not decided): a third kind, a *scoped variable*, written `-codec=x264 --crf=23`, that both assigns a value and opens a scope for its children
+|`git remote add -name x` (order and scope, above; changelog; command-namespace `spec.adoc`) |variable-like |value switch, 1 value
+|`-output out.mkv` in `encode -codec x264 --crf 23 --preset slow -output out.mkv` (changelog; `provisional.adoc`, hierarchy candidate) |variable-like |value switch, 1 value
+|`--crf 23`, `--preset slow` (same example; `encode --crf 23` in the hierarchy candidate) |variable-like |value switches; children of `-codec` under the OPEN hierarchy candidate
+|`-codec x264` (same example) |OPEN |a value switch, but also the parent of `--crf` and `--preset` under the hierarchy candidate. Suggestion (not decided): a third kind, a *scoped variable*, that both takes a value and opens a scope for the child switches after it (`-codec x264 --crf 23`)
 |===
 
 *Help paths (DECIDED 2026-10-26, Ryan).* Help is help-first. The primary mode is shell-level `help <path>` (prohelp), which serves help for every command from the help resources tools ship. Under shell-level help the path tokens are values naming a namespace path: in `help git commit`, `git` and `commit` are values. `<command> help` and `-help` are compatibility paths to the same resource.
@@ -250,7 +252,7 @@ The number of dashes is the option's depth under the nearest preceding option wi
 
 [source,text]
 ----
-$ encode -codec x264 --crf=23 --preset=slow -output=out.mkv
+$ encode -codec x264 --crf 23 --preset slow -output out.mkv
 ----
 
 `--crf` and `--preset` are children of the preceding `-codec`. Going back to a single dash (`-output`) is the visible break out of that context: `-output` is a sibling of `-codec`, not a codec setting.
@@ -268,7 +270,7 @@ $ install -clean!! ripgrep
 *Open sub-questions:*
 
 * *What `---` means.* Presumably a grandchild (a child of the nearest preceding `--` option). Not decided.
-* *A child with no parent.* `encode --crf=23` with no `-codec` before it. Likely a usage error (CD-8: stderr, exit `2`, "`--crf` needs a parent option such as `-codec`"). Not decided.
+* *A child with no parent.* `encode --crf 23` with no `-codec` before it. Likely a usage error (CD-8: stderr, exit `2`, "`--crf` needs a parent option such as `-codec`"). Not decided.
 * *Interaction with the `--long` legacy alias* (<<legacy-double-dash>>). During the transition, `--word` straight after a parent option could be a child or the deprecated spelling of `-word`. Proposed resolution, OPEN: a tool may use child options only if it declares no `--` legacy spellings at all; a tool that still has legacy spellings reads `--word` as the legacy alias only where no parent context is open (as the first option, or right after a parent's operands end in a way the tool's schema makes unambiguous) and otherwise as a child. The simpler rule (no children while any legacy spelling exists) is recommended, because it needs no schema to read.
 
 ==== Leave it reserved

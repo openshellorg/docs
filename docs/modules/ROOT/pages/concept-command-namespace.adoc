@@ -137,9 +137,13 @@ warning: '--help' is deprecated and scheduled for deletion in the next major rev
 
 *Status: OPEN, for Ryan to decide.* What `--x` and `---x` will mean is not decided; until then they are reserved, and new tools MUST NOT give them a meaning of their own.
 
-`+` and its repetitions belong to free, non-contextual flags (NS-7). `-` belongs to contextual options, whose meaning depends on the verb and whose position matters (`install -npm <pkgname>`). So whatever repeated `-` comes to mean applies to contextual options only, and does not overlap with `+` levels. Candidates, in no order (the first two use the same spellings, so at most one of them can take `--x` / `---x`):
+`+` and its repetitions belong to free, non-contextual flags (NS-7). `-` belongs to contextual options, whose meaning depends on the verb and whose position matters (`install -npm <pkgname>`). So whatever repeated `-` comes to mean applies to contextual options only, and does not overlap with `+` levels. Two candidates are open, plus leaving it reserved.
 
-* *Intensity, with a danger-confirmation gate* (Ryan: "good idea"; not final). More dashes ask for a stronger form of the same contextual option, and the strongest, destructive forms are gated behind an explicit confirmation:
+==== Candidate A: intensity
+
+More dashes ask for more of the same contextual option. The user infers what "more" means for a given option (Ryan); the tool's help says it. Scope, config reach and the danger-confirmation gate are not separate meanings. They are what intensity happens to mean for particular options:
+
+* *Danger gate* (Ryan: "good idea"). For a destructive option, more intensity means a stronger action, and the strongest forms ask for confirmation:
 +
 [source,text]
 ----
@@ -147,7 +151,7 @@ $ install -clean ripgrep     # remove ripgrep's cached downloads
 $ install --clean ripgrep    # also remove its installed files; asks for confirmation first
 $ install ---clean ripgrep   # also remove its config and data; asks, and requires the package name to be typed again
 ----
-* *Scope (how far the option travels down the command line):*
+* *Scope.* For an option like `-verbose`, more intensity means it travels further down the command line:
 +
 [source,text]
 ----
@@ -155,7 +159,7 @@ $ vcs -verbose status        # verbose applies to vcs itself (its dispatch and s
 $ vcs --verbose status       # also passed on to the status subcommand and anything it runs
 $ vcs ---verbose status      # set for the rest of the session (every later command)
 ----
-* *Config reach (how far the setting is saved):*
+* *Config reach.* For a preference, more intensity means it is saved further out:
 +
 [source,text]
 ----
@@ -164,7 +168,127 @@ $ install --prefer-npm prettier    # also saved in the project config (./.oso/in
 $ install ---prefer-npm prettier   # also saved in the user config (~/.config/oso/install.json5)
 ----
 (Paths are illustrative.)
-* *Leave it reserved* with no meaning.
+
+[#hierarchy-candidate]
+==== Candidate B: hierarchy depth (Ryan's favoured direction, not decided)
+
+The number of dashes is the option's depth under the nearest preceding option with one dash fewer:
+
+[source,text]
+----
+$ encode -codec x264 --crf 23 --preset slow -output out.mkv
+----
+
+`--crf` and `--preset` are children of the preceding `-codec`. Going back to a single dash (`-output`) is the visible break out of that context: `-output` is a sibling of `-codec`, not a codec setting.
+
+*Why.* Ordering alone cannot show whether an option is a sibling or a child. A parser could work it out from a hidden schema ("`-crf` only belongs to codecs, so attach it to `-codec`"), but then the user has to know that schema to read the line, which breaks their mental model of what they typed. Dash depth puts the tree on the command line. It matches prohelp's hierarchical help: `help -codec` lists the children of `-codec`, and the same children are what may follow it with `--`.
+
+*Intensity moves to a suffix.* Under this candidate, repeated dashes are taken by depth, so intensity is written as a suffix on the option word. The suffix is `!` (decided by Ryan, see <<intensity-suffix>>):
+
+[source,text]
+----
+$ vcs push -force!       # stronger push; may ask for confirmation
+$ install -clean!! ripgrep
+----
+
+*Open sub-questions:*
+
+* *What `---` means.* Presumably a grandchild (a child of the nearest preceding `--` option). Not decided.
+* *A child with no parent.* `encode --crf 23` with no `-codec` before it. Likely a usage error (CD-8: stderr, exit `2`, "`--crf` needs a parent option such as `-codec`"). Not decided.
+* *Interaction with the `--long` legacy alias* (<<legacy-double-dash>>). During the transition, `--word` straight after a parent option could be a child or the deprecated spelling of `-word`. Proposed resolution, OPEN: a tool may use child options only if it declares no `--` legacy spellings at all; a tool that still has legacy spellings reads `--word` as the legacy alias only where no parent context is open (as the first option, or right after a parent's operands end in a way the tool's schema makes unambiguous) and otherwise as a child. The simpler rule (no children while any legacy spelling exists) is recommended, because it needs no schema to read.
+
+==== Leave it reserved
+
+Repeated `-` keeps no meaning.
+
+[#intensity-suffix]
+==== Intensity suffix `!` and the fallback `~`
+
+*Decided (Ryan):* `!` is the canonical intensity suffix (`-force!`, `-clean!!`). Documentation and examples MUST use `!`. Ryan: shells that break `!` "need to get on my level, not I on theirs". The hierarchy candidate as a whole stays OPEN; the suffix character does not.
+
+* *Non-conforming shells.* Interactive bash and interactive zsh expand `!` (history expansion) by default, so `-clean!!` arrives as `-clean` followed by the previous command line. These shells are NON-CONFORMING for OSO unless history expansion is turned off. The fix, in the rc file:
++
+[source,bash]
+----
+# ~/.bashrc
+set +H                 # same as: set +o histexpand
+----
++
+[source,zsh]
+----
+# ~/.zshrc
+unsetopt BANG_HIST
+----
++
+A tool cannot change its parent shell, so this is user setup. An OSO installer or setup script MAY add these lines.
+* *Fallback suffix (PROVISIONAL, chosen by test, for Ryan to confirm): `~`.* Conforming tools MUST accept `~` with exactly the same meaning as `!` (`-force~`, `-clean~~`), only as a stand-in for `!` in shells that mangle it. Documentation and examples use `!`; `~` appears only in compatibility notes like this one. `~` was the only tested character that is not already a sigil (`+` is taken by free flags) and reached the program unchanged in every shell tested, including zsh with `extendedglob` (a trailing `~` is not a pattern) and bash/zsh tilde expansion (which only applies at the start of a word).
+* *Implementer note.* A conforming tool SHOULD detect an argument that looks history-expanded where a `!` suffix was expected, where that is feasible: a known option name followed by unexpected text (`-cleanpython3`), or a destructive option given without the `!` the user probably typed. It should then say so on stderr and point at the shell setup above. At minimum its help MUST mention the requirement.
+* *Fallback notice (MUST).* Ryan: when a fallback is used, it must be "abundantly obvious that the incompatible shells are incompatible and not oso certified". Whenever a conforming tool receives an option with the `~` fallback suffix, it MUST print a prominent notice on stderr. The notice does not change stdout or the exit code, and `-quiet` MUST NOT silence it. It MUST be visibly highlighted: a coloured `notice:` label when stderr is a terminal, plain text otherwise (CH-19). It MUST:
+** say that the fallback was used because the current shell expands `!` and is not OSO certified;
+** name the shell when it can be detected. `$BASH_VERSION` and `$ZSH_VERSION` are shell variables that a child process does not see, so detect it from the parent process instead (`/proc/$PPID/exe` or `ps -p $PPID -o comm=` on Unix, the parent process image on Windows), falling back to `$SHELL` (the login shell, which may not be the one running) and saying "your shell" when nothing is reliable;
+** link the OSO certification page (https://docs.opensh.org/open-shell-org/certification-about/);
+** ask the user to request OSO certification from the shell's maintainers, with a link to where that request goes when one is known;
+** give the fix: `set +H` in `~/.bashrc`, or `unsetopt BANG_HIST` in `~/.zshrc`.
++
+Example (stderr; `notice:` coloured on a terminal):
++
+[source,text]
+----
+notice: '-clean~~' used the fallback suffix '~' for '!'.
+  Your shell (zsh, from the parent process) expands '!' and is not OSO certified:
+  https://docs.opensh.org/open-shell-org/certification-about/
+  Please ask the zsh maintainers to seek OSO certification: https://www.zsh.org/mla/
+  Fix it now: add 'unsetopt BANG_HIST' to ~/.zshrc, then type -clean!!
+----
++
+*Silencing is OPEN (for Ryan).* Recommended, as Ryan's intent: never a full mute. At most an environment variable such as `OSO_FALLBACK_NOTICE=once` limits it to once per session. Implementer detail: track "once" with a marker file in the user's temp directory keyed by a session identifier (`$XDG_SESSION_ID`, the terminal's `$TERM_SESSION_ID` / `$WT_SESSION`, or the parent shell's PID plus its start time so a reused PID does not count), and show the notice again when no marker exists.
+
+.Shell compatibility for the `!` suffix
+[cols="2,2,3"]
+|===
+|Shell |Status |Notes
+
+|bash, non-interactive (scripts, `bash -c`) |conforming as-is |history expansion is off
+|bash, interactive |conforming with setup |`set +H` in `~/.bashrc`; otherwise use `~`
+|zsh, non-interactive |conforming as-is |
+|zsh, interactive |conforming with setup |`unsetopt BANG_HIST` in `~/.zshrc`; otherwise use `~`
+|fish |conforming as-is |no history expansion
+|PowerShell 7 |conforming as-is |
+|Windows PowerShell 5.1 |conforming as-is |
+|cmd.exe |conforming as-is |with delayed expansion off (the default). With delayed expansion on (`cmd /v:on` or the registry setting), `!` is stripped: `-force!` arrives as `-force`; use `~`
+|===
+
+.Unquoted suffix safety (tested 2026-10-26; bash 5.2, zsh, fish, PowerShell 7.4.6 on Linux; Windows PowerShell 5.1 and cmd.exe on Windows 11)
+[cols="1,1,1,1,1,1,1,1,1"]
+|===
+|Arg |bash -c |bash -i |zsh -c |zsh -i |fish |pwsh 7 |PS 5.1 |cmd
+
+|`-force!` |ok |ok^1^ |ok |ok^1^ |ok |ok |ok |ok^2^
+|`-clean!!` |ok |*expanded* |ok |*expanded* |ok |ok |ok |ok^2^
+|`-x~` |ok |ok |ok |ok |ok |ok |ok |ok
+|`-x+` / `-x++` |ok |ok |ok |ok |ok |ok |ok |ok
+|`-x^` / `-x^^` |ok |ok |ok^3^ |ok^3^ |ok |ok |ok |*stripped*
+|`-x*` |glob^4^ |glob^4^ |*error* |*error* |*error* |ok |ok |ok
+|`-x%` |ok |ok |ok |ok |ok |ok |ok |ok^5^
+|`-x=` |ok |ok |ok |ok |ok |ok |ok |ok^6^
+|`-x@` |ok |ok |ok |ok |ok |ok |ok |ok
+|`-x.` |ok |ok |ok |ok |ok |*split* |*split* |ok
+|`-x:` |ok |ok |ok |ok |ok |*error* |*error* |ok
+|`-x#` |ok |ok |ok^7^ |ok^7^ |ok |ok |ok |ok
+|===
+
+ok = the program received the exact literal argument. *expanded*: `-clean!!` became `-cleanpython3 a.py -force!` (the previous line). *stripped*: cmd removed `^` (its escape character), the program got `-x`. *error*: zsh and fish "no matches found" for `-x*`; PowerShell "Parameter -x: requires an argument". *split*: PowerShell passed `-x` and `.` as two arguments.
+
+. A lone trailing `!` survives, but `!` followed by text (`-force!x`) gives "event not found".
+. With delayed expansion on, `!` is stripped.
+. With `setopt extendedglob`, `^` is a glob operator: "no matches found".
+. Passed literally only when no file matches `-x*`; with a file `-xA` present, bash passed `-xA`.
+. Literal at the prompt and through `%*`, but `%` is special inside batch files.
+. Reached the program through `%*`; cmd treats `=` as an argument separator for `%1`-style access.
+. With `setopt extendedglob`, `x#` is a glob ("zero or more x"): "no matches found".
+
+PowerShell's `@` (splatting) and `#` (comment) are special only at the start of a word, and `--%` (stop parsing) only as a whole word, so none of them affected a trailing suffix. Test harness: an argv-echo program (`python -c "import sys;print(sys.argv[1:])"`), invoked through each shell, with interactive bash and zsh fed the commands on stdin so history expansion was on.
+
 
 *Bare `--`:* whether the token `--` (exactly two dashes, nothing after) stays the end-of-options marker is a separate question. It does not conflict with reserving `--x` and `---x`, because it has no name after the dashes. It could conflict with a candidate that gives a bare repeated dash a meaning of its own (for example a bare `---` for "session scope from here on"); if one of those is chosen, the end-of-options marker has to be decided at the same time.
 

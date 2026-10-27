@@ -52,7 +52,7 @@ A tool MUST NOT resolve a token by searching packages, files, plugins or the net
 
 CD-5:: In the strict style (see xref:standard-cli-styles.adoc[CLI Styles]), a bare invocation (the tool name with no command) SHOULD print help (or a short usage summary pointing to help) and perform no action (see xref:standard-cli-help.adoc[CH-5]).
 
-CD-6:: If a tool does have a default action for a bare invocation, that default MUST be documented in its help and reference documentation, and every bare run MUST state which action it ran (for example `no command given; running default: build`). `--help` MUST still print help without running the default (xref:standard-cli-help.adoc[CH-5]).
+CD-6:: If a tool does have a default action for a bare invocation, that default MUST be documented in its help and reference documentation, and every bare run MUST state which action it ran (for example `no command given; running default: build`). `-help` MUST still print help without running the default (xref:standard-cli-help.adoc[CH-5]).
 The default action MUST NOT be a catch-all that interprets later words as targets (CD-3 still applies).
 
 == Unexpected input
@@ -61,6 +61,7 @@ CD-7:: Unexpected input MUST be rejected, including by tools that take no argume
 A tool or GUI launcher that accepts no positional arguments or flags MUST exit with an error (usage code `2`, message on stderr) when it receives any, instead of silently ignoring them, so users know there is no hidden surface.
 
 CD-8:: Unknown flags, surplus positional arguments, and missing required arguments MUST be errors under the same rules as CD-1: name the offending input, point to help (xref:standard-cli-help.adoc[CH-18], xref:standard-cli-help.adoc[CH-24]), write to stderr, exit `2`.
+Options follow the single-dash syntax of xref:concept-command-namespace.adoc#option-syntax[NS-15]. A token that looks bundled (`-xvz`) MUST be read as one long option name; if the tool has no such option it is an unknown flag under this rule, and the error SHOULD show the explicit group (`-x-v-z`) when every letter is a known short alias. A token whose name is a single letter followed by a hyphen and a longer word (`-d-lang`, `-x-dry-run`) is illegal and MUST be a usage error naming the token. A lone `-` is an operand, not a flag.
 
 == Wrappers and drop-in replacements
 
@@ -82,9 +83,9 @@ CD-13:: The migration warning (CD-11) MUST be a single block on stderr that cont
 . the line `warning: '<X>' is not a <tool> command; <what the tool is doing implicitly> is deprecated`;
 . the line `  use: <the exact explicit command that does the same thing>`, copy-pasteable;
 . the line `  this will be an error in <tool> <next major version>; enable now with <flag> or <ENV>=1`.
-The warning MUST appear before any action output, MUST NOT be suppressed by `--quiet` (xref:standard-cli-output.adoc[CO-10]), and MUST appear in the machine-readable result as an item needing attention (xref:standard-cli-output.adoc[CO-12]).
+The warning MUST appear before any action output, MUST NOT be suppressed by `-quiet` (xref:standard-cli-output.adoc[CO-10]), and MUST appear in the machine-readable result as an item needing attention (xref:standard-cli-output.adoc[CO-12]).
 
-CD-14:: The strict opt-in (CD-11) MUST be spelled consistently: the flag `--strict` (or `--strict-dispatch` if `--strict` is taken), the environment variable `<TOOL>_STRICT=1`, and a config key documented next to them.
+CD-14:: The strict opt-in (CD-11) MUST be spelled consistently: the flag `-strict` (or `-strict-dispatch` if `-strict` is taken), the environment variable `<TOOL>_STRICT=1`, and a config key documented next to them.
 The flag takes precedence over the environment variable, and the environment variable over config.
 Once strict is the default (CD-12), the same flag MUST remain accepted as a no-op so scripts written during migration keep working.
 
@@ -96,7 +97,7 @@ A tool MUST NOT announce a strict default for a major version and then ship that
 
 == Help and documentation
 
-CD-16:: `<tool> help` and `<tool> --help` MUST list every command the dispatcher accepts, including aliases (CD-4) and the bare-invocation default if any (CD-6).
+CD-16:: `<tool> help` and `<tool> -help` MUST list every command the dispatcher accepts, including aliases (CD-4) and the bare-invocation default if any (CD-6).
 A command that dispatches but is missing from help is hidden surface and violates CD-7.
 Which help invocations MUST work (including `<tool> help` as a command), what help contains and where it comes from are governed by xref:standard-cli-help.adoc[CLI Help] (CH-1, CH-2, CH-8, CH-15).
 
@@ -136,7 +137,7 @@ Non-conforming: the argument is silently ignored, and the user cannot tell wheth
 
 [source,text]
 ----
-$ settings-gui --reset
+$ settings-gui -reset
 (window opens; nothing is reset)
 ----
 
@@ -144,9 +145,9 @@ Conforming:
 
 [source,text]
 ----
-$ settings-gui --reset
-error: settings-gui takes no arguments or flags; received '--reset'
-  see: settings-gui --help
+$ settings-gui -reset
+error: settings-gui takes no arguments or flags; received '-reset'
+  see: settings-gui -help
 $ echo $?
 2
 ----
@@ -157,7 +158,7 @@ $ echo $?
 Any first word that is not one of its own commands falls through to its run path, which reads the word as a package name: `redub foo` behaves as `redub run foo`, fetching the package `foo` if it is not the local project.
 Its own commands are `build`, `build-universal`, `update`, `setup`, `clean`, `describe`, `deps`, `test`, `init`, `install`, `configure`, `use` and `run`, plus `watch` in some builds.
 `search` is not among them.
-That list comes from redub's dispatch table in `source/app.d`, not from its help: today `redub --help` lists `init`, `run`, `build`, `test`, `describe` and `clean`, then `update`, `build-universal`, `watch`, `install` and `use` as additions, and omits `setup`, `deps` and `configure` (CD-16).
+That list comes from redub's dispatch table in `source/app.d`, not from its help: today `redub --help` (redub's current GNU-style spelling) lists `init`, `run`, `build`, `test`, `describe` and `clean`, then `update`, `build-universal`, `watch`, `install` and `use` as additions, and omits `setup`, `deps` and `configure` (CD-16).
 
 Two more gaps in the same release (redub `main` at `7cf2af7`):
 
@@ -176,7 +177,7 @@ $ redub search json
 error: redub does not implement 'search'
   'search' is implemented by dub: dub search json
   redub implements: build, build-universal, update, setup, clean, describe, deps, test, init, install, configure, use, run
-  see: redub --help
+  see: redub -help
 $ echo $?
 2
 ----
@@ -197,22 +198,22 @@ Current major version, migration release (CD-11, CD-13, CD-14): behaviour unchan
 $ redub foo
 warning: 'foo' is not a redub command; running package 'foo' implicitly is deprecated
   use: redub run foo
-  this will be an error in redub 2.0; enable now with --strict or REDUB_STRICT=1
+  this will be an error in redub 2.0; enable now with -strict or REDUB_STRICT=1
 (fetches package foo, builds it, runs it)
 ----
 
 [source,text]
 ----
-$ redub --strict foo
+$ redub -strict foo
 error: unknown command 'foo'
   to run a package named foo: redub run foo
-  see: redub --help
+  see: redub -help
 $ echo $?
 2
 ----
 
 Next major version (CD-12, CD-15): the strict error above is the default for `redub foo`; `redub run foo` is the only way to run the package.
-(The version number `2.0`, the `--strict` flag and the `REDUB_STRICT` variable are illustrative; each project names its own.)
+(The version number `2.0`, the `-strict` flag and the `REDUB_STRICT` variable are illustrative; each project names its own. The example uses the single-dash form of xref:concept-command-namespace.adoc#option-syntax[NS-15]; redub itself still uses GNU `--` options today.)
 
 For comparison, current `dub` rejects an unknown first word with `Unknown command` and exit code `1`.
 Its one remaining word-level implicit form is a file shortcut: if `./foo` or `./foo.d` exists, `dub foo` runs that file as a single-file package (`dub run --single`), so a local file can shadow the command line.
@@ -229,7 +230,7 @@ The full self-test and the conformance levels are on xref:certification-cli-disp
 * [ ] A tool or GUI launcher that takes no arguments errors on any argument or flag it receives (CD-7).
 * [ ] Unknown flags, extra positionals and missing arguments are usage errors with exit `2` (CD-8).
 * [ ] A wrapper or drop-in replacement forwards only commands the underlying tool implements, and names the tool that implements anything else (CD-9, CD-10, CD-17).
-* [ ] A tool with implicit behaviour warns on every implicit use in the CD-13 format, and offers `--strict` / `<TOOL>_STRICT` (CD-11, CD-13, CD-14).
+* [ ] A tool with implicit behaviour warns on every implicit use in the CD-13 format, and offers `-strict` / `<TOOL>_STRICT` (CD-11, CD-13, CD-14).
 * [ ] Strict errors are the default by the next major version, on the announced timeline; warnings alone do not conform (CD-12, CD-15).
 * [ ] Help lists every accepted command, alias and default (CD-16).
 

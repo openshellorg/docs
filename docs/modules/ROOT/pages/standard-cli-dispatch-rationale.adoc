@@ -32,7 +32,7 @@ Package registries accept new names from anyone, so the package a bare word reso
 == Silence hides surface (CD-7, CD-8, CD-16)
 
 When a tool ignores input it does not understand, nobody can tell whether a flag did something, did nothing, or does something undocumented.
-A GUI launcher that accepts and drops `--reset` looks identical to one that reset settings.
+A GUI launcher that accepts and drops `-reset` looks identical to one that reset settings.
 Rejecting stray input is a cheap proof that the documented surface is the whole surface.
 CD-16 closes the other side: whatever dispatches must also appear in help.
 
@@ -54,7 +54,7 @@ A dated changeover at the next major version is what actually removes the behavi
 No opt-out is offered because there is nothing to preserve: most packages do not care whether they were invoked implicitly or explicitly.
 
 The timeline in CD-15 gives users a warning release before the break, and the fixed message shape in CD-13 means the warning always contains the exact replacement command, so fixing a script is a copy-paste.
-Keeping `--strict` accepted after the switch (CD-14) means scripts that opted in early never break.
+Keeping `-strict` accepted after the switch (CD-14) means scripts that opted in early never break.
 
 == Verbs and nouns (CS-9, CS-10)
 

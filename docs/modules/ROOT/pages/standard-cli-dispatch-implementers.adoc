@@ -55,10 +55,10 @@ flowchart TD
 
 == Staging the strict migration
 
-. Add the strict code path first, behind `--strict` / `<TOOL>_STRICT=1` / a config key (CD-14). Test it.
+. Add the strict code path first, behind `-strict` / `<TOOL>_STRICT=1` / a config key (CD-14). Test it.
 . In the same release, add the CD-13 warning to every implicit path. Grep for every place the dispatcher falls back: unknown token, ignored flag, silent default.
 . Announce in release notes which major version flips the default (CD-15).
-. In the next major version, invert the default and keep `--strict` as an accepted no-op.
+. In the next major version, invert the default and keep `-strict` as an accepted no-op.
 
 Exact warning text, reused in every tool:
 
@@ -66,7 +66,7 @@ Exact warning text, reused in every tool:
 ----
 warning: '<X>' is not a <tool> command; <implicit action> is deprecated
   use: <explicit command>
-  this will be an error in <tool> <N+1>; enable now with --strict or <TOOL>_STRICT=1
+  this will be an error in <tool> <N+1>; enable now with -strict or <TOOL>_STRICT=1
 ----
 
 == Testing

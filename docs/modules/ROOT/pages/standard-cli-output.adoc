@@ -49,7 +49,7 @@ CO-7:: Terminal summaries SHOULD reference the log section that holds the detail
 
 == Verbose and quiet modes
 
-CO-8:: A conforming tool MUST provide `--verbose` (short form `-v` when it does not clash) that streams the full detail to the terminal as it happens.
+CO-8:: A conforming tool MUST provide `-verbose` (short alias `-v` when it does not clash, xref:concept-command-namespace.adoc#option-syntax[NS-15]) that streams the full detail to the terminal as it happens.
 It MUST also honour an environment variable with the same effect, named `<TOOL>_VERBOSE` (for example `PKG_VERBOSE=1`).
 The command-line flag takes precedence over the environment variable.
 
@@ -57,11 +57,11 @@ CO-9:: A tool SHOULD offer automatic verbose output when it runs in CI or when s
 This behaviour MUST be configurable, and the tool MUST document its default.
 A common CI marker is the `CI` environment variable.
 
-CO-10:: A tool MAY offer `--quiet` that suppresses everything except errors, decisions and the log path.
+CO-10:: A tool MAY offer `-quiet` that suppresses everything except errors, decisions and the log path.
 
 == Machine-readable output
 
-CO-11:: A conforming tool MUST provide machine-readable output for agents and scripts: `--json` prints a single JSON result document on stdout, and the log MUST be available as JSON Lines (one event object per line), either as the log itself or as a sibling file.
+CO-11:: A conforming tool MUST provide machine-readable output for agents and scripts: `-json` prints a single JSON result document on stdout, and the log MUST be available as JSON Lines (one event object per line), either as the log itself or as a sibling file.
 
 CO-12:: Machine-readable results MUST include the outcome, the exit code, the list of changes, the items needing attention, and the log path.
 Each JSON Lines event SHOULD carry a timestamp, a level, a section name, and a message.
@@ -107,10 +107,10 @@ CO-18:: A tool SHOULD use distinct, documented non-zero codes for distinct failu
 
 == stdout and stderr
 
-CO-19:: The *result* of a command (the data a pipeline or script consumes, including `--json` output) MUST go to stdout.
+CO-19:: The *result* of a command (the data a pipeline or script consumes, including `-json` output) MUST go to stdout.
 
 CO-20:: Diagnostics, progress, warnings, errors, prompts and the log-path line MUST go to stderr, so that piping stdout yields only the result.
-For tools whose whole job is an action rather than data (for example an installer), the human summary MAY go to stdout, but `--json` output MUST then be the only thing on stdout.
+For tools whose whole job is an action rather than data (for example an installer), the human summary MAY go to stdout, but `-json` output MUST then be the only thing on stdout.
 
 == Example: package install
 
@@ -161,10 +161,10 @@ The reason for the failure is on screen; the log holds the rest.
 == Rationale
 
 * *Attention is the scarce resource.* Routine output trains people to stop reading, so the one line that matters gets missed. Showing only outcome, changes and decisions keeps every printed line worth reading.
-* *Agents pay for every line.* AI agents read terminal output as tokens. Progress chatter costs context and money and buries the signal; a short default plus `--json` gives agents the result without the noise.
+* *Agents pay for every line.* AI agents read terminal output as tokens. Progress chatter costs context and money and buries the signal; a short default plus `-json` gives agents the result without the noise.
 * *Nothing is lost.* Detail moves to a predictable, indexed log instead of disappearing. The final log-path line and section references make the detail one step away.
 * *Failures must explain themselves.* Requiring someone to open a log to learn why something failed adds a step at the worst moment, and agents often never take that step. Inline reasons fix both.
 * *Scripts need a stable contract.* Separating results (stdout) from diagnostics (stderr), meaningful exit codes, and versioned JSON fields let tools compose in pipelines without scraping human text.
-* *CI is a different audience.* There is no one to rerun with `--verbose` after the runner is gone, so CI and non-TTY runs may need full output by default.
+* *CI is a different audience.* There is no one to rerun with `-verbose` after the runner is gone, so CI and non-TTY runs may need full output by default.
 
 See also xref:standard-design-considerations.adoc[Design Considerations] for the AI compatibility concerns this page builds on, and xref:standard-cli-dispatch.adoc[CLI Dispatch] for which input a tool must reject as a usage error (exit code `2`).

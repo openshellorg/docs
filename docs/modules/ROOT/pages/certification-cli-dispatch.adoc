@@ -32,7 +32,7 @@ A tool that keeps implicit behaviour as its default after the announced major ve
 
 == Self-test
 
-Run each case with default settings (and again with `--strict` for the *Migrating* level), in a sandbox with no network access.
+Run each case with default settings (and again with `-strict` for the *Migrating* level), in a sandbox with no network access.
 "stderr contains" means the listed text appears on stderr; stdout MUST be empty in every error case.
 `<tool>` is the tool under test; `zzqx` is any word that is not a command.
 
@@ -60,10 +60,20 @@ Run each case with default settings (and again with `--strict` for the *Migratin
 | help or usage on stdout/stderr, or `running default: <action>`
 | CD-5, CD-6
 
-| `<tool> --zzqx`
+| `<tool> -zzqx`
 | 2
-| `--zzqx` named as unknown
+| `-zzqx` named as unknown
 | CD-8
+
+| `<tool> -xvz`, where `-x`, `-v` and `-z` exist and `-xvz` does not
+| 2
+| `-xvz` named as an unknown option (not run as `-x -v -z`); the error shows `-x-v-z`
+| CD-8, xref:concept-command-namespace.adoc#option-syntax[NS-15]
+
+| `<tool> -d-zzqx` and `<tool> -x-zzqx-run`
+| 2
+| the token named as an invalid option
+| CD-8, NS-15
 
 | `<no-argument tool or GUI launcher> zzqx`
 | 2
@@ -80,22 +90,22 @@ Run each case with default settings (and again with `--strict` for the *Migratin
 | the three CD-13 lines, before any other output
 | CD-11, CD-13
 
-| `<tool> --strict zzqx` and `<TOOL>_STRICT=1 <tool> zzqx`
+| `<tool> -strict zzqx` and `<TOOL>_STRICT=1 <tool> zzqx`
 | 2
 | `unknown command 'zzqx'`
 | CD-14
 
-| `<tool> --help`
+| `<tool> -help`
 | 0
 | every command the dispatcher accepts is listed
 | CD-16
 
 | `<tool> -h` and (for a tool with subcommands) `<tool> help`; stdout captured
 | 0
-| nothing on stderr except help-system notices; stdout is the same help as `<tool> --help`; `help` is not run as a target
+| nothing on stderr except help-system notices; stdout is the same help as `<tool> -help`; `help` is not run as a target
 | xref:standard-cli-help.adoc[CH-1], CH-2, CH-4, CH-17
 
-| `<tool> help <command>`, `<tool> ? <command>` and `<tool> <command> --help` for every command
+| `<tool> help <command>`, `<tool> ? <command>` and `<tool> <command> -help` for every command
 | 0
 | help for that command on stdout, the same for all three forms
 | CH-15
@@ -105,12 +115,12 @@ Run each case with default settings (and again with `--strict` for the *Migratin
 | `zzqx` named as unknown, a pointer to top-level help; stdout empty
 | CH-16, CH-18
 
-| `<tool> --help \| cat`
+| `<tool> -help \| cat`
 | 0
 | no colour or terminal control sequences in stdout
 | CH-19
 
-| `<tool> --help` and `<tool> <command> --help` for every command, plus `--json` results
+| `<tool> -help` and `<tool> <command> -help` for every command, plus `-json` results
 | 0
 | one and the same declared style (`strict` if none is declared) for every command and subcommand; no command declares or behaves in another style
 | CS-9

@@ -36,7 +36,7 @@ NS-5:: Running a file by path MUST stay possible, but only explicitly (a path-sh
 
 NS-6:: A node MUST declare its CLI style (strict by default, per xref:standard-cli-styles.adoc[CLI Styles] CS-1 and CS-2). A resolver-style front door such as `install` is a node whose children are providers registered by each package manager. The command is literally `install`, to keep the interface seamless; on Unix the existing `install(1)` file copier is registered at `legacy/install`, and install(1)-style arguments are handed through to it so build scripts keep working (passthrough PROVISIONAL).
 
-NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help. Free flags use the `+` sigil: you add them together, and their order doesn't matter (`+yes +verbose`). The inspection tool is https://github.com/openshellorg/name[`name`] (`name which`, `name conflicts`).
+NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help. Free flags use the `+` sigil: you add them together, and their order doesn't matter (`+yes +verbose`). A tool's own `-` options follow NS-15 (<<option-syntax>>). The inspection tool is https://github.com/openshellorg/name[`name`] (`name which`, `name conflicts`).
 
 NS-8:: When a version manager controls a node, the manifest for each version SHOULD mark which commands and flags were added, removed or changed since the previous release. This is a visual cue and learning aid, not a full diff.
 
@@ -55,6 +55,71 @@ NS-12:: The command composition area SHOULD keep a fixed height of two to three 
 NS-13:: Anything that changes the namespace or the process's view of the system for a while SHOULD be described by three properties: *level* (overlay, fence, partition, guest), *lifetime* (run, session, kept), and *scope* (process, session, folder, user, machine). Definitions: link:https://docs.devcentr.org/general-knowledge/reference/shells/isolation-levels.html[Isolation levels] (Dev-Centr glossary).
 
 NS-14:: An overlay (venv activation, a version switch, a project pin) SHOULD be implemented as a layer on top of the command namespace, with precedence machine < user < folder < session, and MUST be shown in the composition area with its full term, for example "kept overlay: .venv, attached to this session".
+
+[#option-syntax]
+== Option syntax (NS-15)
+
+NS-15:: A conforming tool's own options MUST use a single dash (`-`), read by these rules. They apply to any argument that starts with `-` and is not exactly `-`; the `+` free flags of NS-7 are not affected.
++
+. `-word` is a *long option*. A word is two or more characters, and hyphenated words are allowed: `-version`, `-dry-run`, `-strict-dispatch`.
+. A *short alias* is a single letter: `-v`. A short alias and a long option MAY name the same option (`-v` and `-version`).
+. There is *no implicit bundling*. `-xvz` MUST be read as the long option named `xvz`, never as `-x -v -z`.
+. *Explicit grouping* is single letters joined by hyphens: `-x-v-z` means the switches `x`, `v` and `z`. Every part of a group MUST be one letter.
+. A long option name MUST NOT start with a single letter followed by a hyphen (`-d-lang`, `-f-stop`, `-f-number`); spell it `-dlang`, `-fstop`, `-fnumber`. A token that starts like a group and continues with a longer word (`-d-lang`, `-x-dry-run`) MUST be a usage error (xref:standard-cli-dispatch.adoc[CD-8]: stderr, exit `2`).
+. A lone `-` is an operand, not an option (stdin or stdout, as in `-f -`), and MUST stay legal.
++
+Whether `--long` is still accepted as a legacy alias is *OPEN* (see below). Documentation and examples MUST use the single-dash form.
+
+=== Grammar
+
+Split the text after the leading `-` on `-` into parts. The first part decides:
+
+[source,text]
+----
+token   = "-"                              ; operand (stdin/stdout), NS-15 item 6
+        | "-" letter                       ; short alias            -v
+        | "-" letter 1*("-" letter)        ; explicit group         -x-v-z
+        | "-" word *("-" part)             ; long option            -version, -dry-run, -xvz
+        | "--" ...                         ; OPEN: legacy alias (see below)
+letter  = %x61-7A / DIGIT                  ; one character
+word    = 2*( %x61-7A / DIGIT )            ; two or more characters
+part    = 1*( %x61-7A / DIGIT )
+; anything else whose first part is one letter
+; (a letter, then a part of two or more characters) is a usage error
+----
+
+Later one-letter parts inside a long name (`-ipv-4`) are legal; only the *first* part decides between group and long name.
+
+=== Examples
+
+[cols="1,1,3"]
+|===
+|Token |Legal? |Meaning, or the error (stderr, exit `2`, CD-8)
+
+|`-version` |yes |long option `version`
+|`-dry-run` |yes |long option `dry-run`
+|`-v` |yes |short alias `v` (MAY be the same option as `-version`)
+|`-x-v-z` |yes |switches `x`, `v` and `z`
+|`-xvz` |yes |long option `xvz`. If the tool has no such option: `error: unknown option '-xvz'` / `  to pass -x, -v and -z, write: -x-v-z` / `  see: <tool> -help`
+|`-f -` |yes |`-f` with the operand `-` (stdin or stdout)
+|`-fstop` |yes |long option `fstop`
+|`-f-stop` |no |`error: invalid option '-f-stop': a one-letter part followed by '-' starts a group` / `  did you mean: -fstop, or -f -stop` / `  see: <tool> -help`
+|`-d-lang` |no |same error; did you mean `-dlang`
+|`-x-dry-run` |no |`error: invalid option '-x-dry-run': mixes the switch -x with the long option -dry-run` / `  write: -x -dry-run` / `  see: <tool> -help`
+|`--help` |OPEN |legacy alias of `-help` if the tool still accepts it (see below)
+|===
+
+=== Why
+
+* *Bundling reads as a word.* tar's `-xvz` packs three switches into something that looks like a command named `xvz` ("what is xvz, are we x-vizzing it?"). Under NS-15 a token always means what it spells.
+* *Grouping needs a visible separator that survives every shell.* A colon (`-:xvz`) never reads as grouping; quotes (`-"xvz"`) are stripped by the shell; `;` ends a command; parentheses need quoting in bash and PowerShell. A hyphen between single letters is plain, typeable and unquoted everywhere.
+* *Letter-hyphen names are ambiguous.* Cabal's `-f-foo` means "disable flag foo", which is exactly the `-f -foo` versus `-f-foo` ambiguity this rule removes; GHC avoids it with `-fno-foo` and `-XNoFoo`. Banning a leading letter-hyphen keeps every group unambiguous.
+
+=== OPEN: `--long` as a legacy alias
+
+*Status: OPEN, for Ryan to decide.* Should `--long` (GNU style) still be accepted as an alias of `-long`?
+
+*Recommendation (PROVISIONAL):* yes, during migration only. A tool MAY accept `--long` as a *deprecated legacy alias* of `-long`; when it does, it SHOULD warn on each use in the CD-13 format (name the single-dash spelling) and the alias MAY be removed in a later major version. Documentation, help and examples MUST NOT show `--long`. The bare end-of-options marker `--` is a separate question and is not decided by this recommendation.
 
 == What already exists, and what is new
 

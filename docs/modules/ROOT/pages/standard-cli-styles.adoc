@@ -18,7 +18,7 @@ The key words MUST, SHOULD and MAY follow https://www.rfc-editor.org/info/bcp14[
 
 CS-1:: *Strict is the default.* A tool that does not declare a style is strict, and MUST meet every rule in xref:standard-cli-dispatch.adoc[CLI Dispatch].
 
-CS-2:: A non-strict style MUST be *announced*: declared in the tool's help, in reference docs, and in the `--json` result (`"style": "<name>"`).
+CS-2:: A non-strict style MUST be *announced*: declared in the tool's help, in reference docs, and in the `-json` result (`"style": "<name>"`).
 
 CS-3:: A non-strict style changes how a command's arguments are resolved (for example the target of `install`), never the tool's top-level dispatch. Unknown top-level command tokens remain CD-1 errors in every style.
 
@@ -44,9 +44,9 @@ A resolver-style tool accepts a loose name or phrase and resolves it to a concre
 
 CS-5:: The tool MUST print what it resolved before acting: each candidate with its source (package manager or registry), exact name, version and publisher where known.
 
-CS-6:: When more than one candidate matches, the tool MUST print disambiguation output and MUST NOT act until the user picks one. Non-interactive runs (no TTY, CI, `--json`) MUST exit `2` with the candidate list instead of picking.
+CS-6:: When more than one candidate matches, the tool MUST print disambiguation output and MUST NOT act until the user picks one. Non-interactive runs (no TTY, CI, `-json`) MUST exit `2` with the candidate list instead of picking.
 
-CS-7:: Even with a single candidate, the tool MUST ask for confirmation before any fetch, install or run, unless the user passed an explicit flag such as `--yes` together with a fully qualified target (for example `winget:BurntSushi.ripgrep.MSVC`).
+CS-7:: Even with a single candidate, the tool MUST ask for confirmation before any fetch, install or run, unless the user passed an explicit flag such as `-yes` together with a fully qualified target (for example `winget:BurntSushi.ripgrep.MSVC`).
 
 CS-8:: Resolution MUST be reproducible from its output: the printed resolution includes the fully qualified strict command that does the same thing, so the user can run it directly next time.
 

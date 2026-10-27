@@ -129,7 +129,7 @@ Published docs: https://docs.opensh.org/
 
 Org site: https://openshellorg.github.io/
 
-See [CHANGELOG.adoc](CHANGELOG.adoc).
+See the [changelog](docs/modules/changelog/pages/index.adoc) (published as the Changelog page of the docs site).
 
 ## Contact
 

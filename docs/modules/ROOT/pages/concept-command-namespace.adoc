@@ -144,13 +144,29 @@ This keeps `<command> help` valid alongside `-help`, and reconciles xref:standar
 |`git commit -amend` |`commit` is a declared node under `git`; `-amend` is a switch
 |`help git commit` |shell-level help: `help` is the node; `git` and `commit` are values naming the namespace path `git/commit` (decided)
 |`git help commit` |compatibility path: `help` is a declared node under `git`; `commit` is a value naming the path, and the same help resource is served
-|`encode -output : -final.mkv -codec x264` |: makes `-final.mkv` a value for `-output` rather than a switch; `-codec x264` is read normally
+|`help-checker : help` |`:` makes `help` the implied positional input, a file named `help`, not the `help` node
+|`install : help` |`:` makes `help` a value: installs a package named `help`
+|`install :: help commit` |`::` escapes the rest of the line: `help` and `commit` are both package names
 |`redub help` |`help` is a node if `redub` declares it (CH-2 requires it); otherwise `help` is a value, a package named `help`
 |`install -npm help` |if `install/npm` declares no `help` node at that position, `help` is the value (a package name)
 |`echo commit` |`echo` declares no nodes, so `commit` is a value
 |===
 
-*Value escape (DECIDED 2026-10-26, Ryan).* A colon token means "treat the following as a value". Its main use is around switches: a value that starts with `-` would otherwise be read as a switch, and quoting does not help, because the shell strips quotes. In `encode -output : -final.mkv -codec x264`, the colon makes `-final.mkv` a value for `-output` rather than a switch. It also covers a value that collides with a declared node name. It is not `--` and not a value prefix. *PROPOSED* scope (not confirmed): a lone `:` escapes exactly the next token; a lone `::` escapes all remaining tokens.
+*Value escape (DECIDED 2026-10-26, Ryan).* A colon token means "treat the following as a value". Its main use is the implied positional input, when a value collides with a declared bare-word node name: `help-checker : help` checks a file named `help`, and `install : help` installs a package named `help`. It is not `--` and not a value prefix.
+
+*Scope (DECIDED 2026-10-26, Ryan).* A lone `:` escapes exactly the next token. A lone `::` escapes the rest of the line, and naturally stops at a pipe, because the shell ends the command there.
+
+*Why not quotes.* Shells strip quotes before building argv, so `install "help"` and `install help` reach the tool as the same argument. Quoting cannot tell a node from a value; only a token the tool itself sees can.
+
+[#attached-values]
+*Attached switch values (PROPOSED, Ryan supports, not final).* A switch takes its value in attached form, `-name=value`, quoted when the shell needs it (`-output="my file.mkv"`), and the spec would enforce it. A value that starts with a hyphen is then unambiguous without `:` (`-output=-final.mkv`).
+
+*OPEN:* this interacts with space-separated switch values used in examples elsewhere, which are not rewritten yet:
+
+* this page: `git remote add -name x` (order and scope, above) and `encode --crf 23` (hierarchy candidate); also `install -npm <pkgname>` in NS-7, NS-15 and the repeated-dash section, if `<pkgname>` is read as the value of `-npm` rather than an operand;
+* xref:certification-cli-dispatch.adoc[CLI Dispatch certification]: `<tool> -strict zzqx`, if `zzqx` is a value of `-strict`;
+* the changelog (Unreleased): `git remote add -name x`; `encode -codec x264 --crf 23 --preset slow -output out.mkv`;
+* command-namespace `spec.adoc`: `git remote add -name x`; `provisional.adoc` (free-flag and repeated-dash rows): `encode -codec x264 --crf 23 --preset slow -output out.mkv`, `install --prefer-npm prettier`, `vcs --verbose status`.
 
 *Help paths (DECIDED 2026-10-26, Ryan).* Help is help-first. The primary mode is shell-level `help <path>` (prohelp), which serves help for every command from the help resources tools ship. Under shell-level help the path tokens are values naming a namespace path: in `help git commit`, `git` and `commit` are values. `<command> help` and `-help` are compatibility paths to the same resource.
 

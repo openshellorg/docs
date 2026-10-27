@@ -38,6 +38,24 @@ Emit plain ASCII when piped, `--json`, or `NO_COLOR` is set. Bold (`\x1b[1m`) is
 
 Product-specific hint (what the tool is / is not). Omit when piped or JSON.
 
+[#conformance-marker]
+== Conformance marker in release versions (PROPOSED)
+
+*Status: PROPOSED* (Ryan: tools "may also need to use a compound release name from hereon out"). Not a requirement yet.
+
+A certified tool's release version would carry the version of the Open Shell Organization standard it conforms to as SemVer build metadata:
+
+[source,text]
+----
+ls v2.2.4+oso1.0.0
+----
+
+`2.2.4` is the tool's own version; `+oso1.0.0` says the release conforms to version `1.0.0` of the standard. SemVer ignores build metadata when ordering versions (SemVer 2.0.0, item 10), so `v2.2.4+oso1.0.0` and `v2.2.4+oso1.1.0` sort as equal and the marker never changes which release is newer.
+
+*Open detail:* how the marker combines with build metadata a project already uses. SemVer build metadata is a dot-separated list of `[0-9A-Za-z-]` identifiers, so `+oso1.0.0.build5` is valid but makes the marker's end ambiguous. Options include a fixed position (`oso` and the next identifiers first), a hyphenated single identifier (`+oso-1-0-0.build5`), or a separate field in the release notes.
+
+See also xref:tools:command-namespace:provisional.adoc[command-namespace design decisions].
+
 == Discoverability
 
 Certified CLIs on Unix-like hosts must ship:

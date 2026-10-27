@@ -36,7 +36,7 @@ NS-5:: Running a file by path MUST stay possible, but only explicitly (a path-sh
 
 NS-6:: A node MUST declare its CLI style (strict by default, per xref:standard-cli-styles.adoc[CLI Styles] CS-1 and CS-2). A resolver-style front door such as `install` is a node whose children are providers registered by each package manager. The command is literally `install`, to keep the interface seamless; on Unix the existing `install(1)` file copier is registered at `legacy/install`, and install(1)-style arguments are handed through to it so build scripts keep working (passthrough PROVISIONAL).
 
-NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help. Free flags use the `+` sigil: you add them together, and their order doesn't matter (`+yes +verbose`). A tool's own `-` options follow NS-15 (<<option-syntax>>). The inspection tool is https://github.com/openshellorg/name[`name`] (`name which`, `name conflicts`).
+NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help. Free flags are non-contextual: they mean the same in every command, use the `+` sigil, and their order doesn't matter (`+yes +verbose`); repeating the sigil steps through levels. Contextual flags use `-`: their meaning depends on the verb and their position matters (`install -npm <pkgname>`), and their spelling follows NS-15 (<<option-syntax>>). The inspection tool is https://github.com/openshellorg/name[`name`] (`name which`, `name conflicts`).
 
 NS-8:: When a version manager controls a node, the manifest for each version SHOULD mark which commands and flags were added, removed or changed since the previous release. This is a visual cue and learning aid, not a full diff.
 
@@ -59,7 +59,7 @@ NS-14:: An overlay (venv activation, a version switch, a project pin) SHOULD be 
 [#option-syntax]
 == Option syntax (NS-15)
 
-NS-15:: A conforming tool's own options MUST use a single dash (`-`), read by these rules. They apply to any argument that starts with `-` and is not exactly `-`; the `+` free flags of NS-7 are not affected.
+NS-15:: A conforming tool's own options MUST use a single dash (`-`), read by these rules. `-` options are the contextual flags of NS-7: their meaning depends on the verb and their order matters (`install -npm <pkgname>`). The rules apply to any argument that starts with `-` and is not exactly `-`; the `+` free (non-contextual) flags of NS-7 are not affected.
 +
 . `-word` is a *long option*. A word is two or more characters, and hyphenated words are allowed: `-version`, `-dry-run`, `-strict-dispatch`.
 . A *short alias* is a single letter: `-v`. A short alias and a long option MAY name the same option (`-v` and `-version`).
@@ -68,7 +68,7 @@ NS-15:: A conforming tool's own options MUST use a single dash (`-`), read by th
 . A long option name MUST NOT start with a single letter followed by a hyphen (`-d-lang`, `-f-stop`, `-f-number`); spell it `-dlang`, `-fstop`, `-fnumber`. A token that starts like a group and continues with a longer word (`-d-lang`, `-x-dry-run`) MUST be a usage error (xref:standard-cli-dispatch.adoc[CD-8]: stderr, exit `2`).
 . A lone `-` is an operand, not an option (stdin or stdout, as in `-f -`), and MUST stay legal.
 +
-`--long` is a transitional legacy alias that WILL be removed; frameworks MUST warn about it at build time and at run time (<<legacy-double-dash>>). Repeated dashes (`--x`, `---x`) are reserved for a future meaning, which is OPEN (<<reserved-repeated-dash>>). Documentation and examples MUST use the single-dash form.
+`--long` is a deprecated legacy alias, scheduled for deletion in the next major revision of the standard; frameworks MUST warn about it at build time and at run time (<<legacy-double-dash>>). Repeated dashes (`--x`, `---x`) are reserved for a future meaning, which is OPEN (<<reserved-repeated-dash>>). Documentation and examples MUST use the single-dash form.
 
 === Grammar
 
@@ -80,7 +80,7 @@ token   = "-"                              ; operand (stdin/stdout), NS-15 item 
         | "-" letter                       ; short alias            -v
         | "-" letter 1*("-" letter)        ; explicit group         -x-v-z
         | "-" word *("-" part)             ; long option            -version, -dry-run, -xvz
-        | "--" ...                         ; transitional legacy alias of "-"; repeated "-" reserved (see below)
+        | "--" ...                         ; deprecated legacy alias of "-"; repeated "-" reserved (see below)
 letter  = %x61-7A / DIGIT                  ; one character
 word    = 2*( %x61-7A / DIGIT )            ; two or more characters
 part    = 1*( %x61-7A / DIGIT )
@@ -106,7 +106,7 @@ Later one-letter parts inside a long name (`-ipv-4`) are legal; only the *first*
 |`-f-stop` |no |`error: invalid option '-f-stop': a one-letter part followed by '-' starts a group` / `  did you mean: -fstop, or -f -stop` / `  see: <tool> -help`
 |`-d-lang` |no |same error; did you mean `-dlang`
 |`-x-dry-run` |no |`error: invalid option '-x-dry-run': mixes the switch -x with the long option -dry-run` / `  write: -x -dry-run` / `  see: <tool> -help`
-|`--help` |transitional |legacy alias of `-help` if the tool still accepts it; warns on stderr (`use: <tool> -help`), and will be removed
+|`--help` |deprecated |legacy alias of `-help` if the tool still accepts it; warns on stderr (`use: <tool> -help`); scheduled for deletion in the next major revision of the standard
 |`---help` |reserved |no meaning yet (OPEN); a tool MUST NOT define one
 |===
 
@@ -117,17 +117,17 @@ Later one-letter parts inside a long name (`-ipv-4`) are legal; only the *first*
 * *Letter-hyphen names are ambiguous.* Cabal's `-f-foo` means "disable flag foo", which is exactly the `-f -foo` versus `-f-foo` ambiguity this rule removes; GHC avoids it with `-fno-foo` and `-XNoFoo`. Banning a leading letter-hyphen keeps every group unambiguous.
 
 [#legacy-double-dash]
-=== `--long` is a transitional legacy alias (decided)
+=== `--long` is a deprecated legacy alias (decided)
 
-*Status: Decided.* `--long` (GNU style) is a *transitional legacy alias* of `-long`, and it WILL be removed. Repeated dashes (`--`, `---`) are reserved for a future meaning (<<reserved-repeated-dash>>), so the alias cannot stay.
+*Status: Decided.* `--long` (GNU style) is a *deprecated legacy alias* of `-long`, scheduled for deletion in the next major revision of the standard. Repeated dashes (`--`, `---`) are reserved for a future meaning (<<reserved-repeated-dash>>), so the alias cannot stay.
 
-* During the transition a tool MAY accept `--long` as an alias of `-long`. Documentation, help and examples MUST NOT show it.
+* Until that revision a tool MAY accept `--long` as an alias of `-long`. Documentation, help and examples MUST NOT show it.
 * A conforming CLI framework or library (for example prohelp, or wrappers around arsd.cli) MUST warn at compile or build time when a tool declares a `--` spelling, naming the single-dash replacement.
 * A conforming framework or library, and any tool that accepts the alias, MUST warn at run time when a user types a `--` form: on stderr, in the CD-13 format, naming the single-dash replacement. For example:
 +
 [source,text]
 ----
-warning: '--help' is a legacy spelling and will be removed
+warning: '--help' is deprecated and scheduled for deletion in the next major revision of the standard
   use: <tool> -help
 ----
 * The bare end-of-options marker `--` (a token that is exactly `--`) is a separate, undecided question; see <<reserved-repeated-dash>> for how it relates to the reservation.
@@ -137,11 +137,33 @@ warning: '--help' is a legacy spelling and will be removed
 
 *Status: OPEN, for Ryan to decide.* What `--x` and `---x` will mean is not decided; until then they are reserved, and new tools MUST NOT give them a meaning of their own.
 
-Repeated `+` already means levels (NS-7: `+`, `++`, `+++`), so using repeated `-` for intensity would duplicate it. Candidates, in no order:
+`+` and its repetitions belong to free, non-contextual flags (NS-7). `-` belongs to contextual options, whose meaning depends on the verb and whose position matters (`install -npm <pkgname>`). So whatever repeated `-` comes to mean applies to contextual options only, and does not overlap with `+` levels. Candidates, in no order (the first two use the same spellings, so at most one of them can take `--x` / `---x`):
 
-* *Scope:* `--x` passes the option on to subcommands; `---x` widens it to the session or global scope.
-* *Config persistence:* `-x` for this run, `--x` saved for the project, `---x` saved for the user.
-* *Danger-confirmation gate:* a repeated dash marks an option that needs an explicit confirmation step.
+* *Intensity, with a danger-confirmation gate* (Ryan: "good idea"; not final). More dashes ask for a stronger form of the same contextual option, and the strongest, destructive forms are gated behind an explicit confirmation:
++
+[source,text]
+----
+$ install -clean ripgrep     # remove ripgrep's cached downloads
+$ install --clean ripgrep    # also remove its installed files; asks for confirmation first
+$ install ---clean ripgrep   # also remove its config and data; asks, and requires the package name to be typed again
+----
+* *Scope (how far the option travels down the command line):*
++
+[source,text]
+----
+$ vcs -verbose status        # verbose applies to vcs itself (its dispatch and setup), not to status
+$ vcs --verbose status       # also passed on to the status subcommand and anything it runs
+$ vcs ---verbose status      # set for the rest of the session (every later command)
+----
+* *Config reach (how far the setting is saved):*
++
+[source,text]
+----
+$ install -prefer-npm prettier     # this run only
+$ install --prefer-npm prettier    # also saved in the project config (./.oso/install.json5)
+$ install ---prefer-npm prettier   # also saved in the user config (~/.config/oso/install.json5)
+----
+(Paths are illustrative.)
 * *Leave it reserved* with no meaning.
 
 *Bare `--`:* whether the token `--` (exactly two dashes, nothing after) stays the end-of-options marker is a separate question. It does not conflict with reserving `--x` and `---x`, because it has no name after the dashes. It could conflict with a candidate that gives a bare repeated dash a meaning of its own (for example a bare `---` for "session scope from here on"); if one of those is chosen, the end-of-options marker has to be decided at the same time.

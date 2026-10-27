@@ -131,6 +131,12 @@ Decided 2026-10-26 (Ryan). An OSO command line has exactly three kinds of token:
 
 This keeps `<command> help` valid alongside `-help`, and reconciles xref:standard-cli-help.adoc[CH-2] with NS-15: `help` is a declared bare-word node, while `-help` is the switch of CH-1.
 
+*Order and scope (DECIDED 2026-10-26, Ryan).* Bare-word nodes impose a fixed order, and each node narrows scope: everything after a node is interpreted inside it. In `git remote add -name x`, `remote` is read inside `git`, `add` inside `git remote`, and `-name x` is a switch and value of `git remote add`.
+
+*PROPOSED (not decided) corollaries:*
+
+* `+` free flags float only within their declaring scope, never above it: a free flag declared by `git remote` may appear anywhere after `remote`, but not before it.
+* No scope re-entry: once a node has narrowed scope, a later token cannot return to an outer scope.
 [cols="2,3"]
 |===
 |Command line |Reading

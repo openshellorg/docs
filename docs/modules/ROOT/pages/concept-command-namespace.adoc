@@ -34,7 +34,7 @@ NS-4:: An unknown first word MUST be a usage error with did-you-mean across the 
 
 NS-5:: Running a file by path MUST stay possible, but only explicitly (a path-shaped token or a `run` command). A shell MAY import `PATH` as a read-only `legacy` subtree during migration and MUST mark commands resolved that way.
 
-NS-6:: A node MUST declare its CLI style (strict by default, per xref:standard-cli-styles.adoc[CLI Styles] CS-1 and CS-2). A resolver-style front door such as `install` is a node whose children are providers registered by each package manager.
+NS-6:: A node MUST declare its CLI style (strict by default, per xref:standard-cli-styles.adoc[CLI Styles] CS-1 and CS-2). A resolver-style front door such as `install` is a node whose children are providers registered by each package manager. The command is literally `install`, to keep the interface seamless; on Unix the existing `install(1)` file copier is registered at `legacy/install`, and install(1)-style arguments are handed through to it so build scripts keep working (passthrough PROVISIONAL).
 
 NS-7:: A tool SHOULD publish its own token table (subcommands, contextual flags, free flags) in its manifest and SHOULD use the same table in its own parser. This lets inspection tools list commands, flags, conflicts and installed packages across every manager without running any command or its help. Free flags use the `+` sigil: you add them together, and their order doesn't matter (`+yes +verbose`). The inspection tool is https://github.com/openshellorg/name[`name`] (`name which`, `name conflicts`).
 

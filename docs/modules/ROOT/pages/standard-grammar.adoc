@@ -19,6 +19,6 @@ Whether a switch takes a value is declared by the tool's command namespace, so a
 
 . *Short aliases*: one letter, `-v`, `-f`. There is no implicit bundling: `-xvz` is the long option `xvz`; groups are written `-x-v-z`.
 . *Long options*: `-verbose`, `-file path/to/script`.
-. *Values that look like switches or nodes*: a lone `:` makes the next argument a value, and a lone `::` makes the rest of the line values (xref:concept-command-namespace.adoc#token-kinds[NS-15 token kinds]). This replaces the POSIX `--` terminator; repeated dashes are reserved.
-. *Ordering*: contextual `-` options may depend on order (NS-7); `+` free flags are order-independent.
+. *Values that look like switches or nodes* (DECIDED): a lone `:` makes the next argument a value, and a lone `::` makes the rest of the line values (xref:concept-command-namespace.adoc#token-kinds[NS-15 token kinds]). This replaces the POSIX `--` terminator; repeated dashes are reserved.
+. *Ordering* (DECIDED): contextual `-` options may depend on order (NS-7); `+` free flags are order-independent.
 . *PROPOSED:* a bare `name=value` assignment (no hyphen, as in `dd if=`) where the namespace declares the name (xref:concept-command-namespace.adoc#switch-kinds[NS-15 switch kinds]).

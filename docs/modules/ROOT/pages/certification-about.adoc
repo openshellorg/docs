@@ -32,7 +32,7 @@ Use 24-bit `\x1b[38;2;R;G;Bm` sequences (shared helper: `project_map.badge` / OS
 | `Certified` | `#7DCEA0` (mint) |
 | `opensh.org` | `#3B6EA5` (cobalt) |
 
-Emit plain ASCII when piped, `--json`, or `NO_COLOR` is set. Bold (`\x1b[1m`) is optional and not locked.
+Emit plain ASCII when piped, `-json` (the legacy `--json` is a deprecated alias), or `NO_COLOR` is set. Bold (`\x1b[1m`) is optional and not locked.
 
 === Optional second TTY line
 
@@ -60,10 +60,10 @@ See also xref:tools:command-namespace:provisional.adoc[command-namespace design 
 
 Certified CLIs on Unix-like hosts must ship:
 
-1. `--help`
+1. `-help` (the legacy `--help` is a deprecated alias, xref:concept-command-namespace.adoc#legacy-double-dash[NS-15])
 2. A **man** page (preferred), and ideally an **info** node
 
-`--help` alone is not enough. Some system `ls` installs ship neither man nor info — that fails this contract and is motivation for a higher bar, not a model to copy.
+`-help` alone is not enough. Some system `ls` installs ship neither man nor info — that fails this contract and is motivation for a higher bar, not a model to copy.
 
 == Domain
 

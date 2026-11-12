@@ -1,0 +1,32 @@
+[
+  {
+    "id": "osh-page-context-dark",
+    "rule": "color-contrast",
+    "selector": "/page-context/",
+    "scheme": [
+      "dark"
+    ],
+    "reason": "page-context panel/footer labels and source label are under 4.5:1 in dark mode (soft-nav-context paint). Known before facto-stack 0.4.0; follow-up fix in soft-nav-context, not in this hub.",
+    "expires": "2027-01-31"
+  },
+  {
+    "id": "osh-hljs-dark",
+    "rule": "color-contrast",
+    "selector": "/hljs/",
+    "scheme": [
+      "dark"
+    ],
+    "reason": "highlight.js variable/string colors in shell code blocks are under 4.5:1 on the dark code background. Follow-up in the Valentus/chassis code paint.",
+    "expires": "2027-01-31"
+  },
+  {
+    "id": "osh-lv-group-by",
+    "rule": "control-boundary",
+    "selector": "#lv-group-by",
+    "scheme": [
+      "dark"
+    ],
+    "reason": "link-validator report page select border #bbbbbb on #ffffff (1.92:1); the report page is not themed. Follow-up in link-validator.",
+    "expires": "2027-01-31"
+  }
+]

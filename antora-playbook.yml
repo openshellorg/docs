@@ -12,6 +12,8 @@ site:
     header_logo: logo.svg
     site_home_url: https://opensh.org
     site_home_label: OpenShellOrg home
+    schema_org_name: OpenShellOrg
+    schema_org_url: https://opensh.org
     header_doc_title: OpenShellOrg Docs
     nav_typology_diataxis: 'true'
     # Valentus 4.3+: breadcrumb component dropdown lists only site-nav-tree roots (+ current).

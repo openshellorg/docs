@@ -11,6 +11,7 @@
 *** xref:standard-cli-dispatch-rationale.adoc[Rationale]
 *** xref:standard-cli-dispatch-implementers.adoc[Implementer Guidelines]
 ** xref:standard-cli-help.adoc[CLI Help]
+** xref:standard-service-manager.adoc[Service Manager]
 ** xref:standard-cli-styles.adoc[CLI Styles (draft)]
 ** xref:standard-design-considerations.adoc[Design Considerations]
 * Concepts (proposed)

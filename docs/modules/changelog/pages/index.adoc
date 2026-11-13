@@ -2,6 +2,7 @@
 
 == Unreleased
 
+* New xref:ROOT:standard-service-manager.adoc[Service Manager] standard (SM-1 to SM-15): a service that can run more than once has a manager, short ids (`1` and `server 1`), detach by default, `-listen` for live output, and a record of which terminal spawned each instance and which terminal is showing it. The manager exits when the last instance is gone. A singleton does not use that id space. Listed under The Standard. CLI Output links to it.
 * Each docs page states OpenShellOrg, the docs site, the article, and the breadcrumb trail as Schema.org JSON-LD in the raw HTML.
 * xref:ROOT:certification-about.adoc[Certification] uses `-help` and `-json`; `--help` / `--json` noted as deprecated legacy aliases (NS-15). xref:ROOT:standard-grammar.adoc[SOS grammar]: `:` / `::` replacing the `--` terminator and the NS-7 ordering rule are DECIDED (Ryan).
 * SOS pages aligned with NS-15: xref:ROOT:standard-grammar.adoc[SOS grammar] drops `--flag=value` (was ENFORCED) for single-dash `-flag value`, no `=` on hyphen switches, `--long` deprecated, `:` / `::` instead of the `--` terminator, order rules per NS-7; fixed arity and bare `name=value` noted as PROPOSED. Examples converted in xref:ROOT:standard-design-considerations.adoc[Design Considerations] (`-encoding windows-1252`, `-dry-run`) and xref:ROOT:standard-protocols.adoc[Protocols] (`my-app -file data.json -delete -dry-run`).

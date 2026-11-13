@@ -1,0 +1,166 @@
+= Service Manager
+:description: How a service that can run more than once is started, listed, and stopped. A manager maps an easy id to the process, remembers detach versus listen, and names the terminal.
+:page-audience: CLI authors, service authors, tool maintainers, agent authors
+:page-usage-context: When a program can have more than one running process and the command that starts it must detach, list those processes, and stop one by a short id
+:page-orig-author: Grok 4.7 on behalf of Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Grok 4.7 on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+:page-last-edited: 2026-11-12
+
+A service that can run more than once needs one place that remembers every copy.
+That place assigns a short id, records whether the copy is in the background or printing in a terminal, and records which terminal started it and which terminal, if any, is showing its output.
+
+The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[BCP 14] (RFC 2119, RFC 8174) when, and only when, they appear in all capitals.
+
+In this page, a *conforming service* is a program that can have more than one process on one machine at the same time and claims conformance with this standard.
+An *instance* is one of those processes.
+The *manager* is the process that holds the set of instances.
+A *terminal* is the window or tab the person typed in: its display name, its process id, and a session token when the environment provides one.
+Requirement ids (`SM-n`) are stable so tools, reviews and certification can cite them.
+An id is never reused or renumbered; a withdrawn rule keeps its id and is marked withdrawn.
+
+This page builds on xref:standard-cli-output.adoc[CLI Output] for what the start command prints and where the log file lives, and on xref:concept-command-namespace.adoc#option-syntax[NS-15] for the `-listen` spelling.
+
+== When this applies
+
+SM-1:: A service that can have more than one process on one machine at the same time MUST conform to this page.
+A second process MAY use another port, another data file, or another terminal.
+
+SM-2:: A *singleton* is a service that has at most one process for that role on the machine.
+A second start MUST find the existing process and report it.
+Stop for a singleton takes no id.
+A singleton MUST NOT use the id space in SM-5.
+This page does not otherwise specify singletons.
+
+== What the person sees
+
+The start command leaves the service running and returns.
+The first screen names the new id, how to stop it, and how to watch it live.
+
+[source,text]
+----
+$ tool serve
+server 1 is running in the background. This window can close.
+id: server 1
+pid: 4102
+url: http://127.0.0.1:17359
+spawned by: Cursor pid 12044
+stop: tool serve stop 1
+list: tool serve status
+For live output in this window, run tool serve -listen
+/home/ryan/.local/state/tool/logs/17359.log
+----
+
+`server 1` is the id a person says.
+`1` means the same instance.
+The last line is the log file (xref:standard-cli-output.adoc[CO-1]).
+
+To watch the lines in this window:
+
+[source,text]
+----
+$ tool serve -listen
+server 2 is listening in this window.
+id: server 2
+url: http://127.0.0.1:17361
+spawned by: Windows Terminal pid 8801
+listening in: that terminal
+stop: tool serve stop 2
+----
+
+The lines that follow are the service's own output, in this terminal, as they happen.
+
+To see every copy, and which terminal owns each one:
+
+[source,text]
+----
+$ tool serve status
+server 1  detached  pid 4102  http://127.0.0.1:17359
+  spawned by Cursor pid 12044
+  output is in the log, not in a terminal
+  /home/ryan/.local/state/tool/logs/17359.log
+server 2  listen  pid 4188  http://127.0.0.1:17361
+  spawned by Windows Terminal pid 8801
+  listening in that terminal
+
+Terminals
+  Cursor pid 12044  spawned server 1
+  Windows Terminal pid 8801  listening to server 2
+----
+
+To stop one copy: `tool serve stop 1` or `tool serve stop server 1`.
+To stop every copy: `tool serve stop`.
+
+== The manager
+
+SM-3:: Instances MUST be held by one manager process on that machine.
+The person starts, lists, and stops instances through the service's command.
+The person MUST NOT have to start the manager by name.
+The manager itself MUST NOT appear in the instance list.
+
+SM-4:: The manager MUST start when the first instance is requested and no manager is running.
+It MUST exit after the last instance is gone.
+It MUST NOT keep running with an empty list.
+
+SM-5:: While a manager is alive it MUST assign ids `1`, `2`, `3`, and so on.
+The command MUST accept the bare number (`1`), the words `server 1`, and `server1`, and treat them as the same id.
+The match MUST ignore case.
+The manager maps that id to the process id.
+A person MUST NOT have to type the process id to stop an instance.
+When that manager exits, the next manager MAY start again at `1`.
+
+SM-6:: The start command, with no listen flag, MUST detach the instance and then exit.
+Before it exits it MUST print: that the instance is running in the background and this window can close; the id; the process id; the address it serves; the terminal that spawned it; the stop command using the id; the status command; a line that names `-listen` for live output in this window; and, as the last line, the absolute log path (xref:standard-cli-output.adoc[CO-1], xref:standard-cli-output.adoc[CO-3]).
+
+SM-7:: `-listen` MUST keep the instance in the terminal where the command was typed and MUST print output there as it happens.
+The instance MUST still be registered with the manager, with mode `listen`.
+Help MUST show `-listen`.
+The spelling follows xref:concept-command-namespace.adoc#option-syntax[NS-15].
+`--listen` is the legacy alias and MUST NOT be the spelling help teaches.
+
+SM-8:: The manager MUST record each instance as `detached` or `listen`.
+
+SM-9:: The manager MUST record the terminal that spawned the instance: a display name a person can match to a window, that terminal's process id, and a session token when the environment provides one.
+For mode `listen`, the manager MUST record that same terminal as the one showing the output.
+For mode `detached`, the manager MUST record that no terminal is showing the output.
+
+SM-10:: The status command MUST list every instance the manager holds.
+Each row MUST show the id, the mode, the process id, the address, the spawning terminal, and either the listening terminal or that the output is only in the log.
+A detached row MUST include the absolute log path.
+Status SHOULD also group by terminal, naming which terminal spawned which instances and which terminal is showing a listen instance.
+
+SM-11:: Stop with an id MUST stop that instance and MUST leave the others running.
+Stop with no id MUST stop every instance the manager holds.
+An unknown id MUST print which ids exist and MUST name the status command as the next step (xref:standard-cli-output.adoc[CO-4]).
+It MUST exit with a failure code, not the usage code.
+After the last instance is gone, the manager MUST exit (SM-4).
+
+SM-12:: The manager MUST refuse a second instance on an address and port an instance it already tracks is using.
+The refusal MUST name the existing id and the stop command for it.
+
+SM-13:: Output from a detached instance MUST be written to the log file named on start.
+That directory follows xref:standard-cli-output.adoc[CO-14], or a documented directory under it.
+If the instance stops before it is ready to serve, the start command MUST print the reason inline and MUST name `-listen` as the way to see the lines in this window (xref:standard-cli-output.adoc[CO-4]).
+Listen mode prints to the terminal.
+It MAY also append those lines to a log file.
+Status for a listen instance MUST say which terminal is showing the output.
+
+SM-14:: Start and status MUST support `-json` (xref:standard-cli-output.adoc[CO-11]).
+The document MUST include, for each instance: id, mode, process id, address, log path, the spawning terminal, and the listening terminal or an empty listening terminal when the mode is `detached`.
+Field names are a public interface (xref:standard-cli-output.adoc[CO-13]).
+
+SM-15:: The command talks to the manager on a loopback channel.
+That channel MUST NOT be the service's own address.
+The person MUST NOT have to type the channel's address.
+A token MUST NOT be required for the local command on that loopback channel.
+
+== Rationale
+
+* *Several copies are a normal case.* A fixed "the server" breaks as soon as two ports, two data files, or one attached terminal and one background copy are both legitimate.
+* *Process ids are a bad handle.* They change, they look alike, and they are not what a person remembers. A short id that the manager maps to the process is the kill switch.
+* *The window can close.* Detach is the default so starting a service does not occupy the terminal. Live output stays one flag away, for the time a person wants to watch.
+* *Terminals are part of the state.* "Server 2" is not fully described until the person knows which window spawned it and which window, if any, is printing it.
+* *The bookkeeping process is not a second product.* It appears when the first instance appears and leaves when the last one leaves. An empty manager is a leftover.
+
+See also xref:standard-cli-output.adoc[CLI Output] for the log path and for failures that explain themselves, and xref:standard-cli-help.adoc[CLI Help] for the first screen that teaches `-listen`, status, and stop.

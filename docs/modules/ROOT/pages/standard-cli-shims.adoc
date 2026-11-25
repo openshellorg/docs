@@ -1,0 +1,128 @@
+= CLI Shims
+:description: How CLI applications, installer builders, and package managers expose public commands through a single canonical shim directory instead of polluting PATH.
+:page-audience: CLI authors, installer-builder authors, package-manager maintainers, platform engineers
+:page-usage-context: When packaging or installing a CLI binary so users can invoke it from any shell without growing PATH per application
+:page-orig-author: Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Antigravity (Gemini 4 Neon) on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+:page-last-edited: 2026-11-25
+
+Every application appending its own private install folder to `PATH` is an O(N) design failure.
+On Windows, it is an active reliability cliff: once combined `Machine` + `User` `PATH` crosses legacy shell limits, Windows silently drops the entire `User` `PATH` block and breaks every user-installed CLI at once—including `winget` itself.
+
+This standard defines a single canonical shim directory, a signed static dispatch shim format that preserves sibling-DLL loading and enterprise code-signing requirements, ownership rules that prevent silent clobbering, and a safe reconciliation pattern for legacy installers.
+
+The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are to be interpreted as described in https://www.rfc-editor.org/info/bcp14[BCP 14] (RFC 2119, RFC 8174) when, and only when, they appear in all capitals.
+
+In this page, a *conforming publisher* is an application installer, installer builder (such as DevCentr Ibex), or package manager that exposes CLI commands and claims conformance with this standard.
+Requirement ids (`SH-n`) are stable so tools, reviews, and certification can cite them.
+An id is never reused or renumbered; a withdrawn rule keeps its id and is marked withdrawn.
+
+.Legacy O(N) PATH pollution versus O(1) OpenShellOrg CLI shim registration
+image::cli-shims-architecture.svg["Comparison of legacy per-app PATH pollution hitting Windows 4094-character truncation versus O(1) OpenShellOrg CLI shim registration in a single canonical bin directory",width=820]
+
+== Why PATH per application breaks (especially on Windows)
+
+While POSIX shells tolerate long `PATH` strings with only lookup overhead and namespace clutter, Windows enforces multiple legacy ceilings across its shell stack:
+
+* **`shell32!BuildEnvironmentPath` (4,094-character cliff):** When `RegenerateUserEnvironment` merges `Machine` (`HKLM`) and `User` (`HKCU`) `PATH` and the combined string reaches **4,095 characters**, `shell32.dll` silently skips appending the `User` `PATH` altogether. Every user-scoped CLI—including `%LOCALAPPDATA%\Microsoft\WindowsApps\winget.exe`—vanishes from new shells with zero error dialog or Event Log entry.
+* **Legacy 2,047-character shell/UI buffers:** System Properties UI and older process launchers truncate `PATH` at 2,047 characters.
+* **`setx` 1,024-character truncation:** Installers or scripts calling `setx` permanently destroy trailing Registry `PATH` entries past 1,024 characters.
+* **Why raw symlinks are not enough on Windows:** Creating file symlinks requires elevation or Developer Mode, and launching a PE binary through a symlink breaks applications that resolve sibling DLLs or data files relative to `GetModuleFileNameW`.
+* **Why unsigned generated `.exe` shims fail enterprise security:** Generating a unique unsigned PE executable per package triggers Defender/SmartScreen heuristics and fails AppLocker / WDAC code-integrity policies.
+
+For deep Windows shell internals, detection scripts, and AI harness auto-repair guidance, see the DevCentr technical reference: https://docs.devcentr.org/general-knowledge/reference/windows-path-truncation/[Windows PATH truncation in AI harnesses].
+
+== Canonical shim directories (O(1) PATH)
+
+SH-1:: A conforming publisher MUST NOT append an application's private installation directory to `PATH` solely to expose public CLI executables.
+Instead, it MUST register each public command in the canonical shim directory for its install scope and ensure that single directory is present on `PATH` at most once.
+
+[cols="1,2,2",options="header"]
+|===
+| Scope | Windows canonical shim directory | Unix (Linux / macOS) canonical shim directory
+
+| **User** (default, no elevation)
+| `%USERPROFILE%\.local\bin`
+| `$XDG_BIN_HOME` if set, otherwise `~/.local/bin`
+
+| **Machine** (elevated / system-wide)
+| `%ProgramData%\osh\bin`
+| `/usr/local/bin`
+|===
+
+SH-2:: On Windows, the User canonical directory `%USERPROFILE%\.local\bin` (~25 characters expanded) is chosen intentionally for cross-platform alignment with XDG/POSIX tooling and minimal `PATH` budget.
+A conforming publisher MUST NOT invent a new per-vendor or per-package-manager shim directory when registering under this standard.
+
+== Shim implementation and sibling-DLL safety
+
+SH-3:: On Windows (Strict level), a conforming shim MUST be a native PE executable that spawns the real target binary directly via `CreateProcessW` on the target's real absolute path, paired with a declarative KDL manifest `<command>.shim.kdl` in the same shim directory.
+
+* **Single immutable signed stub:** Publishers SHOULD deploy the **exact same immutable, reproducible, Authenticode-signed static dispatcher binary** (`osh-shim.exe`)—hardlinked (or copied across volumes) as `<command>.exe`. Because every registered command shares an identical signed PE hash and reads its target from `<command>.shim.kdl`, Windows Defender, SmartScreen, AppLocker, and WDAC evaluate one trusted binary rather than thousands of unsigned per-app executables.
+* **Sibling DLLs work natively:** Because `osh-shim.exe` invokes `CreateProcessW(targetExe, ...)` on the target's real installation directory, the Windows loader automatically resolves DLLs next to `targetExe` without adding the private directory to `PATH`.
+
+SH-4:: On Unix (Linux / macOS), a conforming shim SHOULD be an atomic symbolic link `<shim-dir>/<command> -> <real-target>` paired with a sidecar metadata file `<shim-dir>/.osh-shims/<command>.shim.kdl`.
+If a command requires fixed wrapper arguments or environment setup, an executable POSIX wrapper (`exec "<target>" ... "$@"`) MAY be used instead.
+
+SH-5:: On Windows, `.cmd` or `.bat` batch wrappers MUST NOT be used for *Strict* conformance.
+Batch wrappers break `CreateProcessW` callers expecting an executable, corrupt quoted/special arguments, lose exit codes, and trigger interactive `Terminate batch job (Y/N)?` prompts on Ctrl+C.
+Batch wrappers are permitted only at the time-boxed *Migrating* level.
+
+== Declarative shim manifest (`.shim.kdl`)
+
+SH-6:: Every registered shim MUST have a companion KDL manifest (`<command>.shim.kdl` on Windows; `.osh-shims/<command>.shim.kdl` on Unix) declaring target, ownership, and runtime semantics:
+
+[source,kdl]
+----
+shim version=1 {
+    command "perfalyzer"
+    target "C:\\Program Files\\Perfalyzer\\perfalyzer.exe"
+    owner "ibex"
+    package "Desktop-Tooling.perfalyzer"
+    package-version "0.1.0"
+    working-dir "inherit"
+    // Optional integrity pin and default prefix arguments:
+    // sha256 "e3b0c44298fc1c149afbf4c8996fb924..."
+    // args "--color=auto"
+}
+----
+
+SH-7:: A conforming shim MUST register the **canonical human command name** (for example `synapseq`, never `synapseq-v4.43.1-windows-amd64`), following xref:concept-command-namespace.adoc[Command Namespace] principles.
+Version, architecture, and platform tags belong in the private target path, not in the exposed command name.
+
+== Execution fidelity
+
+SH-8:: A shim MUST preserve the caller's working directory (`working-dir "inherit"` by default), inherited `stdin`/`stdout`/`stderr` handles, TTY/console attachment, environment variables, and raw command-line arguments (including spaces, quotes, and Unicode) verbatim.
+
+SH-9:: A shim MUST propagate the target process's exact exit code (`0`, `1`, `2`, etc.) to the caller.
+
+SH-10:: On Windows, a shim MUST attach the child process to a Win32 Job Object (`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`) and forward console control signals (`CTRL_C_EVENT`, `CTRL_BREAK_EVENT`) cleanly without printing any prompt or leaving orphaned children when the shim terminates.
+
+== Ownership, conflicts, and lifecycle
+
+SH-11:: Before creating or replacing a shim, a conforming publisher MUST inspect any existing `<command>.shim.kdl` (or existing binary at that path):
+
+* If the path is owned by the **same** `owner` + `package`, an upgrade MUST update the manifest and binary atomically.
+* If the path is owned by a **different** `owner` or `package`, or is an untracked foreign binary, the publisher MUST NOT silently overwrite it. It MUST fail with an actionable conflict message naming both owners (matching xref:standard-cli-output.adoc[CO-4]) unless the user explicitly passes an override flag (such as `-force` or confirms interactively).
+
+SH-12:: On uninstall, a conforming publisher MUST verify ownership in `<command>.shim.kdl` before removing `<command>.exe` / `<command>` and its manifest, and MUST leave zero orphaned shims or stale `PATH` entries behind.
+
+== Intercepting and reconciling legacy `PATH` installers
+
+Legacy installers and package managers will continue appending per-application directories to Registry `PATH` for years.
+A conforming **reconciler** (such as DevCentr `pathman` or `osh-shim watch`) bridges legacy ecosystems safely without modifying third-party installer binaries or injecting DLLs:
+
+SH-13:: A legacy `PATH` reconciler on Windows SHOULD monitor `HKCU\Environment` (and optionally `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment`) via Win32 `RegNotifyChangeKeyValue` rather than polling or hooking installer processes.
+
+SH-14:: When a newly appended `PATH` directory is classified as a single-purpose portable/application directory (for example `...\WinGet\Packages\<id>\...` or a standalone app `bin\` folder, and NOT an allow-listed toolchain/system root such as `System32`, `WindowsApps`, `.cargo\bin`, or `nvm`), the reconciler MAY (with user policy consent):
+
+. Enumerate public CLI executables in that directory and register conforming `SH-3` / `SH-6` shims in `~/.local/bin` with `owner "reconciler"` and the originating directory recorded as `source-path`.
+. Remove the bloated directory from Registry `PATH`.
+. Record a reconciliation rule in the user's ledger so that if an application updater re-appends the same directory later, the watcher silently re-verifies the shim targets and removes the duplicate `PATH` entry again.
+
+== Adoption scaffolding and installer builders
+
+SH-15:: Conforming installer builders (including **DevCentr Ibex**, `msi-generator`, Inno Setup templates, and NSIS headers) MUST default to `SH-1` shim registration for CLI executables rather than raw `PATH` appends, exposing raw `PATH` mutation only as an explicit legacy escape hatch.
+
+SH-16:: To claim conformance with this standard, a publisher MUST pass the automated self-test suite in xref:certification-cli-shims.adoc[CLI Shims Conformance].

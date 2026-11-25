@@ -12,6 +12,7 @@
 *** xref:standard-cli-dispatch-implementers.adoc[Implementer Guidelines]
 ** xref:standard-cli-help.adoc[CLI Help]
 ** xref:standard-service-manager.adoc[Service Manager]
+** xref:standard-cli-shims.adoc[CLI Shims]
 ** xref:standard-cli-styles.adoc[CLI Styles (draft)]
 ** xref:standard-design-considerations.adoc[Design Considerations]
 * Concepts (proposed)
@@ -19,3 +20,4 @@
 * Certification
 ** xref:certification-about.adoc[Certification Program]
 ** xref:certification-cli-dispatch.adoc[CLI Dispatch Conformance]
+** xref:certification-cli-shims.adoc[CLI Shims Conformance]

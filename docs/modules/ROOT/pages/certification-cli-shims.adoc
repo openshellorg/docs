@@ -1,0 +1,91 @@
+= CLI Shims conformance
+:navtitle: CLI Shims Conformance
+:description: Conformance levels, automated compliance self-test matrix, and verification steps for apps, installer builders, and package managers adopting OpenShellOrg CLI Shims (SH-n).
+:page-audience: CLI maintainers, installer-builder authors, package-manager maintainers, reviewers
+:page-usage-context: When verifying that an installer, shim dispatcher, or package manager conforms to standard-cli-shims (SH-1 to SH-16)
+:page-orig-author: Ryan Johnson
+:page-orig-author-github: AMDphreak
+:page-last-author: Antigravity (Gemini 4 Neon) on behalf of Ryan Johnson
+:page-last-author-github: AMDphreak
+:page-last-edited: 2026-11-25
+
+This page defines how a CLI publisher, installer builder, or package manager verifies conformance with xref:standard-cli-shims.adoc[CLI Shims].
+The key words MUST, MUST NOT, SHOULD and MAY follow https://www.rfc-editor.org/info/bcp14[BCP 14].
+It complements the general xref:certification-about.adoc[Certification Program].
+
+== Conformance levels
+
+[cols="1,3",options="header"]
+|===
+| Level | Meaning
+
+| *Migrating*
+| Registers commands into the canonical shim directory (`SH-1`, `SH-2`) with a declarative `.shim.kdl` manifest (`SH-6`) and clean uninstall (`SH-12`), and does not append private app directories to `PATH`, but temporarily uses `.cmd`/`.bat` wrappers on Windows while migrating to a native PE dispatcher (`SH-5`).
+
+| *Strict*
+| Meets every requirement `SH-1` through `SH-16` by default, including native signed PE dispatch (`SH-3`), sibling-DLL execution, exact argument/TTY/exit-code/Ctrl+C fidelity (`SH-8`–`SH-10`), and conflict-safe ownership (`SH-11`–`SH-12`).
+|===
+
+== Automated compliance self-test matrix
+
+Run every test below in an isolated temporary `USERPROFILE` / `HOME` sandbox with a fixture CLI executable (`fixture-cli`) that depends on a sibling dynamic library (`fixture-helper.dll` / `libfixture_helper.so`) in its private install directory.
+
+[cols="1,3,3,1",options="header"]
+|===
+| ID | Test scenario | Expected result | Rules
+
+| `T-1`
+| Install `fixture-cli` into a private directory `<sandbox>/apps/fixture-v1.2.3/` and diff `HKCU\Environment\Path` (Windows) or shell profile (Unix) before vs. after.
+| Zero private app directories added to `PATH`. Only canonical shim directory (`~/.local/bin`) is present (at most once).
+| `SH-1`, `SH-2`
+
+| `T-2`
+| Invoke `fixture-cli --load-sibling-dll` from an unrelated working directory (`<sandbox>/work`).
+| Target loads `fixture-helper.dll` from `<sandbox>/apps/fixture-v1.2.3/`, prints `cwd=<sandbox>/work`, exits `0`.
+| `SH-3`, `SH-8`
+
+| `T-3`
+| Inspect `<shim-dir>/fixture-cli.shim.kdl` (Windows) or `.osh-shims/fixture-cli.shim.kdl` (Unix).
+| Valid KDL v1 manifest declaring `command`, absolute `target`, `owner`, `package`, `package-version`, and `working-dir`. No version/arch suffix in exposed command name.
+| `SH-6`, `SH-7`
+
+| `T-4`
+| Pass tricky arguments: `"hello world"`, `a"b\c`, `--flag=val`, and Unicode (`日本語 🚀`), plus pipe stdin and capture stdout/stderr separately.
+| Target receives identical `argv`, reads exact stdin bytes, writes stdout and stderr to separate streams without corruption.
+| `SH-8`
+
+| `T-5`
+| Invoke `fixture-cli --exit 0`, `--exit 2`, and `--exit 42`.
+| Shim exits with `0`, `2`, and `42` respectively.
+| `SH-9`
+
+| `T-6`
+| Start `fixture-cli --sleep 30` in a Windows console and send `CTRL_C_EVENT`.
+| Child terminates promptly; no `Terminate batch job (Y/N)?` prompt; no orphaned `fixture-cli` process remains.
+| `SH-5`, `SH-10`
+
+| `T-7`
+| Attempt to register `fixture-cli` from a second publisher (`owner "other-pkg"`) without `-force`.
+| Registration fails with non-zero exit code naming the existing owner; original shim and manifest remain intact.
+| `SH-11`
+
+| `T-8`
+| Upgrade `fixture-cli` from `v1.2.3` to `v1.3.0` under the same `owner` + `package`.
+| Manifest `target` and `package-version` update atomically; invoking `fixture-cli --version` reports `1.3.0`; zero leftover old entries in `PATH`.
+| `SH-11`
+
+| `T-9`
+| Uninstall `fixture-cli` via its owning publisher.
+| `<shim-dir>/fixture-cli.exe` (or symlink) and `fixture-cli.shim.kdl` are removed; unrelated shims in `~/.local/bin` remain untouched.
+| `SH-12`
+
+| `T-10`
+| (Windows Strict) Compare SHA-256 hash of two shims (`fixture-cli.exe` and `other-cli.exe`) deployed by the publisher.
+| Hashes match the publisher's single immutable signed `osh-shim.exe` stub (zero per-app unsigned PE generation).
+| `SH-3`
+|===
+
+== Reference verifier
+
+DevCentr **Ibex** (`ibex shim verify`) implements `T-1` through `T-10` for local shim registries and installer outputs.
+Installer authors can run `ibex shim verify --strict` in CI before cutting a release.

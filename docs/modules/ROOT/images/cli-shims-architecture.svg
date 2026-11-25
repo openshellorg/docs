@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 390" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="shim-title shim-desc">
+  <title id="shim-title">OpenShellOrg CLI Shim Registration Architecture</title>
+  <desc id="shim-desc">Comparison of legacy per-app PATH pollution hitting Windows 4094-character truncation versus O(1) OpenShellOrg CLI shim registration in a single canonical bin directory using a signed static launcher stub and KDL target manifests.</desc>
+  <style>
+    :root {
+      --themed-svg-osh-canvas: #ffffff;
+      --themed-svg-osh-surface-primary: #f6f8fa;
+      --themed-svg-osh-surface-secondary: #eef2f6;
+      --themed-svg-osh-text-primary: #1f2328;
+      --themed-svg-osh-text-muted: #59636e;
+      --themed-svg-osh-border-primary: #d0d7de;
+      --themed-svg-osh-edge: #57606a;
+      --themed-svg-osh-accent-primary: #0969da;
+      --themed-svg-osh-status-success: #1a7f37;
+      --themed-svg-osh-status-danger: #cf222e;
+      --themed-svg-osh-status-warning: #9a6700;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --themed-svg-osh-canvas: #0d1117;
+        --themed-svg-osh-surface-primary: #161b22;
+        --themed-svg-osh-surface-secondary: #1f2630;
+        --themed-svg-osh-text-primary: #e6edf3;
+        --themed-svg-osh-text-muted: #8b949e;
+        --themed-svg-osh-border-primary: #30363d;
+        --themed-svg-osh-edge: #8b949e;
+        --themed-svg-osh-accent-primary: #58a6ff;
+        --themed-svg-osh-status-success: #3fb950;
+        --themed-svg-osh-status-danger: #f85149;
+        --themed-svg-osh-status-warning: #d29922;
+      }
+    }
+    text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  </style>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--themed-svg-osh-edge, #57606a)" />
+    </marker>
+    <marker id="arrow-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--themed-svg-osh-status-success, #1a7f37)" />
+    </marker>
+    <marker id="arrow-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--themed-svg-osh-status-danger, #cf222e)" />
+    </marker>
+  </defs>
+
+  <rect width="880" height="390" rx="8" fill="var(--themed-svg-osh-canvas, #ffffff)" />
+
+  <!-- Top Band: Legacy Pattern -->
+  <rect x="20" y="18" width="840" height="122" rx="8" fill="var(--themed-svg-osh-surface-primary, #f6f8fa)" stroke="var(--themed-svg-osh-status-danger, #cf222e)" stroke-width="1.5" stroke-dasharray="6 4" />
+  <text x="36" y="42" font-size="13" font-weight="700" fill="var(--themed-svg-osh-status-danger, #cf222e)">LEGACY PATTERN — O(N) PATH POLLUTION</text>
+
+  <rect x="36" y="56" width="210" height="68" rx="6" fill="var(--themed-svg-osh-surface-secondary, #eef2f6)" stroke="var(--themed-svg-osh-border-primary, #d0d7de)" />
+  <text x="50" y="77" font-size="12" font-weight="600" fill="var(--themed-svg-osh-text-primary, #1f2328)">Installers &amp; Package Managers</text>
+  <text x="50" y="95" font-size="11" class="mono" fill="var(--themed-svg-osh-text-muted, #59636e)">WinGet Packages\... (110+ ch)</text>
+  <text x="50" y="111" font-size="11" class="mono" fill="var(--themed-svg-osh-text-muted, #59636e)">MSI / NSIS / Inno / Zip</text>
+
+  <line x1="246" y1="90" x2="294" y2="90" stroke="var(--themed-svg-osh-status-danger, #cf222e)" stroke-width="2" marker-end="url(#arrow-bad)" />
+
+  <rect x="298" y="56" width="276" height="68" rx="6" fill="var(--themed-svg-osh-surface-secondary, #eef2f6)" stroke="var(--themed-svg-osh-border-primary, #d0d7de)" />
+  <text x="312" y="77" font-size="12" font-weight="600" fill="var(--themed-svg-osh-text-primary, #1f2328)">HKCU\Environment\Path Grows Unbounded</text>
+  <text x="312" y="95" font-size="11" class="mono" fill="var(--themed-svg-osh-text-muted, #59636e)">app1\bin;app2\bin;...;pkgN (4095+ ch)</text>
+  <text x="312" y="111" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">Orphans on upgrade; leaks versioned EXEs</text>
+
+  <line x1="574" y1="90" x2="622" y2="90" stroke="var(--themed-svg-osh-status-danger, #cf222e)" stroke-width="2" marker-end="url(#arrow-bad)" />
+
+  <rect x="626" y="56" width="218" height="68" rx="6" fill="var(--themed-svg-osh-surface-secondary, #eef2f6)" stroke="var(--themed-svg-osh-status-danger, #cf222e)" />
+  <text x="640" y="77" font-size="12" font-weight="700" fill="var(--themed-svg-osh-status-danger, #cf222e)">Silent Windows Failure</text>
+  <text x="640" y="95" font-size="11" class="mono" fill="var(--themed-svg-osh-text-primary, #1f2328)">shell32!BuildEnvironmentPath</text>
+  <text x="640" y="111" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">Drops entire User PATH at 4,095 ch</text>
+
+  <!-- Bottom Band: OpenShellOrg SH-n Standard -->
+  <rect x="20" y="158" width="840" height="214" rx="8" fill="var(--themed-svg-osh-surface-primary, #f6f8fa)" stroke="var(--themed-svg-osh-status-success, #1a7f37)" stroke-width="1.5" />
+  <text x="36" y="182" font-size="13" font-weight="700" fill="var(--themed-svg-osh-status-success, #1a7f37)">OPENSHELLORG CLI SHIMS (SH-n) — O(1) CONSTANT PATH</text>
+
+  <!-- Left: Producers -->
+  <rect x="36" y="198" width="210" height="74" rx="6" fill="var(--themed-svg-osh-surface-secondary, #eef2f6)" stroke="var(--themed-svg-osh-border-primary, #d0d7de)" />
+  <text x="50" y="218" font-size="12" font-weight="600" fill="var(--themed-svg-osh-text-primary, #1f2328)">Conforming Installers</text>
+  <text x="50" y="236" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">DevCentr Ibex, MSI/Inno/NSIS,</text>
+  <text x="50" y="252" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">Package Managers, App Self-Setup</text>
+
+  <rect x="36" y="284" width="210" height="72" rx="6" fill="var(--themed-svg-osh-surface-secondary, #eef2f6)" stroke="var(--themed-svg-osh-status-warning, #9a6700)" />
+  <text x="50" y="304" font-size="12" font-weight="600" fill="var(--themed-svg-osh-status-warning, #9a6700)">Legacy PATH Reconciler</text>
+  <text x="50" y="322" font-size="11" class="mono" fill="var(--themed-svg-osh-text-muted, #59636e)">RegNotifyChangeKeyValue</text>
+  <text x="50" y="338" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">Converts raw PATH adds to shims</text>
+
+  <line x1="246" y1="235" x2="294" y2="255" stroke="var(--themed-svg-osh-status-success, #1a7f37)" stroke-width="2" marker-end="url(#arrow-ok)" />
+  <line x1="246" y1="320" x2="294" y2="298" stroke="var(--themed-svg-osh-edge, #57606a)" stroke-width="1.75" stroke-dasharray="4 3" marker-end="url(#arrow)" />
+
+  <!-- Center: Single Canonical Shim Dir -->
+  <rect x="298" y="198" width="276" height="158" rx="6" fill="var(--themed-svg-osh-surface-secondary, #eef2f6)" stroke="var(--themed-svg-osh-accent-primary, #0969da)" stroke-width="1.5" />
+  <text x="312" y="219" font-size="12" font-weight="700" fill="var(--themed-svg-osh-accent-primary, #0969da)">Single PATH Entry (~25 chars)</text>
+  <text x="312" y="237" font-size="11" class="mono" fill="var(--themed-svg-osh-text-primary, #1f2328)">~/.local/bin (%USERPROFILE%\.local\bin)</text>
+  <line x1="312" y1="247" x2="560" y2="247" stroke="var(--themed-svg-osh-border-primary, #d0d7de)" />
+  <text x="312" y="266" font-size="11" class="mono" fill="var(--themed-svg-osh-text-primary, #1f2328)">tool.exe        (immutable signed stub)</text>
+  <text x="312" y="284" font-size="11" class="mono" fill="var(--themed-svg-osh-text-primary, #1f2328)">tool.shim.kdl   (target, owner, sha256)</text>
+  <text x="312" y="306" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">Windows: hardlink signed osh-shim.exe</text>
+  <text x="312" y="322" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">POSIX: atomic symlink + sidecar manifest</text>
+  <text x="312" y="340" font-size="11" font-weight="600" fill="var(--themed-svg-osh-status-success, #1a7f37)">Same signed PE hash · Zero PATH growth</text>
+
+  <line x1="574" y1="277" x2="622" y2="277" stroke="var(--themed-svg-osh-status-success, #1a7f37)" stroke-width="2" marker-end="url(#arrow-ok)" />
+
+  <!-- Right: Private Install Dir -->
+  <rect x="626" y="198" width="218" height="158" rx="6" fill="var(--themed-svg-osh-surface-secondary, #eef2f6)" stroke="var(--themed-svg-osh-border-primary, #d0d7de)" />
+  <text x="640" y="219" font-size="12" font-weight="600" fill="var(--themed-svg-osh-text-primary, #1f2328)">Private App Install Dir</text>
+  <text x="640" y="237" font-size="11" class="mono" fill="var(--themed-svg-osh-text-muted, #59636e)">...\App\v4.43.1\tool.exe</text>
+  <text x="640" y="254" font-size="11" class="mono" fill="var(--themed-svg-osh-text-muted, #59636e)">...\App\v4.43.1\*.dll</text>
+  <line x1="640" y1="266" x2="830" y2="266" stroke="var(--themed-svg-osh-border-primary, #d0d7de)" />
+  <text x="640" y="285" font-size="11" fill="var(--themed-svg-osh-text-primary, #1f2328)">Direct CreateProcessW(target)</text>
+  <text x="640" y="303" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">&#x2713; Sibling DLLs load natively</text>
+  <text x="640" y="320" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">&#x2713; Caller CWD &amp; TTY preserved</text>
+  <text x="640" y="337" font-size="11" fill="var(--themed-svg-osh-text-muted, #59636e)">&#x2713; Clean Ctrl+C &amp; exit code</text>
+</svg>
